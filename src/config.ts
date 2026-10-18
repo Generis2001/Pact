@@ -8,7 +8,6 @@ import { mainnet } from 'wagmi/chains'
 import { arcTestnet } from 'viem/chains'
 import { defineChain } from 'viem'
 import { getDefaultConfig } from 'connectkit'
-import { registerChain } from './tracing'
 
 export const arcMainnet = defineChain({
   id: 5042,
@@ -23,9 +22,12 @@ export const arcMainnet = defineChain({
   testnet: false,
 })
 
-// Pre-register chain RPC URLs so trace events show correct chain names immediately
-registerChain(arcMainnet.id, arcMainnet.rpcUrls.default.http[0])
-registerChain(arcTestnet.id, arcTestnet.rpcUrls.default.http[0])
+const getOrigin = () => {
+  if (typeof window !== 'undefined' && window.location?.origin) {
+    return window.location.origin
+  }
+  return 'https://pact-ten-steel.vercel.app'
+}
 
 export const config = createConfig(
   getDefaultConfig({
@@ -36,9 +38,10 @@ export const config = createConfig(
       [mainnet.id]: http(),
     },
     walletConnectProjectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID ?? '',
-    appName: 'Pact — Programmable Payments',
-    appDescription: 'Non-custodial escrow, conditional payouts, batch payouts, scheduled payments, and vesting on Arc.',
-    appUrl: 'https://pact.arc.io',
+    appName: 'Pact',
+    appDescription: 'Programmable, non-custodial USDC payments on Arc.',
+    appUrl: getOrigin(),
+    appIcon: `${getOrigin()}/favicon.svg`,
   }),
 )
 
