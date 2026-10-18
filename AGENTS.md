@@ -34,6 +34,21 @@ Pact is a programmable payments platform on Arc featuring non-custodial escrow, 
 
 Deployer Address: `0x0986Bfd653985c9Fa60a464784264444B542BfD7`
 
+## On-Chain Feature Testing Transactions (Arc Mainnet)
+
+| Feature | Action | Amount (USDC) | Transaction Hash |
+| :--- | :--- | :--- | :--- |
+| **EscrowManager** | `approve` (USDC) | Unlimited | `0x51ab339fa19f31da28741b206ab42a6da6e4b8ac1d87fc7edeadbb8d71e7a0d9` |
+| **EscrowManager** | `createEscrow` (#1) | `0.010 USDC` | `0x349b506c0d1be46ee40b47b49d7ba3663efe639791552e6d365b5f2173d2fb2f` |
+| **EscrowManager** | `fundEscrow` (#1) | `0.010 USDC` | `0x669fa478e36254d32900f1fc6dc0d523c0931c128d50bae47be2079f6aeb6025` |
+| **ConditionalPayout** | `approve` (USDC) | Unlimited | `0x6c05d274508cc45de403eefa44b12814b28e139009292d833e4b8e6ccb4a7cda` |
+| **ConditionalPayout** | `createAgreement` (#1) | `0.005 USDC` | `0x96692def233d376310466c8f7e2eaa22bad7d77169acb1a852385d8f4b457bf6` |
+| **ConditionalPayout** | `fundAgreement` (#1) | `0.005 USDC` | `0x2d7ca33f6057f246648e5716710f8fdb3d7a8e5eea8e93a3d1fb7993a6113e8c` |
+| **BatchPayout** | `approve` (USDC) | Unlimited | `0xf2e09c960515896e50f896bab0ef83f96248adc6bbc43a1e6d30cc65fa5e33cd` |
+| **BatchPayout** | `executeBatch` | `0.002 + 0.003 USDC` | `0x74fd3660ed7851c6e49b2db8739a0e3c29c0b4f721a1efd2648224083de5cb93` |
+| **ScheduledPayout** | `approve` (USDC) | Unlimited | `0x66e5e69a02299a1db0f6ca26f767adfb9f1f80e00e697af13687c6f0cba371df` |
+| **ScheduledPayout** | `createSchedule` (#1) | `0.005 USDC` | `0x9de1005410afc51d15581b7709b8b1b68060cf24e8dabf4317e8a3fafcb519d0` |
+
 ## Key Files
 
 - `src/App.tsx` - Main application logic
@@ -41,3 +56,4 @@ Deployer Address: `0x0986Bfd653985c9Fa60a464784264444B542BfD7`
 - `src/config.ts` - wagmi config (Arc Mainnet, Arc Testnet, Mainnet)
 - `src/lib/contracts.ts` - ABIs, address bindings, chain config
 - `contracts/script/DeployPact.s.sol` - Foundry deployment script
+- `contracts/script/TestPactFeatures.s.sol` - Foundry feature testing script

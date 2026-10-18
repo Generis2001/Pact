@@ -1,0 +1,88 @@
+# Pact — Programmable Payments on Arc
+
+Pact is a programmable money platform built with **Arc Studio** on **Arc Mainnet** (Chain ID: `5042`). It brings non-custodial escrow, conditional milestone payouts, atomic multi-recipient batch payouts, scheduled recurring payments, and continuous/cliff vesting vaults to the Arc ecosystem, powered natively by USDC.
+
+---
+
+## Live Contracts on Arc Mainnet (Chain ID: `5042`)
+
+| Contract | Address | Explorer Link |
+| :--- | :--- | :--- |
+| **EscrowManager** | `0x3eF17D9Cd787030Eb68Eb6b2FC6D7F298B9B136F` | [View on Arc Explorer](https://explorer.arc.io/address/0x3eF17D9Cd787030Eb68Eb6b2FC6D7F298B9B136F) |
+| **ConditionalPayout** | `0x196B618c6a31A5100b5F9774089E3f6913B9aa55` | [View on Arc Explorer](https://explorer.arc.io/address/0x196B618c6a31A5100b5F9774089E3f6913B9aa55) |
+| **BatchPayout** | `0xab3f589c7ca55aA6272B1b159ed12d0E7623F798` | [View on Arc Explorer](https://explorer.arc.io/address/0xab3f589c7ca55aA6272B1b159ed12d0E7623F798) |
+| **ScheduledPayout** | `0x5B4A641Fd1C2E67205d9d4947bcBD63EEDddD5Ab` | [View on Arc Explorer](https://explorer.arc.io/address/0x5B4A641Fd1C2E67205d9d4947bcBD63EEDddD5Ab) |
+| **VestingVault** | `0x620eBbf0F0d7acE2202Db95fd6ee0BB42F9510A6` | [View on Arc Explorer](https://explorer.arc.io/address/0x620eBbf0F0d7acE2202Db95fd6ee0BB42F9510A6) |
+| **USDC (ERC-20)** | `0x3600000000000000000000000000000000000000` | [View on Arc Explorer](https://explorer.arc.io/address/0x3600000000000000000000000000000000000000) |
+
+- **Network Name**: Arc Mainnet
+- **Chain ID**: `5042`
+- **RPC Endpoint**: `https://rpc.mainnet.arc.io`
+- **Gas Token**: Native USDC (18 decimals)
+- **ERC-20 Decimals**: 6 decimals
+
+---
+
+## On-Chain Feature Verification & Testing
+
+All five contracts have been tested live on Arc Mainnet with varying USDC amounts:
+
+- **Escrow Manager**: Created and funded multi-milestone escrow #1 with `0.010 USDC`.
+  - Funding Tx: [`0x669fa478e36254d32900f1fc6dc0d523c0931c128d50bae47be2079f6aeb6025`](https://explorer.arc.io/tx/0x669fa478e36254d32900f1fc6dc0d523c0931c128d50bae47be2079f6aeb6025)
+- **Conditional Payout**: Created and funded conditional agreement #1 with `0.005 USDC`.
+  - Funding Tx: [`0x2d7ca33f6057f246648e5716710f8fdb3d7a8e5eea8e93a3d1fb7993a6113e8c`](https://explorer.arc.io/tx/0x2d7ca33f6057f246648e5716710f8fdb3d7a8e5eea8e93a3d1fb7993a6113e8c)
+- **Batch Payout**: Dispersed `0.005 USDC` atomically between 2 recipients (`0.002` + `0.003` USDC).
+  - Execution Tx: [`0x74fd3660ed7851c6e49b2db8739a0e3c29c0b4f721a1efd2648224083de5cb93`](https://explorer.arc.io/tx/0x74fd3660ed7851c6e49b2db8739a0e3c29c0b4f721a1efd2648224083de5cb93)
+- **Scheduled Payout**: Created recurring retainer schedule #1 for `0.005 USDC` daily intervals.
+  - Creation Tx: [`0x9de1005410afc51d15581b7709b8b1b68060cf24e8dabf4317e8a3fafcb519d0`](https://explorer.arc.io/tx/0x9de1005410afc51d15581b7709b8b1b68060cf24e8dabf4317e8a3fafcb519d0)
+
+---
+
+## Tech Stack
+
+- **Smart Contracts**: Solidity 0.8.28, Foundry, OpenZeppelin Contracts v5.1.0
+- **Frontend**: React 18, Vite 6, TypeScript, Tailwind CSS
+- **Web3**: Wagmi v2, Viem v2, ConnectKit
+- **Icons & Animation**: Lucide React, Framer Motion, Sonner
+
+---
+
+## Getting Started
+
+### 1. Clone & Install Dependencies
+
+```bash
+git clone https://github.com/Generis2001/Pact.git
+cd Pact
+npm install
+```
+
+### 2. Configure Environment
+
+Copy `.env.example` to `.env`:
+
+```bash
+cp .env.example .env
+```
+
+### 3. Run Development Server
+
+```bash
+npm run dev
+```
+
+### 4. Smart Contract Compilation & Testing
+
+```bash
+# Build contracts with Foundry
+forge build
+
+# Run unit and invariant test suite (178 tests passed)
+forge test
+```
+
+---
+
+## License
+
+MIT
