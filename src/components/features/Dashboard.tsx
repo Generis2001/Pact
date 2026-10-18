@@ -62,7 +62,7 @@ export function Dashboard({ onNav }: { onNav: (t: Tab) => void }) {
               Pact
             </h1>
             <p className="mt-1 text-sm" style={{ color: 'var(--muted)' }}>
-              Programmable, non-custodial USDC payments on Arc Testnet.
+              Programmable, non-custodial USDC payments on Arc Mainnet.
               Lock, release, schedule, and vest funds — fully onchain.
             </p>
             {!isConnected && (
@@ -114,7 +114,7 @@ export function Dashboard({ onNav }: { onNav: (t: Tab) => void }) {
                 <p className="mt-1 text-sm leading-relaxed" style={{ color: 'var(--muted)' }}>{m.desc}</p>
               </div>
               <div className="mt-3">
-                <Badge variant="muted">Arc Testnet</Badge>
+                <Badge variant="muted">Arc Mainnet</Badge>
               </div>
             </Card>
           </button>
@@ -126,8 +126,8 @@ export function Dashboard({ onNav }: { onNav: (t: Tab) => void }) {
         <CardLabel>Network Details</CardLabel>
         <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
           {[
-            { k: 'Chain', v: 'Arc Testnet' },
-            { k: 'Chain ID', v: '5042002' },
+            { k: 'Chain', v: 'Arc Mainnet' },
+            { k: 'Chain ID', v: '5042' },
             { k: 'Gas Token', v: 'USDC' },
             { k: 'USDC Decimals', v: '6' },
             { k: 'Finality', v: '< 1 second' },

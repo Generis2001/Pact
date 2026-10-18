@@ -6,7 +6,8 @@
 import { getUsdc } from '@/onchain-facts'
 
 export const ARC_CHAIN_ID = 5042
-export const ARC_TESTNET_CHAIN_ID = 5042002
+export const ARC_MAINNET_CHAIN_ID = 5042
+export const ARC_TESTNET_CHAIN_ID = 5042 // points to Mainnet (5042) for seamless migration
 
 export const USDC_ADDRESS = (getUsdc(ARC_CHAIN_ID)?.address ?? '0x3600000000000000000000000000000000000000') as `0x${string}`
 
@@ -14,11 +15,11 @@ export const USDC_ADDRESS = (getUsdc(ARC_CHAIN_ID)?.address ?? '0x36000000000000
 // Placeholder addresses — replace with deployed addresses after running deploy
 // ---------------------------------------------------------------------------
 export const CONTRACT_ADDRESSES = {
-  EscrowManager:    (import.meta.env.VITE_ESCROW_MANAGER    ?? '') as `0x${string}`,
-  ConditionalPayout:(import.meta.env.VITE_CONDITIONAL_PAYOUT ?? '') as `0x${string}`,
-  BatchPayout:      (import.meta.env.VITE_BATCH_PAYOUT       ?? '') as `0x${string}`,
-  ScheduledPayout:  (import.meta.env.VITE_SCHEDULED_PAYOUT   ?? '') as `0x${string}`,
-  VestingVault:     (import.meta.env.VITE_VESTING_VAULT      ?? '') as `0x${string}`,
+  EscrowManager:    (import.meta.env.VITE_ESCROW_MANAGER    ?? '0x3eF17D9Cd787030Eb68Eb6b2FC6D7F298B9B136F') as `0x${string}`,
+  ConditionalPayout:(import.meta.env.VITE_CONDITIONAL_PAYOUT ?? '0x196B618c6a31A5100b5F9774089E3f6913B9aa55') as `0x${string}`,
+  BatchPayout:      (import.meta.env.VITE_BATCH_PAYOUT       ?? '0xab3f589c7ca55aA6272B1b159ed12d0E7623F798') as `0x${string}`,
+  ScheduledPayout:  (import.meta.env.VITE_SCHEDULED_PAYOUT   ?? '0x5B4A641Fd1C2E67205d9d4947bcBD63EEDddD5Ab') as `0x${string}`,
+  VestingVault:     (import.meta.env.VITE_VESTING_VAULT      ?? '0x620eBbf0F0d7acE2202Db95fd6ee0BB42F9510A6') as `0x${string}`,
 } as const
 
 // ---------------------------------------------------------------------------

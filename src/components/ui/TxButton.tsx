@@ -4,7 +4,7 @@
  */
 import { Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { ARC_TESTNET_CHAIN_ID } from '@/lib/contracts'
+import { ARC_CHAIN_ID } from '@/lib/contracts'
 import { useAccount, useSwitchChain } from 'wagmi'
 
 export function TxButton({
@@ -21,11 +21,11 @@ export function TxButton({
   const { isConnected, chainId } = useAccount()
   const { switchChain, isPending: isSwitching } = useSwitchChain()
 
-  const wrongChain = isConnected && chainId !== ARC_TESTNET_CHAIN_ID
+  const wrongChain = isConnected && chainId !== ARC_CHAIN_ID
 
   const handleClick = () => {
     if (wrongChain) {
-      switchChain({ chainId: ARC_TESTNET_CHAIN_ID as 5042002 })
+      switchChain({ chainId: ARC_CHAIN_ID })
       return
     }
     onClick?.()
@@ -37,7 +37,7 @@ export function TxButton({
   const content = !isConnected
     ? 'Connect Wallet'
     : wrongChain || isSwitching
-    ? isSwitching ? 'Switching…' : 'Switch to Arc Testnet'
+    ? isSwitching ? 'Switching…' : 'Switch to Arc Mainnet'
     : isPending
     ? <span className="flex items-center gap-2"><Loader2 className="size-3.5 animate-spin" />Confirm in wallet…</span>
     : isConfirming

@@ -11,7 +11,7 @@ import { VestingPanel } from '@/components/features/VestingPanel'
 import { TokenUSDC } from '@web3icons/react'
 import { Menu, X } from 'lucide-react'
 import { useAccount, useReadContract } from 'wagmi'
-import { ERC20_ABI, USDC_ADDRESS, ARC_TESTNET_CHAIN_ID } from '@/lib/contracts'
+import { ERC20_ABI, USDC_ADDRESS, ARC_CHAIN_ID } from '@/lib/contracts'
 import { formatUsdc } from '@/lib/utils'
 
 export type Tab = 'dashboard' | 'escrow' | 'conditional' | 'batch' | 'scheduled' | 'vesting'
@@ -26,7 +26,7 @@ export function Shell() {
     abi: ERC20_ABI,
     functionName: 'balanceOf',
     args: address ? [address] : undefined,
-    chainId: ARC_TESTNET_CHAIN_ID,
+    chainId: ARC_CHAIN_ID,
     query: { enabled: !!address, refetchInterval: 8000 },
   })
 
