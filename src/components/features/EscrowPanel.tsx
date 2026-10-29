@@ -35,28 +35,28 @@ export function EscrowPanel() {
   const [expandedId, setExpandedId] = useState<bigint | null>(null)
 
   // Approval for USDC
-  const { writeContract: approve, data: approveHash } = useWriteContract()
-  const { isLoading: isApproving, isSuccess: approved } = useWaitForTransactionReceipt({ hash: approveHash })
+  const { writeContract: approve, data: approveHash } = useWriteContract({ mutation: { onError: (error) => toast.error(parseOnchainError(error)) } })
+  const { isLoading: isApproving, isSuccess: approved } = useWaitForTransactionReceipt({ chainId: ARC_CHAIN_ID, hash: approveHash })
 
   // Create escrow
-  const { writeContract: createEscrow, data: createHash, isPending: isCreating, error: createError } = useWriteContract()
-  const { isLoading: isConfirmingCreate, isSuccess: createSuccess } = useWaitForTransactionReceipt({ hash: createHash })
+  const { writeContract: createEscrow, data: createHash, isPending: isCreating, error: createError } = useWriteContract({ mutation: { onError: (error) => toast.error(parseOnchainError(error)) } })
+  const { isLoading: isConfirmingCreate, isSuccess: createSuccess } = useWaitForTransactionReceipt({ chainId: ARC_CHAIN_ID, hash: createHash })
 
   // Fund escrow
-  const { writeContract: fundEscrow, data: fundHash, isPending: isFunding } = useWriteContract()
-  const { isLoading: isConfirmingFund } = useWaitForTransactionReceipt({ hash: fundHash })
+  const { writeContract: fundEscrow, data: fundHash, isPending: isFunding } = useWriteContract({ mutation: { onError: (error) => toast.error(parseOnchainError(error)) } })
+  const { isLoading: isConfirmingFund } = useWaitForTransactionReceipt({ chainId: ARC_CHAIN_ID, hash: fundHash })
 
   // Approve milestone
-  const { writeContract: approveMilestone, data: milestoneHash, isPending: isApprovingMilestone } = useWriteContract()
-  const { isLoading: isConfirmingMilestone } = useWaitForTransactionReceipt({ hash: milestoneHash })
+  const { writeContract: approveMilestone, data: milestoneHash, isPending: isApprovingMilestone } = useWriteContract({ mutation: { onError: (error) => toast.error(parseOnchainError(error)) } })
+  const { isLoading: isConfirmingMilestone } = useWaitForTransactionReceipt({ chainId: ARC_CHAIN_ID, hash: milestoneHash })
 
   // Dispute
-  const { writeContract: dispute, data: disputeHash, isPending: isDisputing } = useWriteContract()
-  const { isLoading: isConfirmingDispute } = useWaitForTransactionReceipt({ hash: disputeHash })
+  const { writeContract: dispute, data: disputeHash, isPending: isDisputing } = useWriteContract({ mutation: { onError: (error) => toast.error(parseOnchainError(error)) } })
+  const { isLoading: isConfirmingDispute } = useWaitForTransactionReceipt({ chainId: ARC_CHAIN_ID, hash: disputeHash })
 
   // Refund
-  const { writeContract: claimRefund, data: refundHash, isPending: isRefunding } = useWriteContract()
-  const { isLoading: isConfirmingRefund } = useWaitForTransactionReceipt({ hash: refundHash })
+  const { writeContract: claimRefund, data: refundHash, isPending: isRefunding } = useWriteContract({ mutation: { onError: (error) => toast.error(parseOnchainError(error)) } })
+  const { isLoading: isConfirmingRefund } = useWaitForTransactionReceipt({ chainId: ARC_CHAIN_ID, hash: refundHash })
 
   // Read
   const { data: userEscrowIds, refetch: refetchIds } = useReadContract({
@@ -98,6 +98,7 @@ export function EscrowPanel() {
   function handleApprove() {
     if (!CONTRACT_ADDRESSES.EscrowManager) return
     approve({
+      chainId: ARC_CHAIN_ID,
       address: USDC_ADDRESS,
       abi: ERC20_ABI,
       functionName: 'approve',
@@ -120,13 +121,13 @@ export function EscrowPanel() {
     }))
 
     createEscrow({
+      chainId: ARC_CHAIN_ID,
       address: CONTRACT_ADDRESSES.EscrowManager,
       abi: ESCROW_MANAGER_ABI,
       functionName: 'createEscrow',
       args: [beneficiary as `0x${string}`, arbiter as `0x${string}`, deadlineTs, milestoneTuples],
     }, {
       onSuccess: () => { toast.success('Escrow created!'); void refetchIds() },
-      onError: (e) => toast.error(parseOnchainError(e)),
     })
   }
 
@@ -236,6 +237,7 @@ export function EscrowPanel() {
             </div>
             {(viewEscrow.state as EscrowState) === EscrowState.CREATED && address === viewEscrow.depositor && (
               <Button size="sm" onClick={() => fundEscrow({
+                chainId: ARC_CHAIN_ID,
                 address: CONTRACT_ADDRESSES.EscrowManager, abi: ESCROW_MANAGER_ABI,
                 functionName: 'fundEscrow', args: [BigInt(viewId)],
               })} loading={isFunding || isConfirmingFund}>
@@ -245,6 +247,7 @@ export function EscrowPanel() {
             {(viewEscrow.state as EscrowState) === EscrowState.FUNDED && (
               <div className="flex gap-2 flex-wrap">
                 <Button size="sm" onClick={() => dispute({
+                  chainId: ARC_CHAIN_ID,
                   address: CONTRACT_ADDRESSES.EscrowManager, abi: ESCROW_MANAGER_ABI,
                   functionName: 'initiateDispute', args: [BigInt(viewId)],
                 })} variant="danger" loading={isDisputing || isConfirmingDispute}>
@@ -254,6 +257,7 @@ export function EscrowPanel() {
             )}
             {(viewEscrow.state as EscrowState) === EscrowState.FUNDED && address === viewEscrow.depositor && (
               <Button size="sm" variant="secondary" onClick={() => claimRefund({
+                chainId: ARC_CHAIN_ID,
                 address: CONTRACT_ADDRESSES.EscrowManager, abi: ESCROW_MANAGER_ABI,
                 functionName: 'claimRefund', args: [BigInt(viewId)],
               })} loading={isRefunding || isConfirmingRefund}>
@@ -273,6 +277,7 @@ export function EscrowPanel() {
               <EscrowRow key={id.toString()} id={id} expanded={expandedId === id}
                 onToggle={() => setExpandedId(expandedId === id ? null : id)}
                 onApprove={(milestoneIdx) => approveMilestone({
+                  chainId: ARC_CHAIN_ID,
                   address: CONTRACT_ADDRESSES.EscrowManager, abi: ESCROW_MANAGER_ABI,
                   functionName: 'approveMilestone', args: [id, milestoneIdx],
                 })}

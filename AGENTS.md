@@ -69,3 +69,4 @@ Deployer Address: `0x0986Bfd653985c9Fa60a464784264444B542BfD7`
 - TypeScript checks include `server/`. The deployment script uses the bundled onchain facts registry instead of a missing private package.
 - OpenZeppelin imports resolve to the pinned npm dependency; the existing Foundry scripts and deployment history remain available.
 - See `docs/architecture.md`, `docs/deploy.md`, and `docs/wallet-trust.md`.
+- October 29 wallet investigation: 23 write calls and receipt queries explicitly target Arc; transaction errors are surfaced, the switch button names Arc and works before approval, and the unused Aave account connector is disabled. Runtime wallet metadata uses the current origin with no foreign-domain fallback. See `docs/mainnet-verification.md` for RPC-confirmed deployment/payment evidence and the remaining uncertainty about wallet-domain warnings. Do not claim that UI metadata or network fixes remove third-party flags.

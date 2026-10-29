@@ -42,6 +42,9 @@ export function isValidAddress(addr: string): boolean {
 export function parseOnchainError(error: unknown): string {
   const msg = (error as { message?: string })?.message?.toLowerCase() ?? ''
   if (msg.includes('user rejected') || msg.includes('user denied')) return 'Transaction cancelled.'
+  if (msg.includes('chain') && (msg.includes('does not match') || msg.includes('chainmismatch'))) {
+    return 'Switch your wallet to Arc before continuing.'
+  }
   if (msg.includes('insufficient funds') || msg.includes('exceeds balance')) return 'Insufficient balance.'
   if (msg.includes('invalidstate')) return 'Invalid operation for current state.'
   if (msg.includes('unauthorized')) return 'You are not authorized for this action.'

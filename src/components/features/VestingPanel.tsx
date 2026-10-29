@@ -27,17 +27,17 @@ export function VestingPanel() {
   const [viewId, setViewId] = useState('')
 
 
-  const { writeContract: approve, data: approveHash } = useWriteContract()
-  const { isLoading: isApproving, isSuccess: approved } = useWaitForTransactionReceipt({ hash: approveHash })
+  const { writeContract: approve, data: approveHash } = useWriteContract({ mutation: { onError: (error) => toast.error(parseOnchainError(error)) } })
+  const { isLoading: isApproving, isSuccess: approved } = useWaitForTransactionReceipt({ chainId: ARC_CHAIN_ID, hash: approveHash })
 
-  const { writeContract: create, data: createHash, isPending: isCreating } = useWriteContract()
-  const { isLoading: isConfirmingCreate, isSuccess: createSuccess } = useWaitForTransactionReceipt({ hash: createHash })
+  const { writeContract: create, data: createHash, isPending: isCreating } = useWriteContract({ mutation: { onError: (error) => toast.error(parseOnchainError(error)) } })
+  const { isLoading: isConfirmingCreate, isSuccess: createSuccess } = useWaitForTransactionReceipt({ chainId: ARC_CHAIN_ID, hash: createHash })
 
-  const { writeContract: claim, data: claimHash, isPending: isClaiming } = useWriteContract()
-  const { isLoading: isConfirmingClaim } = useWaitForTransactionReceipt({ hash: claimHash })
+  const { writeContract: claim, data: claimHash, isPending: isClaiming } = useWriteContract({ mutation: { onError: (error) => toast.error(parseOnchainError(error)) } })
+  const { isLoading: isConfirmingClaim } = useWaitForTransactionReceipt({ chainId: ARC_CHAIN_ID, hash: claimHash })
 
-  const { writeContract: revoke, data: revokeHash, isPending: isRevoking } = useWriteContract()
-  const { isLoading: isConfirmingRevoke } = useWaitForTransactionReceipt({ hash: revokeHash })
+  const { writeContract: revoke, data: revokeHash, isPending: isRevoking } = useWriteContract({ mutation: { onError: (error) => toast.error(parseOnchainError(error)) } })
+  const { isLoading: isConfirmingRevoke } = useWaitForTransactionReceipt({ chainId: ARC_CHAIN_ID, hash: revokeHash })
 
   const { data: beneficiaryIds } = useReadContract({
     address: CONTRACT_ADDRESSES.VestingVault,
@@ -80,7 +80,7 @@ export function VestingPanel() {
 
   function handleApprove() {
     if (!CONTRACT_ADDRESSES.VestingVault) return
-    approve({ address: USDC_ADDRESS, abi: ERC20_ABI, functionName: 'approve', args: [CONTRACT_ADDRESSES.VestingVault, parsedTotal] })
+    approve({ chainId: ARC_CHAIN_ID, address: USDC_ADDRESS, abi: ERC20_ABI, functionName: 'approve', args: [CONTRACT_ADDRESSES.VestingVault, parsedTotal] })
   }
 
   function handleCreate() {
@@ -94,13 +94,13 @@ export function VestingPanel() {
     const intervalSec = intervalSeconds ? BigInt(intervalSeconds) : 0n
 
     create({
+      chainId: ARC_CHAIN_ID,
       address: CONTRACT_ADDRESSES.VestingVault,
       abi: VESTING_VAULT_ABI,
       functionName: 'createSchedule',
       args: [beneficiary as `0x${string}`, parsedTotal, startTs, endTs, cliffTs, vestingType, intervalSec, revocable],
     }, {
       onSuccess: () => toast.success('Vesting schedule created!'),
-      onError: (e) => toast.error(parseOnchainError(e)),
     })
   }
 
@@ -237,6 +237,7 @@ export function VestingPanel() {
               <div className="flex gap-2 flex-wrap">
                 {claimable !== undefined && claimable > 0n && address === viewSchedule.beneficiary && (
                   <Button size="sm" onClick={() => claim({
+                    chainId: ARC_CHAIN_ID,
                     address: CONTRACT_ADDRESSES.VestingVault, abi: VESTING_VAULT_ABI,
                     functionName: 'claimVested', args: [BigInt(viewId)],
                   })} loading={isClaiming || isConfirmingClaim}>
@@ -245,6 +246,7 @@ export function VestingPanel() {
                 )}
                 {viewSchedule.revocable && viewSchedule.revokedAt === 0n && address === viewSchedule.grantor && (
                   <Button size="sm" variant="danger" onClick={() => revoke({
+                    chainId: ARC_CHAIN_ID,
                     address: CONTRACT_ADDRESSES.VestingVault, abi: VESTING_VAULT_ABI,
                     functionName: 'revokeSchedule', args: [BigInt(viewId)],
                   })} loading={isRevoking || isConfirmingRevoke}>

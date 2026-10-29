@@ -22,12 +22,9 @@ export const arcMainnet = defineChain({
   testnet: false,
 })
 
-const getOrigin = () => {
-  if (typeof window !== 'undefined' && window.location?.origin) {
-    return window.location.origin
-  }
-  return 'https://pact-ten-steel.vercel.app'
-}
+// Wallet identity must match the page that initiated the connection, including
+// preview deployments and custom domains. Never substitute another hostname.
+const appOrigin = typeof window === 'undefined' ? undefined : window.location.origin
 
 export const config = createConfig(
   getDefaultConfig({
@@ -38,10 +35,11 @@ export const config = createConfig(
       [mainnet.id]: http(),
     },
     walletConnectProjectId: (import.meta.env.VITE_WALLETCONNECT_PROJECT_ID as string | undefined) ?? '',
+    enableAaveAccount: false,
     appName: 'Pact',
     appDescription: 'Programmable, non-custodial USDC payments on Arc.',
-    appUrl: getOrigin(),
-    appIcon: `${getOrigin()}/favicon.svg`,
+    appUrl: appOrigin,
+    appIcon: appOrigin ? `${appOrigin}/favicon.svg` : undefined,
   }),
 )
 

@@ -36,20 +36,20 @@ export function ScheduledPanel() {
   const [cancelId, setCancelId] = useState('')
   const [viewId, setViewId] = useState('')
 
-  const { writeContract: approve, data: approveHash } = useWriteContract()
-  const { isLoading: isApproving, isSuccess: approved } = useWaitForTransactionReceipt({ hash: approveHash })
+  const { writeContract: approve, data: approveHash } = useWriteContract({ mutation: { onError: (error) => toast.error(parseOnchainError(error)) } })
+  const { isLoading: isApproving, isSuccess: approved } = useWaitForTransactionReceipt({ chainId: ARC_CHAIN_ID, hash: approveHash })
 
-  const { writeContract: create, data: createHash, isPending: isCreating } = useWriteContract()
-  const { isLoading: isConfirmingCreate, isSuccess: createSuccess } = useWaitForTransactionReceipt({ hash: createHash })
+  const { writeContract: create, data: createHash, isPending: isCreating } = useWriteContract({ mutation: { onError: (error) => toast.error(parseOnchainError(error)) } })
+  const { isLoading: isConfirmingCreate, isSuccess: createSuccess } = useWaitForTransactionReceipt({ chainId: ARC_CHAIN_ID, hash: createHash })
 
-  const { writeContract: fund, data: fundHash, isPending: isFunding } = useWriteContract()
-  const { isLoading: isConfirmingFund, isSuccess: fundSuccess } = useWaitForTransactionReceipt({ hash: fundHash })
+  const { writeContract: fund, data: fundHash, isPending: isFunding } = useWriteContract({ mutation: { onError: (error) => toast.error(parseOnchainError(error)) } })
+  const { isLoading: isConfirmingFund, isSuccess: fundSuccess } = useWaitForTransactionReceipt({ chainId: ARC_CHAIN_ID, hash: fundHash })
 
-  const { writeContract: execute, data: execHash, isPending: isExecuting } = useWriteContract()
-  const { isLoading: isConfirmingExec, isSuccess: execSuccess } = useWaitForTransactionReceipt({ hash: execHash })
+  const { writeContract: execute, data: execHash, isPending: isExecuting } = useWriteContract({ mutation: { onError: (error) => toast.error(parseOnchainError(error)) } })
+  const { isLoading: isConfirmingExec, isSuccess: execSuccess } = useWaitForTransactionReceipt({ chainId: ARC_CHAIN_ID, hash: execHash })
 
-  const { writeContract: cancel, data: cancelHash, isPending: isCancelling } = useWriteContract()
-  const { isLoading: isConfirmingCancel } = useWaitForTransactionReceipt({ hash: cancelHash })
+  const { writeContract: cancel, data: cancelHash, isPending: isCancelling } = useWriteContract({ mutation: { onError: (error) => toast.error(parseOnchainError(error)) } })
+  const { isLoading: isConfirmingCancel } = useWaitForTransactionReceipt({ chainId: ARC_CHAIN_ID, hash: cancelHash })
 
   const { data: payerIds, refetch: refetchIds } = useReadContract({
     address: CONTRACT_ADDRESSES.ScheduledPayout,
@@ -93,7 +93,7 @@ export function ScheduledPanel() {
 
   function handleApprove() {
     if (!CONTRACT_ADDRESSES.ScheduledPayout) return
-    approve({ address: USDC_ADDRESS, abi: ERC20_ABI, functionName: 'approve', args: [CONTRACT_ADDRESSES.ScheduledPayout, parsedFundAmount] })
+    approve({ chainId: ARC_CHAIN_ID, address: USDC_ADDRESS, abi: ERC20_ABI, functionName: 'approve', args: [CONTRACT_ADDRESSES.ScheduledPayout, parsedFundAmount] })
   }
 
   function handleCreate() {
@@ -107,13 +107,13 @@ export function ScheduledPanel() {
     const maxExec = maxExecutions ? BigInt(maxExecutions) : 0n
 
     create({
+      chainId: ARC_CHAIN_ID,
       address: CONTRACT_ADDRESSES.ScheduledPayout,
       abi: SCHEDULED_PAYOUT_ABI,
       functionName: 'createSchedule',
       args: [recipient as `0x${string}`, parseUsdc(amount), startTs, endTs, intervalSeconds, maxExec, description],
     }, {
       onSuccess: () => { toast.success('Schedule created!'); void refetchIds() },
-      onError: (e) => toast.error(parseOnchainError(e)),
     })
   }
 
@@ -190,6 +190,7 @@ export function ScheduledPanel() {
               {approved ? 'Approved' : 'Approve USDC'}
             </Button>
             <TxButton label="Fund" onClick={() => fund({
+              chainId: ARC_CHAIN_ID,
               address: CONTRACT_ADDRESSES.ScheduledPayout, abi: SCHEDULED_PAYOUT_ABI,
               functionName: 'fundSchedule', args: [BigInt(fundId || '0'), parsedFundAmount],
             })} isPending={isFunding} isConfirming={isConfirmingFund} isSuccess={fundSuccess} disabled={!approved || !fundId} />
@@ -209,6 +210,7 @@ export function ScheduledPanel() {
             )}
             <TxButton label={<span className="flex items-center gap-2"><Play className="size-3.5" />Execute</span> as unknown as string}
               onClick={() => execute({
+                chainId: ARC_CHAIN_ID,
                 address: CONTRACT_ADDRESSES.ScheduledPayout, abi: SCHEDULED_PAYOUT_ABI,
                 functionName: 'executeSchedule', args: [BigInt(executeId || '0')],
               })} isPending={isExecuting} isConfirming={isConfirmingExec} isSuccess={execSuccess}
@@ -219,6 +221,7 @@ export function ScheduledPanel() {
             <p className="text-xs mb-3" style={{ color: 'var(--muted)' }}>Refunds remaining balance to payer.</p>
             <Input value={cancelId} onChange={setCancelId} placeholder="Schedule ID" inputMode="numeric" />
             <Button variant="danger" className="mt-2 w-full" onClick={() => cancel({
+              chainId: ARC_CHAIN_ID,
               address: CONTRACT_ADDRESSES.ScheduledPayout, abi: SCHEDULED_PAYOUT_ABI,
               functionName: 'cancelSchedule', args: [BigInt(cancelId || '0')],
             })} loading={isCancelling || isConfirmingCancel} disabled={!cancelId}>

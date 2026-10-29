@@ -7,7 +7,7 @@ import { getUsdc } from '@/onchain-facts'
 
 export const ARC_CHAIN_ID = 5042
 export const ARC_MAINNET_CHAIN_ID = 5042
-export const ARC_TESTNET_CHAIN_ID = 5042 // points to Mainnet (5042) for seamless migration
+export const ARC_TESTNET_CHAIN_ID = 5042002
 
 export const USDC_ADDRESS = (getUsdc(ARC_CHAIN_ID)?.address ?? '0x3600000000000000000000000000000000000000') as `0x${string}`
 

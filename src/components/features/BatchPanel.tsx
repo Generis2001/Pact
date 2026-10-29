@@ -28,11 +28,11 @@ export function BatchPanel() {
   const [paymentSetId, setPaymentSetId] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
 
-  const { writeContract: approve, data: approveHash } = useWriteContract()
-  const { isLoading: isApproving, isSuccess: approved } = useWaitForTransactionReceipt({ hash: approveHash })
+  const { writeContract: approve, data: approveHash } = useWriteContract({ mutation: { onError: (error) => toast.error(parseOnchainError(error)) } })
+  const { isLoading: isApproving, isSuccess: approved } = useWaitForTransactionReceipt({ chainId: ARC_CHAIN_ID, hash: approveHash })
 
-  const { writeContract: execute, data: execHash, isPending: isExecuting, error: execError } = useWriteContract()
-  const { isLoading: isConfirming, isSuccess: execSuccess } = useWaitForTransactionReceipt({ hash: execHash })
+  const { writeContract: execute, data: execHash, isPending: isExecuting, error: execError } = useWriteContract({ mutation: { onError: (error) => toast.error(parseOnchainError(error)) } })
+  const { isLoading: isConfirming, isSuccess: execSuccess } = useWaitForTransactionReceipt({ chainId: ARC_CHAIN_ID, hash: execHash })
 
   const validRows = rows.filter((r) => !validateRow(r))
   const totalAmount = validRows.reduce((s, r) => {
@@ -89,7 +89,7 @@ export function BatchPanel() {
 
   function handleApprove() {
     if (!CONTRACT_ADDRESSES.BatchPayout) return
-    approve({ address: USDC_ADDRESS, abi: ERC20_ABI, functionName: 'approve', args: [CONTRACT_ADDRESSES.BatchPayout, totalAmount] })
+    approve({ chainId: ARC_CHAIN_ID, address: USDC_ADDRESS, abi: ERC20_ABI, functionName: 'approve', args: [CONTRACT_ADDRESSES.BatchPayout, totalAmount] })
   }
 
   function handleExecute() {
@@ -102,13 +102,13 @@ export function BatchPanel() {
     }))
 
     execute({
+      chainId: ARC_CHAIN_ID,
       address: CONTRACT_ADDRESSES.BatchPayout,
       abi: BATCH_PAYOUT_ABI,
       functionName: 'executeBatch',
       args: [paymentSetId as `0x${string}`, recipients],
     }, {
       onSuccess: () => toast.success(`Batch of ${recipients.length} payments sent!`),
-      onError: (e) => toast.error(parseOnchainError(e)),
     })
   }
 

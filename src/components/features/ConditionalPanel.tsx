@@ -28,23 +28,23 @@ export function ConditionalPanel() {
   const [metadataURI, setMetadataURI] = useState('')
   const [viewId, setViewId] = useState('')
 
-  const { writeContract: approve, data: approveHash } = useWriteContract()
-  const { isLoading: isApproving, isSuccess: approved } = useWaitForTransactionReceipt({ hash: approveHash })
+  const { writeContract: approve, data: approveHash } = useWriteContract({ mutation: { onError: (error) => toast.error(parseOnchainError(error)) } })
+  const { isLoading: isApproving, isSuccess: approved } = useWaitForTransactionReceipt({ chainId: ARC_CHAIN_ID, hash: approveHash })
 
-  const { writeContract: create, data: createHash, isPending: isCreating, error: createError } = useWriteContract()
-  const { isLoading: isConfirmingCreate, isSuccess: createSuccess } = useWaitForTransactionReceipt({ hash: createHash })
+  const { writeContract: create, data: createHash, isPending: isCreating, error: createError } = useWriteContract({ mutation: { onError: (error) => toast.error(parseOnchainError(error)) } })
+  const { isLoading: isConfirmingCreate, isSuccess: createSuccess } = useWaitForTransactionReceipt({ chainId: ARC_CHAIN_ID, hash: createHash })
 
-  const { writeContract: fund, data: fundHash, isPending: isFunding } = useWriteContract()
-  const { isLoading: isConfirmingFund } = useWaitForTransactionReceipt({ hash: fundHash })
+  const { writeContract: fund, data: fundHash, isPending: isFunding } = useWriteContract({ mutation: { onError: (error) => toast.error(parseOnchainError(error)) } })
+  const { isLoading: isConfirmingFund } = useWaitForTransactionReceipt({ chainId: ARC_CHAIN_ID, hash: fundHash })
 
-  const { writeContract: approveCondition, data: acHash, isPending: isAC } = useWriteContract()
-  const { isLoading: isConfirmingAC } = useWaitForTransactionReceipt({ hash: acHash })
+  const { writeContract: approveCondition, data: acHash, isPending: isAC } = useWriteContract({ mutation: { onError: (error) => toast.error(parseOnchainError(error)) } })
+  const { isLoading: isConfirmingAC } = useWaitForTransactionReceipt({ chainId: ARC_CHAIN_ID, hash: acHash })
 
-  const { writeContract: cancel, data: cancelHash, isPending: isCancelling } = useWriteContract()
-  const { isLoading: isConfirmingCancel } = useWaitForTransactionReceipt({ hash: cancelHash })
+  const { writeContract: cancel, data: cancelHash, isPending: isCancelling } = useWriteContract({ mutation: { onError: (error) => toast.error(parseOnchainError(error)) } })
+  const { isLoading: isConfirmingCancel } = useWaitForTransactionReceipt({ chainId: ARC_CHAIN_ID, hash: cancelHash })
 
-  const { writeContract: claimExpiry, data: expiryHash, isPending: isExpiring } = useWriteContract()
-  const { isLoading: isConfirmingExpiry } = useWaitForTransactionReceipt({ hash: expiryHash })
+  const { writeContract: claimExpiry, data: expiryHash, isPending: isExpiring } = useWriteContract({ mutation: { onError: (error) => toast.error(parseOnchainError(error)) } })
+  const { isLoading: isConfirmingExpiry } = useWaitForTransactionReceipt({ chainId: ARC_CHAIN_ID, hash: expiryHash })
 
   const { data: userIds, refetch: refetchIds } = useReadContract({
     address: CONTRACT_ADDRESSES.ConditionalPayout,
@@ -70,6 +70,7 @@ export function ConditionalPanel() {
   function handleApproveUSDC() {
     if (!CONTRACT_ADDRESSES.ConditionalPayout) return
     approve({
+      chainId: ARC_CHAIN_ID,
       address: USDC_ADDRESS, abi: ERC20_ABI, functionName: 'approve',
       args: [CONTRACT_ADDRESSES.ConditionalPayout, parsedAmount],
     })
@@ -84,13 +85,13 @@ export function ConditionalPanel() {
     const deadlineTs = BigInt(Math.floor(new Date(conditionDeadline).getTime() / 1000))
 
     create({
+      chainId: ARC_CHAIN_ID,
       address: CONTRACT_ADDRESSES.ConditionalPayout,
       abi: CONDITIONAL_PAYOUT_ABI,
       functionName: 'createAgreement',
       args: [recipient as `0x${string}`, approver as `0x${string}`, parsedAmount, deadlineTs, conditionDesc, metadataURI],
     }, {
       onSuccess: () => { toast.success('Agreement created!'); void refetchIds() },
-      onError: (e) => toast.error(parseOnchainError(e)),
     })
   }
 
@@ -165,12 +166,14 @@ export function ConditionalPanel() {
               {(viewAgreement.state as AgreementState) === AgreementState.PENDING && address === viewAgreement.payer && (
                 <>
                   <Button size="sm" onClick={() => fund({
+                    chainId: ARC_CHAIN_ID,
                     address: CONTRACT_ADDRESSES.ConditionalPayout, abi: CONDITIONAL_PAYOUT_ABI,
                     functionName: 'fundAgreement', args: [BigInt(viewId)],
                   })} loading={isFunding || isConfirmingFund}>
                     Fund Agreement
                   </Button>
                   <Button size="sm" variant="danger" onClick={() => cancel({
+                    chainId: ARC_CHAIN_ID,
                     address: CONTRACT_ADDRESSES.ConditionalPayout, abi: CONDITIONAL_PAYOUT_ABI,
                     functionName: 'cancelAgreement', args: [BigInt(viewId)],
                   })} loading={isCancelling || isConfirmingCancel}>
@@ -180,6 +183,7 @@ export function ConditionalPanel() {
               )}
               {(viewAgreement.state as AgreementState) === AgreementState.ACTIVE && address === viewAgreement.approver && (
                 <Button size="sm" onClick={() => approveCondition({
+                  chainId: ARC_CHAIN_ID,
                   address: CONTRACT_ADDRESSES.ConditionalPayout, abi: CONDITIONAL_PAYOUT_ABI,
                   functionName: 'approveCondition', args: [BigInt(viewId)],
                 })} loading={isAC || isConfirmingAC}>
@@ -188,6 +192,7 @@ export function ConditionalPanel() {
               )}
               {(viewAgreement.state as AgreementState) === AgreementState.ACTIVE && address === viewAgreement.payer && (
                 <Button size="sm" variant="secondary" onClick={() => claimExpiry({
+                  chainId: ARC_CHAIN_ID,
                   address: CONTRACT_ADDRESSES.ConditionalPayout, abi: CONDITIONAL_PAYOUT_ABI,
                   functionName: 'claimExpiry', args: [BigInt(viewId)],
                 })} loading={isExpiring || isConfirmingExpiry}>

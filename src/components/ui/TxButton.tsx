@@ -3,9 +3,10 @@
  * Never simulates states — only shows what hooks report.
  */
 import { Loader2 } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { cn, parseOnchainError } from '@/lib/utils'
 import { ARC_CHAIN_ID } from '@/lib/contracts'
 import { useAccount, useSwitchChain } from 'wagmi'
+import { toast } from 'sonner'
 
 export function TxButton({
   label, onClick, isPending, isConfirming, isSuccess, disabled, className,
@@ -25,19 +26,22 @@ export function TxButton({
 
   const handleClick = () => {
     if (wrongChain) {
-      switchChain({ chainId: ARC_CHAIN_ID })
+      switchChain({ chainId: ARC_CHAIN_ID }, {
+        onError: (error) => toast.error(parseOnchainError(error)),
+      })
       return
     }
     onClick?.()
   }
 
   const busy = isPending || isConfirming || isSwitching
-  const isDisabled = !isConnected || disabled || busy || isSuccess
+  // Allow a network switch before the form/approval prerequisites are met.
+  const isDisabled = !isConnected || busy || (!wrongChain && (disabled || isSuccess))
 
   const content = !isConnected
     ? 'Connect Wallet'
     : wrongChain || isSwitching
-    ? isSwitching ? 'Switching…' : 'Switch to Arc Testnet'
+    ? isSwitching ? 'Switching…' : 'Switch to Arc'
     : isPending
     ? <span className="flex items-center gap-2"><Loader2 className="size-3.5 animate-spin" />Confirm in wallet…</span>
     : isConfirming

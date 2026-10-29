@@ -25,7 +25,9 @@ Pact is a programmable money platform built with **Arc Studio** on **Arc Mainnet
 
 ## On-Chain Feature Verification & Testing
 
-All five contracts have been tested live on Arc Mainnet with varying USDC amounts:
+The project records transactions for four payment features on Arc Mainnet. Read-only RPC checks confirmed successful escrow funding, agreement creation, batch payments, and schedule creation; see [mainnet verification](docs/mainnet-verification.md) for the evidence and limits. Vesting activity has not been confirmed by these checks.
+
+Previously recorded feature actions:
 
 - **Escrow Manager**: Created and funded multi-milestone escrow #1 with `0.010 USDC`.
   - Funding Tx: [`0x669fa478e36254d32900f1fc6dc0d523c0931c128d50bae47be2079f6aeb6025`](https://explorer.arc.io/tx/0x669fa478e36254d32900f1fc6dc0d523c0931c128d50bae47be2079f6aeb6025)
