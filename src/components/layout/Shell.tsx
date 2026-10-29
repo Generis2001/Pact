@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { ArcWalletButton } from '@/components/ui/WalletButton'
+import { PactLogo } from '@/components/ui/PactLogo'
 import { Sidebar } from './Sidebar'
 import { Dashboard } from '@/components/features/Dashboard'
 import { EscrowPanel } from '@/components/features/EscrowPanel'
@@ -84,7 +85,7 @@ export function Shell() {
           </button>
 
           {/* Mobile logo */}
-          <span className="display text-sm font-bold md:hidden" style={{ color: 'var(--ink)' }}>Pact</span>
+          <PactLogo className="h-10 w-auto md:hidden" />
 
           <div className="flex items-center gap-2.5 ml-auto">
             {/* Balance chip */}

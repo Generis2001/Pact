@@ -1,6 +1,7 @@
 import { cn } from '@/lib/utils'
 import { ShieldCheck, GitBranch, ArrowRight, Clock3, LockKeyhole, ChartPie } from 'lucide-react'
 import { WalletButton } from '@/components/ui/WalletButton'
+import { PactLogo } from '@/components/ui/PactLogo'
 import type { Tab } from './Shell'
 
 const NAV: { id: Tab; label: string; icon: React.ReactNode }[] = [
@@ -14,9 +15,8 @@ const NAV: { id: Tab; label: string; icon: React.ReactNode }[] = [
 export function Sidebar({ active, onNav }: { active: Tab; onNav: (t: Tab) => void }) {
   return (
     <aside className="flex h-full w-[264px] shrink-0 flex-col border-r border-[#f0f2f5] bg-white px-4 py-6">
-      <div className="mb-8 flex items-center gap-3 px-3">
-        <span className="flex size-11 shrink-0 items-center justify-center rounded-md bg-black text-2xl font-medium text-white">P</span>
-        <span className="display text-[32px] text-black">Pact</span>
+      <div className="mb-8 flex items-center px-3">
+        <PactLogo className="h-[52px] w-auto" />
       </div>
       <WalletButton className="mb-6 w-full" />
       <nav aria-label="Main navigation" className="flex flex-col gap-2">
