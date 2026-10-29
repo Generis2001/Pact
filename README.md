@@ -49,12 +49,14 @@ All five contracts have been tested live on Arc Mainnet with varying USDC amount
 
 ## Getting Started
 
+Use Bun (the version in `.bun-version`) and Foundry.
+
 ### 1. Clone & Install Dependencies
 
 ```bash
 git clone https://github.com/Generis2001/Pact.git
 cd Pact
-npm install
+bun install --frozen-lockfile
 ```
 
 ### 2. Configure Environment
@@ -68,7 +70,7 @@ cp .env.example .env
 ### 3. Run Development Server
 
 ```bash
-npm run dev
+bun run dev
 ```
 
 ### 4. Smart Contract Compilation & Testing
@@ -80,6 +82,23 @@ forge build
 # Run unit and invariant test suite (178 tests passed)
 forge test
 ```
+
+---
+
+## Recent Update
+
+The interface now uses a dark theme with a refreshed sidebar, module cards, and wallet USDC balance on the dashboard. Feature panels use the mainnet chain constant consistently. App metadata, a manifest, and a favicon support browser and wallet identification.
+
+The optional Bun backend decodes events from the five contracts and provides `/health`, `/events`, and `/events/address`. It checks scheduled payments and logs when they are due for operator action. It stores events in memory and starts from a recent 2000-block lookback; it does not automatically submit payments or provide durable historical indexing. Production API hosting and routing must be configured separately from the Vite development proxy.
+
+```bash
+bun run server       # Optional backend on port 3001; loads addresses from .env
+bun run server:test  # Backend event/API regression tests
+bun run check        # Lint and TypeScript checks, including the backend
+bun run build        # Production frontend build
+```
+
+See [architecture](docs/architecture.md), [deployment](docs/deploy.md), and [wallet warnings](docs/wallet-trust.md) for details.
 
 ---
 

@@ -37,7 +37,7 @@ export const config = createConfig(
       [arcTestnet.id]: http(),
       [mainnet.id]: http(),
     },
-    walletConnectProjectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID ?? '',
+    walletConnectProjectId: (import.meta.env.VITE_WALLETCONNECT_PROJECT_ID as string | undefined) ?? '',
     appName: 'Pact',
     appDescription: 'Programmable, non-custodial USDC payments on Arc.',
     appUrl: getOrigin(),

@@ -11,7 +11,7 @@ import {
   type Blockchain as ScpBlockchain,
   type CircleSmartContractPlatformClient,
 } from '@circle-fin/smart-contract-platform';
-import { getChain } from '@circlefin/compass-chains';
+import { ONCHAIN_CHAINS, type OnchainChain } from '../src/onchain-facts';
 import { type Abi, type Hex, createPublicClient, createWalletClient, encodeFunctionData, http, keccak256 } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 
@@ -63,19 +63,21 @@ const ACTIVE_CHAIN: ChainConfig = {
   gasToken: 'native',
 };
 
-function resolveChainDef(compassChain: string): ReturnType<typeof getChain> {
-  try {
-    return getChain(compassChain);
-  } catch {
-    throw new Error(`Unknown --compass-chain "${compassChain}". Expected a Compass chain id (e.g. Arc_Testnet, Base_Sepolia).`);
+function resolveChainDef(compassChain: string): OnchainChain {
+  const normalize = (name: string) => name.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const chainName = compassChain === 'Arc_Mainnet' ? 'Arc' : compassChain;
+  const chain = ONCHAIN_CHAINS.find((entry) => normalize(entry.name) === normalize(chainName));
+  if (!chain) {
+    throw new Error(`Unknown --compass-chain "${compassChain}". Expected a chain in the bundled registry (e.g. Arc_Testnet, Base_Sepolia).`);
   }
+  return chain;
 }
 
 function explorerUrlFor(address: string): string {
   return ACTIVE_CHAIN.explorer ? `${ACTIVE_CHAIN.explorer}/address/${address}` : address;
 }
 
-const WORK_DIR = '/home/user/app';
+const WORK_DIR = process.cwd();
 const CONTRACTS_ROOT_DIR = `${WORK_DIR}/contracts`;
 const CONTRACT_SOURCES_DIR = CONTRACTS_ROOT_DIR;
 const FOUNDRY_OUT_DIR = `${CONTRACTS_ROOT_DIR}/out`;
@@ -361,7 +363,7 @@ export function parseArgs(argv: string[]): CliOptions {
   const chainDef = resolveChainDef(compassChain);
   ACTIVE_CHAIN.circleBlockchain = blockchain;
   ACTIVE_CHAIN.compassChain = compassChain;
-  ACTIVE_CHAIN.explorer = explorerOverride ?? chainDef.explorerUrl ?? '';
+  ACTIVE_CHAIN.explorer = explorerOverride ?? chainDef.explorerBase ?? '';
   ACTIVE_CHAIN.chainLabel = chainLabelOverride ?? chainDef.name;
   ACTIVE_CHAIN.gasToken = gasTokenOverride ?? (chainDef.nativeCurrency.symbol === 'USDC' ? 'usdc' : 'native');
 

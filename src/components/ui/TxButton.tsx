@@ -37,7 +37,7 @@ export function TxButton({
   const content = !isConnected
     ? 'Connect Wallet'
     : wrongChain || isSwitching
-    ? isSwitching ? 'Switching…' : 'Switch to Arc Mainnet'
+    ? isSwitching ? 'Switching…' : 'Switch to Arc Testnet'
     : isPending
     ? <span className="flex items-center gap-2"><Loader2 className="size-3.5 animate-spin" />Confirm in wallet…</span>
     : isConfirming

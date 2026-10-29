@@ -57,3 +57,15 @@ Deployer Address: `0x0986Bfd653985c9Fa60a464784264444B542BfD7`
 - `src/lib/contracts.ts` - ABIs, address bindings, chain config
 - `contracts/script/DeployPact.s.sol` - Foundry deployment script
 - `contracts/script/TestPactFeatures.s.sol` - Foundry feature testing script
+
+## Recent Code Integration
+
+- Dark UI tokens and shared components, refreshed sidebar/dashboard, and dashboard USDC balance.
+- All feature panels use `ARC_CHAIN_ID` for mainnet reads and explorer links.
+- Added browser/link metadata, `public/manifest.json`, and the included SVG favicon. Existing wallet-security fixes and mainnet contract defaults are preserved.
+- Optional Bun backend in `server/index.ts`: mainnet event decoding, address filtering, and due-schedule monitoring. Events and cursor are in memory, starting with a recent 2000-block lookback. It logs due schedules; it does not submit payments.
+- Vite's `/api` proxy is for development. Production API deployment and routing are separate.
+- `bun run server:test` covers decoded schedule/vesting logs, address searches, failed-range retries, schedule checks without a new block, and limit validation.
+- TypeScript checks include `server/`. The deployment script uses the bundled onchain facts registry instead of a missing private package.
+- OpenZeppelin imports resolve to the pinned npm dependency; the existing Foundry scripts and deployment history remain available.
+- See `docs/architecture.md`, `docs/deploy.md`, and `docs/wallet-trust.md`.

@@ -40,49 +40,64 @@ export function Shell() {
   }
 
   return (
-    <div className="min-h-dvh flex" style={{ background: 'var(--bg-gradient)' }}>
+    <div className="min-h-dvh flex" style={{ background: 'var(--bg)' }}>
       {/* Desktop sidebar */}
-      <div className="hidden md:flex">
+      <div className="hidden md:flex min-h-dvh sticky top-0">
         <Sidebar active={tab} onNav={(t) => { setTab(t); setMobileOpen(false) }} />
       </div>
 
       {/* Mobile nav overlay */}
       {mobileOpen && (
         <div className="fixed inset-0 z-50 md:hidden flex">
-          <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
-          <div className="relative z-10 flex flex-col" style={{ background: 'var(--surface-strong)' }}>
+          <div
+            className="absolute inset-0"
+            style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}
+            onClick={() => setMobileOpen(false)}
+          />
+          <div className="relative z-10 flex flex-col min-h-dvh">
             <Sidebar active={tab} onNav={(t) => { setTab(t); setMobileOpen(false) }} />
           </div>
         </div>
       )}
 
-      {/* Main content */}
+      {/* Main area */}
       <div className="flex flex-col flex-1 min-w-0">
         {/* Topbar */}
         <header
           className="sticky top-0 z-40 flex items-center justify-between gap-4 px-5 py-3"
           style={{
-            background: 'rgba(255,255,255,0.72)',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
+            background: 'rgba(13,15,18,0.80)',
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
             borderBottom: '1px solid var(--border)',
           }}
         >
+          {/* Mobile menu */}
           <button
-            className="md:hidden p-1.5 rounded-lg"
+            className="md:hidden p-1.5 rounded-lg transition-colors"
+            style={{ color: 'var(--ink-2)' }}
             onClick={() => setMobileOpen((o) => !o)}
           >
             {mobileOpen ? <X className="size-5" /> : <Menu className="size-5" />}
           </button>
 
-          <div className="flex items-center gap-2 ml-auto">
+          {/* Mobile logo */}
+          <span className="display text-sm font-bold md:hidden" style={{ color: 'var(--ink)' }}>Pact</span>
+
+          <div className="flex items-center gap-2.5 ml-auto">
+            {/* Balance chip */}
             {address && balance !== undefined && (
               <div
-                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-semibold tabular-nums"
-                style={{ background: 'var(--surface-muted)', color: 'var(--ink)' }}
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-semibold mono"
+                style={{
+                  background: 'var(--surface)',
+                  border: '1px solid var(--border)',
+                  color: 'var(--ink)',
+                }}
               >
-                <TokenUSDC variant="branded" size={16} />
-                {formatUsdc(balance)} USDC
+                <TokenUSDC variant="branded" size={15} />
+                <span style={{ color: 'var(--accent)' }}>{formatUsdc(balance)}</span>
+                <span style={{ color: 'var(--muted)', fontSize: '11px', fontFamily: 'inherit' }}>USDC</span>
               </div>
             )}
             <ConnectKitButton />

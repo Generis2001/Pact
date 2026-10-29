@@ -1,0 +1,25 @@
+{
+  "name": "Pact \u2014 Programmable Payments on Arc",
+  "short_name": "Pact",
+  "description": "Non-custodial USDC escrow, conditional payouts, batch payouts, scheduled payments, and vesting on Arc.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0d0f12",
+  "theme_color": "#00e676",
+  "lang": "en",
+  "scope": "/",
+  "categories": [
+    "finance",
+    "utilities"
+  ],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}

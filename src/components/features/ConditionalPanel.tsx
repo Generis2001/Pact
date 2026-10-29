@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/Badge'
 import { ExternalLink } from 'lucide-react'
 import {
   CONDITIONAL_PAYOUT_ABI, ERC20_ABI, USDC_ADDRESS, CONTRACT_ADDRESSES,
-  ARC_TESTNET_CHAIN_ID, AGREEMENT_STATE_LABELS, AgreementState,
+  ARC_CHAIN_ID, AGREEMENT_STATE_LABELS, AgreementState,
 } from '@/lib/contracts'
 import { isValidAddress, parseUsdc, formatUsdc, formatAddress, formatTimestamp, parseOnchainError } from '@/lib/utils'
 import { buildTxExplorerUrl } from '@/onchain-facts'
@@ -35,7 +35,7 @@ export function ConditionalPanel() {
   const { isLoading: isConfirmingCreate, isSuccess: createSuccess } = useWaitForTransactionReceipt({ hash: createHash })
 
   const { writeContract: fund, data: fundHash, isPending: isFunding } = useWriteContract()
-  const { isLoading: isConfirmingFund, isSuccess: fundSuccess } = useWaitForTransactionReceipt({ hash: fundHash })
+  const { isLoading: isConfirmingFund } = useWaitForTransactionReceipt({ hash: fundHash })
 
   const { writeContract: approveCondition, data: acHash, isPending: isAC } = useWriteContract()
   const { isLoading: isConfirmingAC } = useWaitForTransactionReceipt({ hash: acHash })
@@ -51,7 +51,7 @@ export function ConditionalPanel() {
     abi: CONDITIONAL_PAYOUT_ABI,
     functionName: 'getUserAgreements',
     args: address ? [address] : undefined,
-    chainId: ARC_TESTNET_CHAIN_ID,
+    chainId: ARC_CHAIN_ID,
     query: { enabled: !!address && !!CONTRACT_ADDRESSES.ConditionalPayout },
   })
 
@@ -60,7 +60,7 @@ export function ConditionalPanel() {
     abi: CONDITIONAL_PAYOUT_ABI,
     functionName: 'getAgreement',
     args: viewId ? [BigInt(viewId)] : undefined,
-    chainId: ARC_TESTNET_CHAIN_ID,
+    chainId: ARC_CHAIN_ID,
     query: { enabled: !!viewId && !isNaN(Number(viewId)) },
   })
 
@@ -89,7 +89,7 @@ export function ConditionalPanel() {
       functionName: 'createAgreement',
       args: [recipient as `0x${string}`, approver as `0x${string}`, parsedAmount, deadlineTs, conditionDesc, metadataURI],
     }, {
-      onSuccess: () => { toast.success('Agreement created!'); refetchIds() },
+      onSuccess: () => { toast.success('Agreement created!'); void refetchIds() },
       onError: (e) => toast.error(parseOnchainError(e)),
     })
   }
@@ -131,7 +131,7 @@ export function ConditionalPanel() {
               isConfirming={isConfirmingCreate} isSuccess={createSuccess} disabled={!approved} />
           </div>
           {createHash && (
-            <a href={buildTxExplorerUrl(ARC_TESTNET_CHAIN_ID, createHash)} target="_blank" rel="noreferrer"
+            <a href={buildTxExplorerUrl(ARC_CHAIN_ID, createHash)} target="_blank" rel="noreferrer"
               className="flex items-center gap-1 text-xs" style={{ color: 'var(--accent-hover)' }}>
               <ExternalLink className="size-3" /> View transaction
             </a>
@@ -162,7 +162,7 @@ export function ConditionalPanel() {
               {viewAgreement.conditionDescription && <p>Condition: {viewAgreement.conditionDescription}</p>}
             </div>
             <div className="flex gap-2 flex-wrap">
-              {viewAgreement.state === AgreementState.PENDING && address === viewAgreement.payer && (
+              {(viewAgreement.state as AgreementState) === AgreementState.PENDING && address === viewAgreement.payer && (
                 <>
                   <Button size="sm" onClick={() => fund({
                     address: CONTRACT_ADDRESSES.ConditionalPayout, abi: CONDITIONAL_PAYOUT_ABI,
@@ -178,7 +178,7 @@ export function ConditionalPanel() {
                   </Button>
                 </>
               )}
-              {viewAgreement.state === AgreementState.ACTIVE && address === viewAgreement.approver && (
+              {(viewAgreement.state as AgreementState) === AgreementState.ACTIVE && address === viewAgreement.approver && (
                 <Button size="sm" onClick={() => approveCondition({
                   address: CONTRACT_ADDRESSES.ConditionalPayout, abi: CONDITIONAL_PAYOUT_ABI,
                   functionName: 'approveCondition', args: [BigInt(viewId)],
@@ -186,7 +186,7 @@ export function ConditionalPanel() {
                   Approve Condition
                 </Button>
               )}
-              {viewAgreement.state === AgreementState.ACTIVE && address === viewAgreement.payer && (
+              {(viewAgreement.state as AgreementState) === AgreementState.ACTIVE && address === viewAgreement.payer && (
                 <Button size="sm" variant="secondary" onClick={() => claimExpiry({
                   address: CONTRACT_ADDRESSES.ConditionalPayout, abi: CONDITIONAL_PAYOUT_ABI,
                   functionName: 'claimExpiry', args: [BigInt(viewId)],
@@ -220,7 +220,7 @@ function AgreementRow({ id }: { id: bigint }) {
     abi: CONDITIONAL_PAYOUT_ABI,
     functionName: 'getAgreement',
     args: [id],
-    chainId: ARC_TESTNET_CHAIN_ID,
+    chainId: ARC_CHAIN_ID,
     query: { enabled: !!CONTRACT_ADDRESSES.ConditionalPayout },
   })
   const STATE_VARIANT: Record<number, 'default' | 'success' | 'warning' | 'danger' | 'muted'> = {

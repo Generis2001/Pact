@@ -8,7 +8,7 @@ import { TxButton } from '@/components/ui/TxButton'
 import { Badge } from '@/components/ui/Badge'
 import { ExternalLink, Download, XCircle } from 'lucide-react'
 import {
-  VESTING_VAULT_ABI, ERC20_ABI, USDC_ADDRESS, CONTRACT_ADDRESSES, ARC_TESTNET_CHAIN_ID,
+  VESTING_VAULT_ABI, ERC20_ABI, USDC_ADDRESS, CONTRACT_ADDRESSES, ARC_CHAIN_ID,
   VestingType, VESTING_TYPE_LABELS,
 } from '@/lib/contracts'
 import { isValidAddress, parseUsdc, formatUsdc, formatAddress, formatTimestamp, parseOnchainError } from '@/lib/utils'
@@ -25,8 +25,7 @@ export function VestingPanel() {
   const [intervalSeconds, setIntervalSeconds] = useState('')
   const [revocable, setRevocable] = useState(false)
   const [viewId, setViewId] = useState('')
-  const [claimId, setClaimId] = useState('')
-  const [revokeId, setRevokeId] = useState('')
+
 
   const { writeContract: approve, data: approveHash } = useWriteContract()
   const { isLoading: isApproving, isSuccess: approved } = useWaitForTransactionReceipt({ hash: approveHash })
@@ -35,7 +34,7 @@ export function VestingPanel() {
   const { isLoading: isConfirmingCreate, isSuccess: createSuccess } = useWaitForTransactionReceipt({ hash: createHash })
 
   const { writeContract: claim, data: claimHash, isPending: isClaiming } = useWriteContract()
-  const { isLoading: isConfirmingClaim, isSuccess: claimSuccess } = useWaitForTransactionReceipt({ hash: claimHash })
+  const { isLoading: isConfirmingClaim } = useWaitForTransactionReceipt({ hash: claimHash })
 
   const { writeContract: revoke, data: revokeHash, isPending: isRevoking } = useWriteContract()
   const { isLoading: isConfirmingRevoke } = useWaitForTransactionReceipt({ hash: revokeHash })
@@ -45,7 +44,7 @@ export function VestingPanel() {
     abi: VESTING_VAULT_ABI,
     functionName: 'getBeneficiarySchedules',
     args: address ? [address] : undefined,
-    chainId: ARC_TESTNET_CHAIN_ID,
+    chainId: ARC_CHAIN_ID,
     query: { enabled: !!address && !!CONTRACT_ADDRESSES.VestingVault },
   })
 
@@ -54,7 +53,7 @@ export function VestingPanel() {
     abi: VESTING_VAULT_ABI,
     functionName: 'getGrantorSchedules',
     args: address ? [address] : undefined,
-    chainId: ARC_TESTNET_CHAIN_ID,
+    chainId: ARC_CHAIN_ID,
     query: { enabled: !!address && !!CONTRACT_ADDRESSES.VestingVault },
   })
 
@@ -63,7 +62,7 @@ export function VestingPanel() {
     abi: VESTING_VAULT_ABI,
     functionName: 'getSchedule',
     args: viewId ? [BigInt(viewId)] : undefined,
-    chainId: ARC_TESTNET_CHAIN_ID,
+    chainId: ARC_CHAIN_ID,
     query: { enabled: !!viewId && !isNaN(Number(viewId)) },
   })
 
@@ -72,7 +71,7 @@ export function VestingPanel() {
     abi: VESTING_VAULT_ABI,
     functionName: 'claimableAmount',
     args: viewId ? [BigInt(viewId)] : undefined,
-    chainId: ARC_TESTNET_CHAIN_ID,
+    chainId: ARC_CHAIN_ID,
     query: { enabled: !!viewId && !isNaN(Number(viewId)), refetchInterval: 10000 },
   })
 
@@ -138,7 +137,7 @@ export function VestingPanel() {
             <div className="flex gap-2">
               {[VestingType.LINEAR, VestingType.CLIFF, VestingType.PERIODIC].map((vt) => (
                 <button key={vt} onClick={() => setVestingType(vt)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${vestingType === vt ? 'bg-[var(--accent)] text-white' : 'bg-[var(--surface-muted)] text-[var(--ink-2)]'}`}>
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${vestingType === (vt as number) ? 'bg-[var(--accent)] text-white' : 'bg-[var(--surface-muted)] text-[var(--ink-2)]'}`}>
                   {VESTING_TYPE_LABELS[vt]}
                 </button>
               ))}
@@ -150,12 +149,12 @@ export function VestingPanel() {
             <Input label="End time" type="datetime-local" value={endTime} onChange={setEndTime} />
           </div>
 
-          {vestingType === VestingType.CLIFF && (
+          {(vestingType as VestingType) === VestingType.CLIFF && (
             <Input label="Cliff time" type="datetime-local" value={cliffTime} onChange={setCliffTime}
               hint="No tokens vest before this date" />
           )}
 
-          {vestingType === VestingType.PERIODIC && (
+          {(vestingType as VestingType) === VestingType.PERIODIC && (
             <Input label="Interval (seconds)" value={intervalSeconds} onChange={setIntervalSeconds}
               placeholder="e.g. 2592000 for monthly" inputMode="numeric" />
           )}
@@ -176,7 +175,7 @@ export function VestingPanel() {
               isConfirming={isConfirmingCreate} isSuccess={createSuccess} disabled={!approved} />
           </div>
           {createHash && (
-            <a href={buildTxExplorerUrl(ARC_TESTNET_CHAIN_ID, createHash)} target="_blank" rel="noreferrer"
+            <a href={buildTxExplorerUrl(ARC_CHAIN_ID, createHash)} target="_blank" rel="noreferrer"
               className="flex items-center gap-1 text-xs" style={{ color: 'var(--accent-hover)' }}>
               <ExternalLink className="size-3" /> View transaction
             </a>
@@ -288,7 +287,7 @@ function VestingRow({ id }: { id: bigint }) {
     abi: VESTING_VAULT_ABI,
     functionName: 'getSchedule',
     args: [id],
-    chainId: ARC_TESTNET_CHAIN_ID,
+    chainId: ARC_CHAIN_ID,
     query: { enabled: !!CONTRACT_ADDRESSES.VestingVault },
   })
   if (!data) return null

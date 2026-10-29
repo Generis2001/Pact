@@ -3,13 +3,13 @@ import { useAccount, useWriteContract, useWaitForTransactionReceipt, useReadCont
 import { toast } from 'sonner'
 import { Card, InnerCard, CardLabel } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
-import { Input, Textarea } from '@/components/ui/Input'
+import { Input } from '@/components/ui/Input'
 import { TxButton } from '@/components/ui/TxButton'
 import { Badge } from '@/components/ui/Badge'
 import { Plus, Trash2, ExternalLink, ChevronDown, ChevronUp } from 'lucide-react'
 import {
   ESCROW_MANAGER_ABI, CONTRACT_ADDRESSES, ERC20_ABI, USDC_ADDRESS,
-  ARC_TESTNET_CHAIN_ID, ESCROW_STATE_LABELS, EscrowState,
+  ARC_CHAIN_ID, ESCROW_STATE_LABELS, EscrowState,
 } from '@/lib/contracts'
 import {
   isValidAddress, parseUsdc, formatUsdc, formatAddress,
@@ -44,7 +44,7 @@ export function EscrowPanel() {
 
   // Fund escrow
   const { writeContract: fundEscrow, data: fundHash, isPending: isFunding } = useWriteContract()
-  const { isLoading: isConfirmingFund, isSuccess: fundSuccess } = useWaitForTransactionReceipt({ hash: fundHash })
+  const { isLoading: isConfirmingFund } = useWaitForTransactionReceipt({ hash: fundHash })
 
   // Approve milestone
   const { writeContract: approveMilestone, data: milestoneHash, isPending: isApprovingMilestone } = useWriteContract()
@@ -64,7 +64,7 @@ export function EscrowPanel() {
     abi: ESCROW_MANAGER_ABI,
     functionName: 'getUserEscrows',
     args: address ? [address] : undefined,
-    chainId: ARC_TESTNET_CHAIN_ID,
+    chainId: ARC_CHAIN_ID,
     query: { enabled: !!address && !!CONTRACT_ADDRESSES.EscrowManager },
   })
 
@@ -73,7 +73,7 @@ export function EscrowPanel() {
     abi: ESCROW_MANAGER_ABI,
     functionName: 'getEscrow',
     args: viewId ? [BigInt(viewId)] : undefined,
-    chainId: ARC_TESTNET_CHAIN_ID,
+    chainId: ARC_CHAIN_ID,
     query: { enabled: !!viewId && !isNaN(Number(viewId)) },
   })
 
@@ -125,7 +125,7 @@ export function EscrowPanel() {
       functionName: 'createEscrow',
       args: [beneficiary as `0x${string}`, arbiter as `0x${string}`, deadlineTs, milestoneTuples],
     }, {
-      onSuccess: () => { toast.success('Escrow created!'); refetchIds() },
+      onSuccess: () => { toast.success('Escrow created!'); void refetchIds() },
       onError: (e) => toast.error(parseOnchainError(e)),
     })
   }
@@ -205,7 +205,7 @@ export function EscrowPanel() {
             <TxButton label="Create Escrow" onClick={handleCreate} isPending={isCreating} isConfirming={isConfirmingCreate} isSuccess={createSuccess} disabled={!approved} />
           </div>
           {createHash && (
-            <a href={buildTxExplorerUrl(ARC_TESTNET_CHAIN_ID, createHash)} target="_blank" rel="noreferrer"
+            <a href={buildTxExplorerUrl(ARC_CHAIN_ID, createHash)} target="_blank" rel="noreferrer"
               className="flex items-center gap-1 text-xs" style={{ color: 'var(--accent-hover)' }}>
               <ExternalLink className="size-3" /> View transaction
             </a>
@@ -234,7 +234,7 @@ export function EscrowPanel() {
               <p>Arbiter: <span className="mono">{formatAddress(viewEscrow.arbiter)}</span></p>
               <p>Deadline: {formatTimestamp(viewEscrow.deadline)}</p>
             </div>
-            {viewEscrow.state === EscrowState.CREATED && address === viewEscrow.depositor && (
+            {(viewEscrow.state as EscrowState) === EscrowState.CREATED && address === viewEscrow.depositor && (
               <Button size="sm" onClick={() => fundEscrow({
                 address: CONTRACT_ADDRESSES.EscrowManager, abi: ESCROW_MANAGER_ABI,
                 functionName: 'fundEscrow', args: [BigInt(viewId)],
@@ -242,7 +242,7 @@ export function EscrowPanel() {
                 Fund Escrow
               </Button>
             )}
-            {viewEscrow.state === EscrowState.FUNDED && (
+            {(viewEscrow.state as EscrowState) === EscrowState.FUNDED && (
               <div className="flex gap-2 flex-wrap">
                 <Button size="sm" onClick={() => dispute({
                   address: CONTRACT_ADDRESSES.EscrowManager, abi: ESCROW_MANAGER_ABI,
@@ -252,7 +252,7 @@ export function EscrowPanel() {
                 </Button>
               </div>
             )}
-            {viewEscrow.state === EscrowState.FUNDED && address === viewEscrow.depositor && (
+            {(viewEscrow.state as EscrowState) === EscrowState.FUNDED && address === viewEscrow.depositor && (
               <Button size="sm" variant="secondary" onClick={() => claimRefund({
                 address: CONTRACT_ADDRESSES.EscrowManager, abi: ESCROW_MANAGER_ABI,
                 functionName: 'claimRefund', args: [BigInt(viewId)],
@@ -298,7 +298,7 @@ function EscrowRow({ id, expanded, onToggle, onApprove, isApprovingMilestone }: 
     abi: ESCROW_MANAGER_ABI,
     functionName: 'getEscrow',
     args: [id],
-    chainId: ARC_TESTNET_CHAIN_ID,
+    chainId: ARC_CHAIN_ID,
     query: { enabled: !!CONTRACT_ADDRESSES.EscrowManager },
   })
   const { data: milestones } = useReadContract({
@@ -306,7 +306,7 @@ function EscrowRow({ id, expanded, onToggle, onApprove, isApprovingMilestone }: 
     abi: ESCROW_MANAGER_ABI,
     functionName: 'getMilestones',
     args: [id],
-    chainId: ARC_TESTNET_CHAIN_ID,
+    chainId: ARC_CHAIN_ID,
     query: { enabled: expanded && !!CONTRACT_ADDRESSES.EscrowManager },
   })
 
@@ -334,7 +334,7 @@ function EscrowRow({ id, expanded, onToggle, onApprove, isApprovingMilestone }: 
                   <p className="text-xs font-semibold" style={{ color: 'var(--ink)' }}>{m.description || `Milestone ${i + 1}`}</p>
                   <p className="text-xs tabular-nums" style={{ color: 'var(--muted)' }}>{formatUsdc(m.amount)} USDC</p>
                 </div>
-                {m.state === 0 && esc.state === EscrowState.FUNDED && (
+                {m.state === 0 && (esc.state as EscrowState) === EscrowState.FUNDED && (
                   <Button size="sm" onClick={() => onApprove(BigInt(i))} loading={isApprovingMilestone}>
                     Approve
                   </Button>

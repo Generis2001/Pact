@@ -8,7 +8,7 @@ import { TxButton } from '@/components/ui/TxButton'
 import { Badge } from '@/components/ui/Badge'
 import { ExternalLink, Play, XCircle } from 'lucide-react'
 import {
-  SCHEDULED_PAYOUT_ABI, ERC20_ABI, USDC_ADDRESS, CONTRACT_ADDRESSES, ARC_TESTNET_CHAIN_ID,
+  SCHEDULED_PAYOUT_ABI, ERC20_ABI, USDC_ADDRESS, CONTRACT_ADDRESSES, ARC_CHAIN_ID,
 } from '@/lib/contracts'
 import { isValidAddress, parseUsdc, formatUsdc, formatAddress, formatTimestamp, formatDuration, parseOnchainError } from '@/lib/utils'
 import { buildTxExplorerUrl } from '@/onchain-facts'
@@ -56,7 +56,7 @@ export function ScheduledPanel() {
     abi: SCHEDULED_PAYOUT_ABI,
     functionName: 'getPayerSchedules',
     args: address ? [address] : undefined,
-    chainId: ARC_TESTNET_CHAIN_ID,
+    chainId: ARC_CHAIN_ID,
     query: { enabled: !!address && !!CONTRACT_ADDRESSES.ScheduledPayout },
   })
 
@@ -65,7 +65,7 @@ export function ScheduledPanel() {
     abi: SCHEDULED_PAYOUT_ABI,
     functionName: 'getSchedule',
     args: viewId ? [BigInt(viewId)] : undefined,
-    chainId: ARC_TESTNET_CHAIN_ID,
+    chainId: ARC_CHAIN_ID,
     query: { enabled: !!viewId && !isNaN(Number(viewId)) },
   })
 
@@ -74,7 +74,7 @@ export function ScheduledPanel() {
     abi: SCHEDULED_PAYOUT_ABI,
     functionName: 'getBalance',
     args: viewId ? [BigInt(viewId)] : undefined,
-    chainId: ARC_TESTNET_CHAIN_ID,
+    chainId: ARC_CHAIN_ID,
     query: { enabled: !!viewId && !isNaN(Number(viewId)) },
   })
 
@@ -83,7 +83,7 @@ export function ScheduledPanel() {
     abi: SCHEDULED_PAYOUT_ABI,
     functionName: 'isDue',
     args: executeId ? [BigInt(executeId)] : undefined,
-    chainId: ARC_TESTNET_CHAIN_ID,
+    chainId: ARC_CHAIN_ID,
     query: { enabled: !!executeId && !isNaN(Number(executeId)) },
   })
 
@@ -112,7 +112,7 @@ export function ScheduledPanel() {
       functionName: 'createSchedule',
       args: [recipient as `0x${string}`, parseUsdc(amount), startTs, endTs, intervalSeconds, maxExec, description],
     }, {
-      onSuccess: () => { toast.success('Schedule created!'); refetchIds() },
+      onSuccess: () => { toast.success('Schedule created!'); void refetchIds() },
       onError: (e) => toast.error(parseOnchainError(e)),
     })
   }
@@ -169,7 +169,7 @@ export function ScheduledPanel() {
           <TxButton label="Create Schedule" onClick={handleCreate} isPending={isCreating}
             isConfirming={isConfirmingCreate} isSuccess={createSuccess} />
           {createHash && (
-            <a href={buildTxExplorerUrl(ARC_TESTNET_CHAIN_ID, createHash)} target="_blank" rel="noreferrer"
+            <a href={buildTxExplorerUrl(ARC_CHAIN_ID, createHash)} target="_blank" rel="noreferrer"
               className="flex items-center gap-1 text-xs" style={{ color: 'var(--accent-hover)' }}>
               <ExternalLink className="size-3" /> View transaction
             </a>
@@ -276,7 +276,7 @@ function ScheduleRow({ id }: { id: bigint }) {
     abi: SCHEDULED_PAYOUT_ABI,
     functionName: 'getSchedule',
     args: [id],
-    chainId: ARC_TESTNET_CHAIN_ID,
+    chainId: ARC_CHAIN_ID,
     query: { enabled: !!CONTRACT_ADDRESSES.ScheduledPayout },
   })
   if (!data) return null

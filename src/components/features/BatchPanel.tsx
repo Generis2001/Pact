@@ -6,10 +6,9 @@ import { Card, InnerCard, CardLabel } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 import { TxButton } from '@/components/ui/TxButton'
-import { Badge } from '@/components/ui/Badge'
 import { Plus, Trash2, Upload, ExternalLink, AlertCircle, CheckCircle2 } from 'lucide-react'
 import {
-  BATCH_PAYOUT_ABI, ERC20_ABI, USDC_ADDRESS, CONTRACT_ADDRESSES, ARC_TESTNET_CHAIN_ID,
+  BATCH_PAYOUT_ABI, ERC20_ABI, USDC_ADDRESS, CONTRACT_ADDRESSES, ARC_CHAIN_ID,
 } from '@/lib/contracts'
 import { isValidAddress, parseUsdc, formatUsdc, parseOnchainError } from '@/lib/utils'
 import { buildTxExplorerUrl } from '@/onchain-facts'
@@ -158,7 +157,6 @@ export function BatchPanel() {
 
         <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
           {rows.map((r, i) => {
-            const err = validateRow(r)
             return (
               <div key={i} className="flex items-start gap-2">
                 <div className="flex-1 grid grid-cols-2 gap-2">
@@ -219,7 +217,7 @@ export function BatchPanel() {
             disabled={!approved || !allValid} />
         </div>
         {execHash && (
-          <a href={buildTxExplorerUrl(ARC_TESTNET_CHAIN_ID, execHash)} target="_blank" rel="noreferrer"
+          <a href={buildTxExplorerUrl(ARC_CHAIN_ID, execHash)} target="_blank" rel="noreferrer"
             className="flex items-center gap-1 text-xs mt-3" style={{ color: 'var(--accent-hover)' }}>
             <ExternalLink className="size-3" /> View transaction
           </a>

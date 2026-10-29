@@ -36,7 +36,7 @@ export function Input({
             ? 'border-[var(--danger)] focus:border-[var(--danger)]'
             : 'border-[var(--border)] focus:border-[var(--accent)]',
         )}
-        style={{ background: 'rgba(255,255,255,0.80)', color: 'var(--ink)' }}
+        style={{ background: 'var(--bg-overlay)', color: 'var(--ink)' }}
       />
       {error && <p className="text-xs" style={{ color: 'var(--danger)' }}>{error}</p>}
       {hint && !error && <p className="text-xs" style={{ color: 'var(--subtle)' }}>{hint}</p>}
@@ -74,7 +74,7 @@ export function Textarea({
           'placeholder:text-[var(--subtle)] disabled:opacity-50',
           error ? 'border-[var(--danger)]' : 'border-[var(--border)] focus:border-[var(--accent)]',
         )}
-        style={{ background: 'rgba(255,255,255,0.80)', color: 'var(--ink)' }}
+        style={{ background: 'var(--bg-overlay)', color: 'var(--ink)' }}
       />
       {error && <p className="text-xs" style={{ color: 'var(--danger)' }}>{error}</p>}
     </div>

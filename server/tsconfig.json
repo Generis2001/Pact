@@ -1,0 +1,12 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "types": [
+      "bun"
+    ],
+    "tsBuildInfoFile": "../node_modules/.tmp/tsconfig.server.tsbuildinfo"
+  },
+  "include": [
+    "./**/*.ts"
+  ]
+}

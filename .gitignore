@@ -36,3 +36,8 @@ broadcast/
 
 .vercel
 .env*
+!.env.example
+
+# Local Arc Studio diagnostic captures
+console.jsonl
+traces.jsonl
