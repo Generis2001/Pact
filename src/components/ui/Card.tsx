@@ -8,10 +8,11 @@ export function Card({ children, className, onClick }: {
   return (
     <div
       onClick={onClick}
-      className={cn('rounded-2xl p-5', className, onClick && 'cursor-pointer')}
+      className={cn('rounded-3xl p-5 sm:p-6', className, onClick && 'cursor-pointer')}
       style={{
         background: 'var(--bg-elevated)',
         border: '1px solid var(--border)',
+        boxShadow: 'var(--card-shadow)',
         transition: 'border-color 0.15s',
       }}
       onMouseEnter={onClick ? (e) => { (e.currentTarget).style.borderColor = 'var(--border-strong)' } : undefined}
@@ -40,7 +41,7 @@ export function InnerCard({ children, className }: { children: React.ReactNode; 
 /** Section label — small uppercase muted */
 export function CardLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p className="mb-2 text-[11px] font-semibold uppercase tracking-widest" style={{ color: 'var(--muted)' }}>
+    <p className="mb-3 text-sm font-medium" style={{ color: 'var(--muted)' }}>
       {children}
     </p>
   )

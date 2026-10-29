@@ -60,7 +60,7 @@ Deployer Address: `0x0986Bfd653985c9Fa60a464784264444B542BfD7`
 
 ## Recent Code Integration
 
-- Dark UI tokens and shared components, refreshed sidebar/dashboard, and dashboard USDC balance.
+- Light UI tokens and Walsheim typography, green controls, outline feature illustrations, refreshed sidebar/dashboard, and dashboard USDC balance. The redundant Network details card is removed. The top-right Arc wallet control reuses the footer logo and supports switching a connected wallet to Arc.
 - All feature panels use `ARC_CHAIN_ID` for mainnet reads and explorer links.
 - Added browser/link metadata, `public/manifest.json`, and the included SVG favicon. Existing wallet-security fixes and mainnet contract defaults are preserved.
 - Optional Bun backend in `server/index.ts`: mainnet event decoding, address filtering, and due-schedule monitoring. Events and cursor are in memory, starting with a recent 2000-block lookback. It logs due schedules; it does not submit payments.

@@ -120,7 +120,7 @@ export function ScheduledPanel() {
   return (
     <div className="max-w-2xl mx-auto space-y-5">
       <div>
-        <h1 className="display text-2xl font-bold" style={{ color: 'var(--ink)', letterSpacing: '-0.03em' }}>Scheduled Payout</h1>
+        <h1 className="display text-2xl font-bold" style={{ color: 'var(--ink)' }}>Scheduled Payout</h1>
         <p className="mt-1 text-sm" style={{ color: 'var(--muted)' }}>
           Recurring or one-time USDC payments. Fund a pool and payments execute automatically when due.
         </p>

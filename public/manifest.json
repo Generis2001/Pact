@@ -4,8 +4,8 @@
   "description": "Non-custodial USDC escrow, conditional payouts, batch payouts, scheduled payments, and vesting on Arc.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0d0f12",
-  "theme_color": "#00e676",
+  "background_color": "#ffffff",
+  "theme_color": "#10bb35",
   "lang": "en",
   "scope": "/",
   "categories": [

@@ -13,9 +13,9 @@ const variantStyles: Record<Variant, string> = {
 }
 
 const sizeStyles: Record<Size, string> = {
-  sm: 'px-3 py-1.5 text-xs rounded-lg h-7',
-  md: 'px-4 py-2 text-sm rounded-xl h-9',
-  lg: 'px-5 py-2.5 text-sm rounded-xl h-11',
+  sm: 'px-3.5 py-2 text-sm rounded-lg min-h-9',
+  md: 'px-5 py-2.5 text-base rounded-xl min-h-11',
+  lg: 'px-6 py-3.5 text-base rounded-xl min-h-14',
 }
 
 export function Button({
@@ -38,14 +38,13 @@ export function Button({
       disabled={disabled || loading}
       onClick={onClick}
       className={cn(
-        'inline-flex items-center justify-center gap-1.5 font-semibold transition-all',
+        'inline-flex items-center justify-center gap-2 font-medium transition-all',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus)]',
         'disabled:cursor-not-allowed',
         variantStyles[variant], sizeStyles[size], className
       )}
       style={isPrimary ? {
         background: 'var(--accent)',
-        boxShadow: '0 0 0 0 rgba(0,230,118,0)',
       } : {}}
     >
       {loading && <Loader2 className="size-3 animate-spin" />}

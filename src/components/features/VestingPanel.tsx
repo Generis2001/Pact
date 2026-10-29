@@ -111,7 +111,7 @@ export function VestingPanel() {
   return (
     <div className="max-w-2xl mx-auto space-y-5">
       <div>
-        <h1 className="display text-2xl font-bold" style={{ color: 'var(--ink)', letterSpacing: '-0.03em' }}>Vesting Vault</h1>
+        <h1 className="display text-2xl font-bold" style={{ color: 'var(--ink)' }}>Vesting Vault</h1>
         <p className="mt-1 text-sm" style={{ color: 'var(--muted)' }}>
           Linear, cliff, or periodic USDC vesting. Grantor deposits upfront; beneficiary claims as tokens vest.
         </p>

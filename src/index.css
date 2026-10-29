@@ -2,80 +2,95 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ─── Pact Design Tokens — Superfluid-inspired dark theme ─────────────────── */
-:root {
-  /* Backgrounds */
-  --bg:             #0d0f12;
-  --bg-secondary:   #12161c;
-  --bg-elevated:    #181c24;
-  --bg-overlay:     #1e2530;
-
-  /* Surfaces / cards */
-  --surface:        rgba(255,255,255,0.04);
-  --surface-hover:  rgba(255,255,255,0.07);
-  --surface-active: rgba(255,255,255,0.09);
-  --surface-muted:  rgba(255,255,255,0.03);
-  --surface-strong: #181c24;
-
-  /* Borders */
-  --border:         rgba(255,255,255,0.07);
-  --border-strong:  rgba(255,255,255,0.14);
-  --border-accent:  rgba(0,255,127,0.25);
-
-  /* Typography */
-  --ink:            #f0f2f5;
-  --ink-2:          #a8b4c0;
-  --muted:          #64748b;
-  --subtle:         #475569;
-
-  /* Accent — Superfluid green */
-  --accent:         #00e676;
-  --accent-dim:     rgba(0,230,118,0.12);
-  --accent-hover:   #00ff88;
-  --accent-fg:      #0d0f12;
-
-  /* Semantic */
-  --success:        #00e676;
-  --success-dim:    rgba(0,230,118,0.12);
-  --danger:         #f4506c;
-  --danger-dim:     rgba(244,80,108,0.12);
-  --warning:        #f59e0b;
-  --warning-dim:    rgba(245,158,11,0.12);
-  --info:           #38bdf8;
-  --info-dim:       rgba(56,189,248,0.12);
-
-  /* Focus ring */
-  --focus:          rgba(0,230,118,0.45);
+@font-face {
+  font-family: 'Walsheim';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/GT-Walsheim-Pro-Regular.woff2') format('woff2');
 }
-
+@font-face {
+  font-family: 'Walsheim';
+  font-style: normal;
+  font-weight: 500 900;
+  font-display: swap;
+  src: url('/fonts/GT-Walsheim-Pro-Medium.woff2') format('woff2');
+}
+:root {
+  color-scheme: light;
+  --font-ui: 'Walsheim', Arial, sans-serif;
+  --bg: #ffffff;
+  --bg-secondary: #ffffff;
+  --bg-elevated: #ffffff;
+  --bg-overlay: #f8fafb;
+  --surface: #f5f7f9;
+  --surface-hover: #edf2f5;
+  --surface-active: #e8eef2;
+  --surface-muted: #f8fafb;
+  --surface-strong: #ffffff;
+  --border: #e0e0e0;
+  --border-strong: #c9d1da;
+  --border-accent: #cdeed6;
+  --ink: #343641;
+  --ink-2: #626c7b;
+  --muted: #7a7d86;
+  --subtle: #99a7ba;
+  --accent: #10bb35;
+  --accent-dim: #ebfaf0;
+  --accent-hover: #0b962a;
+  --accent-fg: #ffffff;
+  --success: #0d9e2d;
+  --success-dim: #ebfaf0;
+  --danger: #db2626;
+  --danger-dim: #fff0f0;
+  --warning: #a46b09;
+  --warning-dim: #fff8e9;
+  --info: #3874bd;
+  --info-dim: #edf4ff;
+  --focus: rgba(16,187,53,0.3);
+  --card-shadow: 0 2px 12px rgba(18,20,30,0.07);
+}
 * { box-sizing: border-box; }
-
 body {
   margin: 0;
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--font-ui);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: 0.15px;
   min-height: 100dvh;
   background: var(--bg);
   color: var(--ink);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-
-/* Typography helpers */
-.display {
-  font-family: 'Space Grotesk', sans-serif;
-  letter-spacing: -0.03em;
+button, input, textarea, select { font: inherit; }
+button { -webkit-tap-highlight-color: transparent; }
+.display { font-family: var(--font-ui); font-weight: 500; letter-spacing: 0.15px; }
+.mono { font-family: var(--font-ui); font-variant-numeric: tabular-nums; }
+.feature-card {
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: var(--bg-elevated);
+  box-shadow: var(--card-shadow);
+  transition: border-color 160ms, box-shadow 160ms, transform 160ms;
 }
-.mono {
-  font-family: 'JetBrains Mono', Menlo, monospace;
-  font-variant-numeric: tabular-nums;
+.feature-card:hover {
+  border-color: var(--border-accent);
+  box-shadow: 0 4px 20px rgba(18,20,30,0.09);
+  transform: translateY(-2px);
 }
-
-/* Scrollbar */
-::-webkit-scrollbar { width: 5px; height: 5px; }
+.feature-card:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+.nav-icon { color: #b2bfd2; }
+[aria-current='page'] .nav-icon { color: var(--accent); }
+::-webkit-scrollbar { width: 7px; height: 7px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.10); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.18); }
-
-/* Sonner toast overrides for dark theme */
-[data-sonner-toaster] [data-type='success'] { background: var(--bg-elevated) !important; border-color: var(--border-accent) !important; color: var(--ink) !important; }
-[data-sonner-toaster] [data-type='error']   { background: var(--bg-elevated) !important; border-color: rgba(244,80,108,0.3) !important; color: var(--ink) !important; }
+::-webkit-scrollbar-thumb { background: #d5d9df; border-radius: 6px; }
+::-webkit-scrollbar-thumb:hover { background: #b9c0c9; }
+[data-sonner-toaster] { font-family: var(--font-ui) !important; }
+[data-sonner-toaster] [data-type='success'] { background: #fff !important; border-color: var(--border-accent) !important; color: var(--ink) !important; }
+[data-sonner-toaster] [data-type='error'] { background: #fff !important; border-color: #f5cccc !important; color: var(--ink) !important; }
+@media (prefers-reduced-motion: reduce) {
+  .feature-card { transition: none; }
+  .feature-card:hover { transform: none; }
+}

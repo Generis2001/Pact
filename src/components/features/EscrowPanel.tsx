@@ -135,7 +135,7 @@ export function EscrowPanel() {
   return (
     <div className="max-w-2xl mx-auto space-y-5">
       <div>
-        <h1 className="display text-2xl font-bold" style={{ color: 'var(--ink)', letterSpacing: '-0.03em' }}>Escrow</h1>
+        <h1 className="display text-2xl font-bold" style={{ color: 'var(--ink)' }}>Escrow</h1>
         <p className="mt-1 text-sm" style={{ color: 'var(--muted)' }}>
           Lock USDC until milestones are met. Both depositor and arbiter must approve each milestone.
         </p>

@@ -117,7 +117,7 @@ export function BatchPanel() {
   return (
     <div className="max-w-2xl mx-auto space-y-5">
       <div>
-        <h1 className="display text-2xl font-bold" style={{ color: 'var(--ink)', letterSpacing: '-0.03em' }}>Batch Payout</h1>
+        <h1 className="display text-2xl font-bold" style={{ color: 'var(--ink)' }}>Batch Payout</h1>
         <p className="mt-1 text-sm" style={{ color: 'var(--muted)' }}>
           Send USDC to multiple recipients in a single transaction. Import from CSV or enter manually.
         </p>

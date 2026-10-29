@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react'
-import { ConnectKitButton } from 'connectkit'
+import { ArcWalletButton } from '@/components/ui/WalletButton'
 import { Sidebar } from './Sidebar'
 import { Dashboard } from '@/components/features/Dashboard'
 import { EscrowPanel } from '@/components/features/EscrowPanel'
@@ -42,7 +42,7 @@ export function Shell() {
   return (
     <div className="min-h-dvh flex" style={{ background: 'var(--bg)' }}>
       {/* Desktop sidebar */}
-      <div className="hidden md:flex min-h-dvh sticky top-0">
+      <div className="sticky top-0 hidden h-dvh shrink-0 md:flex">
         <Sidebar active={tab} onNav={(t) => { setTab(t); setMobileOpen(false) }} />
       </div>
 
@@ -51,7 +51,7 @@ export function Shell() {
         <div className="fixed inset-0 z-50 md:hidden flex">
           <div
             className="absolute inset-0"
-            style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}
+            style={{ background: 'rgba(18,20,30,0.24)', backdropFilter: 'blur(4px)' }}
             onClick={() => setMobileOpen(false)}
           />
           <div className="relative z-10 flex flex-col min-h-dvh">
@@ -64,16 +64,18 @@ export function Shell() {
       <div className="flex flex-col flex-1 min-w-0">
         {/* Topbar */}
         <header
-          className="sticky top-0 z-40 flex items-center justify-between gap-4 px-5 py-3"
+          className="sticky top-0 z-40 flex min-h-[86px] items-center justify-between gap-3 px-4 py-4 sm:px-8"
           style={{
-            background: 'rgba(13,15,18,0.80)',
+            background: 'rgba(255,255,255,0.95)',
             backdropFilter: 'blur(16px)',
             WebkitBackdropFilter: 'blur(16px)',
-            borderBottom: '1px solid var(--border)',
           }}
         >
           {/* Mobile menu */}
           <button
+            type="button"
+            aria-label={mobileOpen ? 'Close navigation' : 'Open navigation'}
+            aria-expanded={mobileOpen}
             className="md:hidden p-1.5 rounded-lg transition-colors"
             style={{ color: 'var(--ink-2)' }}
             onClick={() => setMobileOpen((o) => !o)}
@@ -100,12 +102,12 @@ export function Shell() {
                 <span style={{ color: 'var(--muted)', fontSize: '11px', fontFamily: 'inherit' }}>USDC</span>
               </div>
             )}
-            <ConnectKitButton />
+            <ArcWalletButton />
           </div>
         </header>
 
         {/* Page content */}
-        <main className="flex-1 p-4 md:p-6 overflow-auto">
+        <main className="flex-1 px-5 pb-16 pt-4 sm:px-8 md:pt-6">
           {PANELS[tab]}
         </main>
       </div>

@@ -97,7 +97,7 @@ export function ConditionalPanel() {
   return (
     <div className="max-w-2xl mx-auto space-y-5">
       <div>
-        <h1 className="display text-2xl font-bold" style={{ color: 'var(--ink)', letterSpacing: '-0.03em' }}>Conditional Payout</h1>
+        <h1 className="display text-2xl font-bold" style={{ color: 'var(--ink)' }}>Conditional Payout</h1>
         <p className="mt-1 text-sm" style={{ color: 'var(--muted)' }}>
           Release USDC when an authorized oracle or approver confirms a condition is met.
         </p>

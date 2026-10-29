@@ -87,7 +87,7 @@ forge test
 
 ## Recent Update
 
-The interface now uses a dark theme with a refreshed sidebar, module cards, and wallet USDC balance on the dashboard. Feature panels use the mainnet chain constant consistently. App metadata, a manifest, and a favicon support browser and wallet identification.
+The interface uses a light theme with Walsheim typography, green controls, outline feature illustrations, and wallet USDC balance on the dashboard. The top-right Arc wallet control uses the same Arc logo as the Studio footer and can switch a connected wallet to Arc. The redundant Network details card has been removed. Feature panels use the mainnet chain constant consistently. App metadata, a manifest, and a favicon support browser and wallet identification.
 
 The optional Bun backend decodes events from the five contracts and provides `/health`, `/events`, and `/events/address`. It checks scheduled payments and logs when they are due for operator action. It stores events in memory and starts from a recent 2000-block lookback; it does not automatically submit payments or provide durable historical indexing. Production API hosting and routing must be configured separately from the Vite development proxy.
 

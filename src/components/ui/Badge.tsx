@@ -24,12 +24,12 @@ export function Badge({ children, variant = 'default', dot = false, className }:
         'inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-semibold',
         className
       )}
-      style={{ background: v.bg, color: v.color, border: '1px solid rgba(255,255,255,0.06)' }}
+      style={{ background: v.bg, color: v.color }}
     >
       {dot && (
         <span
           className="size-1.5 rounded-full shrink-0"
-          style={{ background: v.dot, boxShadow: `0 0 4px ${v.dot}` }}
+          style={{ background: v.dot }}
         />
       )}
       {children}
