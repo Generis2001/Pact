@@ -1,3 +1,4 @@
+import { usePaymentDeployment } from '@/lib/payment-deployment'
 import { useState } from 'react'
 import { useAccount, useWriteContract, useReadContract } from 'wagmi'
 import { toast } from 'sonner'
@@ -9,7 +10,7 @@ import { TxButton } from '@/components/ui/TxButton'
 import { Badge } from '@/components/ui/Badge'
 import { ExternalLink, Play, XCircle } from 'lucide-react'
 import {
-  SCHEDULED_PAYOUT_ABI, ERC20_ABI, USDC_ADDRESS, CONTRACT_ADDRESSES, ARC_CHAIN_ID,
+  SCHEDULED_PAYOUT_ABI, ERC20_ABI, USDC_ADDRESS, ARC_CHAIN_ID,
   SCHEDULE_STATE_LABELS,
 } from '@/lib/contracts'
 import { isValidAddress, readUsdcInput, parseRecordId, parseUintInput, parseTimestampInput, isSameAddress, formatUsdc, formatAddress, formatTimestamp, formatDuration, parseOnchainError } from '@/lib/utils'
@@ -23,6 +24,7 @@ const INTERVALS = [
 ]
 
 export function ScheduledPanel() {
+  const { address: contractAddress, legacy } = usePaymentDeployment('ScheduledPayout')
   const { address } = useAccount()
   const now = useChainTimestamp()
   const [recipient, setRecipient] = useState('')
@@ -63,27 +65,27 @@ export function ScheduledPanel() {
   const { isLoading: isConfirmingWithdraw } = useTransactionReceipt(withdrawHash, 'Funds withdrawn.')
 
   const { data: fundSchedule } = useReadContract({
-    address: CONTRACT_ADDRESSES.ScheduledPayout, abi: SCHEDULED_PAYOUT_ABI, chainId: ARC_CHAIN_ID,
+    address: contractAddress, abi: SCHEDULED_PAYOUT_ABI, chainId: ARC_CHAIN_ID,
     functionName: 'getSchedule', args: fundRecordId ? [fundRecordId] : undefined,
     query: { enabled: !!fundRecordId },
   })
   const { data: cancelSchedule } = useReadContract({
-    address: CONTRACT_ADDRESSES.ScheduledPayout, abi: SCHEDULED_PAYOUT_ABI, chainId: ARC_CHAIN_ID,
+    address: contractAddress, abi: SCHEDULED_PAYOUT_ABI, chainId: ARC_CHAIN_ID,
     functionName: 'getSchedule', args: cancelRecordId ? [cancelRecordId] : undefined,
     query: { enabled: !!cancelRecordId },
   })
 
   const { data: payerIds } = useReadContract({
-    address: CONTRACT_ADDRESSES.ScheduledPayout,
+    address: contractAddress,
     abi: SCHEDULED_PAYOUT_ABI,
     functionName: 'getPayerSchedules',
     args: address ? [address] : undefined,
     chainId: ARC_CHAIN_ID,
-    query: { enabled: !!address && !!CONTRACT_ADDRESSES.ScheduledPayout },
+    query: { enabled: !!address && !!contractAddress },
   })
 
   const { data: viewSchedule } = useReadContract({
-    address: CONTRACT_ADDRESSES.ScheduledPayout,
+    address: contractAddress,
     abi: SCHEDULED_PAYOUT_ABI,
     functionName: 'getSchedule',
     args: viewRecordId ? [viewRecordId] : undefined,
@@ -92,7 +94,7 @@ export function ScheduledPanel() {
   })
 
   const { data: viewBalance } = useReadContract({
-    address: CONTRACT_ADDRESSES.ScheduledPayout,
+    address: contractAddress,
     abi: SCHEDULED_PAYOUT_ABI,
     functionName: 'getBalance',
     args: viewRecordId ? [viewRecordId] : undefined,
@@ -101,7 +103,7 @@ export function ScheduledPanel() {
   })
 
   const { data: isDue } = useReadContract({
-    address: CONTRACT_ADDRESSES.ScheduledPayout,
+    address: contractAddress,
     abi: SCHEDULED_PAYOUT_ABI,
     functionName: 'isDue',
     args: executeRecordId ? [executeRecordId] : undefined,
@@ -112,20 +114,21 @@ export function ScheduledPanel() {
   const intervalSeconds = intervalPreset === 0 ? parseRecordId(customInterval) ?? 0n : BigInt(intervalPreset)
   const parsedFundAmount = readUsdcInput(fundAmount)
   const parsedWithdrawAmount = readUsdcInput(withdrawAmount)
-  const { data: allowance = 0n } = useUsdcAllowance(CONTRACT_ADDRESSES.ScheduledPayout)
+  const { data: allowance = 0n } = useUsdcAllowance(contractAddress)
   const approved = parsedFundAmount > 0n && allowance >= parsedFundAmount
-  const notDeployed = !CONTRACT_ADDRESSES.ScheduledPayout
+  const notDeployed = !contractAddress
   const canFund = !!fundSchedule && fundSchedule.active && isSameAddress(address, fundSchedule.payer)
     && (fundSchedule.endTime === 0n || now <= fundSchedule.endTime)
   const viewBuffer = viewSchedule?.active && (viewSchedule.endTime === 0n || now <= viewSchedule.endTime) ? viewSchedule.amount : 0n
   const withdrawable = viewBalance !== undefined && viewBalance > viewBuffer ? viewBalance - viewBuffer : 0n
 
   function handleApprove() {
-    if (!CONTRACT_ADDRESSES.ScheduledPayout || !canFund || parsedFundAmount === 0n) return
-    approve({ chainId: ARC_CHAIN_ID, address: USDC_ADDRESS, abi: ERC20_ABI, functionName: 'approve', args: [CONTRACT_ADDRESSES.ScheduledPayout, parsedFundAmount] })
+    if (!contractAddress || !canFund || parsedFundAmount === 0n) return
+    approve({ chainId: ARC_CHAIN_ID, address: USDC_ADDRESS, abi: ERC20_ABI, functionName: 'approve', args: [contractAddress, parsedFundAmount] })
   }
 
   function handleCreate() {
+    if (legacy) return
     if (!isValidAddress(recipient)) { toast.error('Invalid recipient'); return }
     if (readUsdcInput(amount) === 0n) { toast.error('Enter a positive amount with at most 6 decimal places.'); return }
     if (intervalSeconds < 86400n) { toast.error('Payment intervals must be at least one day.'); return }
@@ -138,7 +141,7 @@ export function ScheduledPanel() {
 
     create({
       chainId: ARC_CHAIN_ID,
-      address: CONTRACT_ADDRESSES.ScheduledPayout,
+      address: contractAddress,
       abi: SCHEDULED_PAYOUT_ABI,
       functionName: 'createSchedule',
       args: [recipient as `0x${string}`, readUsdcInput(amount), startTs, endTs, intervalSeconds, maxExec, description],
@@ -161,7 +164,7 @@ export function ScheduledPanel() {
         </div>
       )}
 
-      <Card>
+      {!legacy && <Card>
         <CardLabel>Create Schedule</CardLabel>
         <div className="mt-4 space-y-3">
           <Input label="Recipient" value={recipient} onChange={setRecipient} placeholder="0x…"
@@ -203,7 +206,7 @@ export function ScheduledPanel() {
             </a>
           )}
         </div>
-      </Card>
+      </Card>}
 
       {/* Fund a schedule */}
       <Card>
@@ -219,7 +222,7 @@ export function ScheduledPanel() {
             </Button>
             <TxButton label="Fund" onClick={() => fund({
               chainId: ARC_CHAIN_ID,
-              address: CONTRACT_ADDRESSES.ScheduledPayout, abi: SCHEDULED_PAYOUT_ABI,
+              address: contractAddress, abi: SCHEDULED_PAYOUT_ABI,
               functionName: 'fundSchedule', args: [fundRecordId!, parsedFundAmount],
             })} isPending={isFunding} isConfirming={isConfirmingFund} isSuccess={fundSuccess} disabled={!approved || !canFund} />
           </div>
@@ -239,7 +242,7 @@ export function ScheduledPanel() {
             <TxButton label={<span className="flex items-center gap-2"><Play className="size-3.5" />Execute</span> as unknown as string}
               onClick={() => execute({
                 chainId: ARC_CHAIN_ID,
-                address: CONTRACT_ADDRESSES.ScheduledPayout, abi: SCHEDULED_PAYOUT_ABI,
+                address: contractAddress, abi: SCHEDULED_PAYOUT_ABI,
                 functionName: 'executeSchedule', args: [executeRecordId!],
               })} isPending={isExecuting} isConfirming={isConfirmingExec} isSuccess={execSuccess}
               disabled={!executeRecordId || !isDue} className="mt-2" />
@@ -250,7 +253,7 @@ export function ScheduledPanel() {
             <Input value={cancelId} onChange={setCancelId} placeholder="Schedule ID" inputMode="numeric" />
             <Button variant="danger" className="mt-2 w-full" onClick={() => cancel({
               chainId: ARC_CHAIN_ID,
-              address: CONTRACT_ADDRESSES.ScheduledPayout, abi: SCHEDULED_PAYOUT_ABI,
+              address: contractAddress, abi: SCHEDULED_PAYOUT_ABI,
               functionName: 'cancelSchedule', args: [cancelRecordId!],
             })} loading={isCancelling || isConfirmingCancel} disabled={!cancelSchedule?.active || !isSameAddress(address, cancelSchedule.payer)}>
               <XCircle className="size-3.5" /> Cancel
@@ -285,7 +288,7 @@ export function ScheduledPanel() {
                 <div className="space-y-2">
                   <p className="text-xs">Available to withdraw: {formatUsdc(withdrawable)} USDC</p>
                   <Input label="Withdraw amount (USDC)" value={withdrawAmount} onChange={setWithdrawAmount} inputMode="decimal" />
-                  <TxButton label="Withdraw Funds" onClick={() => withdraw({ chainId: ARC_CHAIN_ID, address: CONTRACT_ADDRESSES.ScheduledPayout, abi: SCHEDULED_PAYOUT_ABI, functionName: 'withdrawExcessFunds', args: [viewRecordId!, parsedWithdrawAmount] })}
+                  <TxButton label="Withdraw Funds" onClick={() => withdraw({ chainId: ARC_CHAIN_ID, address: contractAddress, abi: SCHEDULED_PAYOUT_ABI, functionName: 'withdrawExcessFunds', args: [viewRecordId!, parsedWithdrawAmount] })}
                     isPending={isWithdrawing} isConfirming={isConfirmingWithdraw} disabled={parsedWithdrawAmount === 0n || parsedWithdrawAmount > withdrawable} />
                 </div>
               )}
@@ -310,13 +313,14 @@ export function ScheduledPanel() {
 }
 
 function ScheduleRow({ id }: { id: bigint }) {
+  const { address: contractAddress } = usePaymentDeployment('ScheduledPayout')
   const { data } = useReadContract({
-    address: CONTRACT_ADDRESSES.ScheduledPayout,
+    address: contractAddress,
     abi: SCHEDULED_PAYOUT_ABI,
     functionName: 'getSchedule',
     args: [id],
     chainId: ARC_CHAIN_ID,
-    query: { enabled: !!CONTRACT_ADDRESSES.ScheduledPayout },
+    query: { enabled: !!contractAddress },
   })
   if (!data) return null
   return (

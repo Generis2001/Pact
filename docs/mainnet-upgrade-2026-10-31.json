@@ -1,0 +1,1465 @@
+{
+  "deploymentAndLiveVerification": {
+    "chainId": 5042,
+    "wallet": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+    "startedAt": "2026-10-31T14:14:18.034Z",
+    "additionalBudgetUsdc": "0.20",
+    "initialNativeBalance": "419877662538579305",
+    "gasSpentWei": "192467625000000000",
+    "addresses": {
+      "EscrowManager": "0x5055fadc05000be926531dd26075d53804343de5",
+      "ConditionalPayout": "0x83bcda8e6093bfa97ddb79cad76d121ba2757856",
+      "ScheduledPayout": "0x75f6b1b52801a734db711fbbcdc0b90b674a4592"
+    },
+    "transactions": [
+      {
+        "label": "Deploy EscrowManager",
+        "name": "EscrowManager",
+        "signer": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+        "nonce": 60,
+        "predictedAddress": "0x5055fadc05000be926531Dd26075D53804343De5",
+        "gasLimit": "2254514",
+        "gasPrice": "25000000000",
+        "status": "success",
+        "hash": "0xba88bb89db5f31ed3b3040f7a2467fdcfb2befbd7d820796574b2674da3a0791",
+        "blockNumber": "28829550",
+        "gasUsed": "2129091",
+        "effectiveGasPrice": "25000000000",
+        "feeUsdc": "0.053227275",
+        "events": []
+      },
+      {
+        "label": "Deploy ConditionalPayout",
+        "name": "ConditionalPayout",
+        "signer": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+        "nonce": 61,
+        "predictedAddress": "0x83bcDa8E6093bFa97DDb79CaD76d121BA2757856",
+        "gasLimit": "1114549",
+        "gasPrice": "25000000000",
+        "status": "success",
+        "hash": "0xc8bb09ae1fb45cd790faea921171f8f99f054d975beaf63936599fe82de39f63",
+        "blockNumber": "28829557",
+        "gasUsed": "1051959",
+        "effectiveGasPrice": "25000000000",
+        "feeUsdc": "0.026298975",
+        "events": []
+      },
+      {
+        "label": "Deploy ScheduledPayout",
+        "name": "ScheduledPayout",
+        "signer": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+        "nonce": 62,
+        "predictedAddress": "0x75F6B1b52801A734dB711FBbcdc0B90B674a4592",
+        "gasLimit": "1479855",
+        "gasPrice": "25000000000",
+        "status": "success",
+        "hash": "0xdc86d50e0f938ee6cc37fb5a7da70fc93e4cea68c0fed6fdfc864695888a68c6",
+        "blockNumber": "28829563",
+        "gasUsed": "1397129",
+        "effectiveGasPrice": "25000000000",
+        "feeUsdc": "0.034928225",
+        "events": []
+      },
+      {
+        "label": "Fund controlled verification arbiter",
+        "signer": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+        "to": "0x95F447265FE3928CA4f0404487B82545886eB1dD",
+        "value": "7500000000000000",
+        "nonce": 63,
+        "gasLimit": "21000",
+        "gasPrice": "25000000000",
+        "status": "success",
+        "hash": "0xb31f3999241f4e31b2b16246b36bece7b0c355ac799f95472970603b09e169b1",
+        "blockNumber": "28829746",
+        "gasUsed": "21000",
+        "effectiveGasPrice": "25000000000",
+        "feeUsdc": "0.000525",
+        "events": []
+      },
+      {
+        "label": "Approve exact escrow verification allowance",
+        "name": "USDC",
+        "contract": "0x3600000000000000000000000000000000000000",
+        "signer": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+        "functionName": "approve",
+        "args": [
+          "0x5055fadc05000be926531dd26075d53804343de5",
+          "40"
+        ],
+        "nonce": 64,
+        "gasLimit": "59016",
+        "gasPrice": "25000000000",
+        "status": "success",
+        "hash": "0x034041533b80dbbd2c0364528f2acb0be3a8cfcf1380f9ae9adebbb7a79e415d",
+        "blockNumber": "28829754",
+        "gasUsed": "55402",
+        "effectiveGasPrice": "25000000000",
+        "feeUsdc": "0.00138505",
+        "events": [
+          {
+            "eventName": "Approval",
+            "args": {
+              "owner": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+              "spender": "0x5055fadc05000be926531Dd26075D53804343De5",
+              "value": "40"
+            }
+          }
+        ]
+      },
+      {
+        "label": "EscrowManager.createEscrow",
+        "name": "EscrowManager",
+        "contract": "0x5055fadc05000be926531dd26075d53804343de5",
+        "signer": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+        "functionName": "createEscrow",
+        "args": [
+          "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+          "0x95F447265FE3928CA4f0404487B82545886eB1dD",
+          "1793456253",
+          [
+            {
+              "amount": "10",
+              "deadline": "0",
+              "description": "previous refund"
+            },
+            {
+              "amount": "10",
+              "deadline": "0",
+              "description": "remaining refund"
+            }
+          ]
+        ],
+        "nonce": 65,
+        "gasLimit": "380809",
+        "gasPrice": "25000000000",
+        "status": "success",
+        "hash": "0xaf85298071d831a1f1f4c9d453a779b1791bf07e9aef5f2c3aac134a5d363f8d",
+        "blockNumber": "28829761",
+        "gasUsed": "358661",
+        "effectiveGasPrice": "25000000000",
+        "feeUsdc": "0.008966525",
+        "events": [
+          {
+            "eventName": "EscrowCreated",
+            "args": {
+              "escrowId": "1",
+              "depositor": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+              "beneficiary": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+              "arbiter": "0x95F447265FE3928CA4f0404487B82545886eB1dD",
+              "amount": "20",
+              "deadline": "1793456253",
+              "description": ""
+            }
+          }
+        ]
+      },
+      {
+        "label": "EscrowManager.fundEscrow",
+        "name": "EscrowManager",
+        "contract": "0x5055fadc05000be926531dd26075d53804343de5",
+        "signer": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+        "functionName": "fundEscrow",
+        "args": [
+          "1"
+        ],
+        "nonce": 66,
+        "gasLimit": "99496",
+        "gasPrice": "25000000000",
+        "status": "success",
+        "hash": "0x6b529e86383a81a7190dc615068051cc467faa21e8b21378fdbd9ce151bcbe46",
+        "blockNumber": "28829768",
+        "gasUsed": "88990",
+        "effectiveGasPrice": "25000000000",
+        "feeUsdc": "0.00222475",
+        "events": [
+          {
+            "eventName": "EscrowFunded",
+            "args": {
+              "escrowId": "1",
+              "depositor": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+              "amount": "20"
+            }
+          }
+        ]
+      },
+      {
+        "label": "EscrowManager.disputeMilestone",
+        "name": "EscrowManager",
+        "contract": "0x5055fadc05000be926531dd26075d53804343de5",
+        "signer": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+        "functionName": "disputeMilestone",
+        "args": [
+          "1",
+          "0"
+        ],
+        "nonce": 67,
+        "gasLimit": "57860",
+        "gasPrice": "25000000000",
+        "status": "success",
+        "hash": "0xc55bfde70fc26762189a3aff2cd6e3001230156dc1c9a4eddf4275625b093aba",
+        "blockNumber": "28829775",
+        "gasUsed": "54306",
+        "effectiveGasPrice": "25000000000",
+        "feeUsdc": "0.00135765",
+        "events": [
+          {
+            "eventName": "MilestoneDisputed",
+            "args": {
+              "escrowId": "1",
+              "milestoneIndex": "0"
+            }
+          }
+        ]
+      },
+      {
+        "label": "EscrowManager.resolveMilestone",
+        "name": "EscrowManager",
+        "contract": "0x5055fadc05000be926531dd26075d53804343de5",
+        "signer": "0x95F447265FE3928CA4f0404487B82545886eB1dD",
+        "functionName": "resolveMilestone",
+        "args": [
+          "1",
+          "0",
+          false
+        ],
+        "nonce": 0,
+        "gasLimit": "88202",
+        "gasPrice": "25000000000",
+        "status": "success",
+        "hash": "0xf70ad1d6847548b8cf02c836fb33a5f03fcdd08907e958b8f990fbaf87024b07",
+        "blockNumber": "28829782",
+        "gasUsed": "78380",
+        "effectiveGasPrice": "25000000000",
+        "feeUsdc": "0.0019595",
+        "events": [
+          {
+            "eventName": "MilestoneResolved",
+            "args": {
+              "escrowId": "1",
+              "milestoneIndex": "0",
+              "releasedToBeneficiary": false,
+              "amount": "10"
+            }
+          }
+        ]
+      },
+      {
+        "label": "EscrowManager.createEscrow",
+        "name": "EscrowManager",
+        "contract": "0x5055fadc05000be926531dd26075d53804343de5",
+        "signer": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+        "functionName": "createEscrow",
+        "args": [
+          "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+          "0x95F447265FE3928CA4f0404487B82545886eB1dD",
+          "1793456778",
+          [
+            {
+              "amount": "10",
+              "deadline": "0",
+              "description": "previous refund"
+            },
+            {
+              "amount": "10",
+              "deadline": "0",
+              "description": "remaining refund"
+            }
+          ]
+        ],
+        "nonce": 68,
+        "gasLimit": "344614",
+        "gasPrice": "25000000000",
+        "status": "success",
+        "hash": "0xed8b3ce1c4b9aedbbc94e6a6cdd4c3ae74caf2abc9db0c1808a48feafd735b24",
+        "blockNumber": "28829795",
+        "gasUsed": "324461",
+        "effectiveGasPrice": "25000000000",
+        "feeUsdc": "0.008111525",
+        "events": [
+          {
+            "eventName": "EscrowCreated",
+            "args": {
+              "escrowId": "2",
+              "depositor": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+              "beneficiary": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+              "arbiter": "0x95F447265FE3928CA4f0404487B82545886eB1dD",
+              "amount": "20",
+              "deadline": "1793456778",
+              "description": ""
+            }
+          }
+        ]
+      },
+      {
+        "label": "EscrowManager.fundEscrow",
+        "name": "EscrowManager",
+        "contract": "0x5055fadc05000be926531dd26075d53804343de5",
+        "signer": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+        "functionName": "fundEscrow",
+        "args": [
+          "2"
+        ],
+        "nonce": 69,
+        "gasLimit": "98866",
+        "gasPrice": "25000000000",
+        "status": "success",
+        "hash": "0x2b1ca2c88b7a945bf99ae8be5679b8de8570687c20dce714bcfdc606c3952e83",
+        "blockNumber": "28829802",
+        "gasUsed": "84190",
+        "effectiveGasPrice": "25000000000",
+        "feeUsdc": "0.00210475",
+        "events": [
+          {
+            "eventName": "EscrowFunded",
+            "args": {
+              "escrowId": "2",
+              "depositor": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+              "amount": "20"
+            }
+          }
+        ]
+      },
+      {
+        "label": "Approve exact conditional verification allowance",
+        "name": "USDC",
+        "contract": "0x3600000000000000000000000000000000000000",
+        "signer": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+        "functionName": "approve",
+        "args": [
+          "0x83bcda8e6093bfa97ddb79cad76d121ba2757856",
+          "10"
+        ],
+        "nonce": 70,
+        "gasLimit": "59028",
+        "gasPrice": "25000000000",
+        "status": "success",
+        "hash": "0x05d4e4ad15bc39cbffa96d7da1671bb55e008abaea5981811ba8dc59fddf50cb",
+        "blockNumber": "28829809",
+        "gasUsed": "55414",
+        "effectiveGasPrice": "25000000000",
+        "feeUsdc": "0.00138535",
+        "events": [
+          {
+            "eventName": "Approval",
+            "args": {
+              "owner": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+              "spender": "0x83bcDa8E6093bFa97DDb79CaD76d121BA2757856",
+              "value": "10"
+            }
+          }
+        ]
+      },
+      {
+        "label": "ConditionalPayout.createAgreement",
+        "name": "ConditionalPayout",
+        "contract": "0x83bcda8e6093bfa97ddb79cad76d121ba2757856",
+        "signer": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+        "functionName": "createAgreement",
+        "args": [
+          "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+          "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+          "10",
+          "1793456791",
+          "Replacement release verification",
+          ""
+        ],
+        "nonce": 71,
+        "gasLimit": "253846",
+        "gasPrice": "25000000000",
+        "status": "success",
+        "hash": "0x120e0e029697fc7cde05037cb24c2389471068538b8409035553cf6793237ca3",
+        "blockNumber": "28829817",
+        "gasUsed": "238696",
+        "effectiveGasPrice": "25000000000",
+        "feeUsdc": "0.0059674",
+        "events": [
+          {
+            "eventName": "AgreementCreated",
+            "args": {
+              "agreementId": "1",
+              "payer": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+              "recipient": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+              "approver": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+              "amount": "10",
+              "conditionDeadline": "1793456791",
+              "conditionDescription": "Replacement release verification",
+              "metadataURI": ""
+            }
+          }
+        ]
+      },
+      {
+        "label": "ConditionalPayout.fundAgreement",
+        "name": "ConditionalPayout",
+        "contract": "0x83bcda8e6093bfa97ddb79cad76d121ba2757856",
+        "signer": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+        "functionName": "fundAgreement",
+        "args": [
+          "1"
+        ],
+        "nonce": 72,
+        "gasLimit": "98613",
+        "gasPrice": "25000000000",
+        "status": "success",
+        "hash": "0x23c1014aa7abd90f68714da3aa105d553e46d2b9daf0ddf2684937a633f43b3d",
+        "blockNumber": "28829826",
+        "gasUsed": "83952",
+        "effectiveGasPrice": "25000000000",
+        "feeUsdc": "0.0020988",
+        "events": [
+          {
+            "eventName": "AgreementFunded",
+            "args": {
+              "agreementId": "1",
+              "payer": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+              "amount": "10"
+            }
+          }
+        ]
+      },
+      {
+        "label": "ConditionalPayout.approveCondition",
+        "name": "ConditionalPayout",
+        "contract": "0x83bcda8e6093bfa97ddb79cad76d121ba2757856",
+        "signer": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+        "functionName": "approveCondition",
+        "args": [
+          "1"
+        ],
+        "nonce": 73,
+        "gasLimit": "79317",
+        "gasPrice": "25000000000",
+        "status": "success",
+        "hash": "0x12fb97bff979cc6e39dec168282e081d9f97d49231b225b76d6bc2ae4c7a9789",
+        "blockNumber": "28829836",
+        "gasUsed": "70035",
+        "effectiveGasPrice": "25000000000",
+        "feeUsdc": "0.001750875",
+        "events": [
+          {
+            "eventName": "ConditionApproved",
+            "args": {
+              "agreementId": "1",
+              "approver": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+              "recipient": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+              "amount": "10"
+            }
+          }
+        ]
+      },
+      {
+        "label": "ConditionalPayout.createAgreement",
+        "name": "ConditionalPayout",
+        "contract": "0x83bcda8e6093bfa97ddb79cad76d121ba2757856",
+        "signer": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+        "functionName": "createAgreement",
+        "args": [
+          "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+          "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+          "1",
+          "1793456235",
+          "Expired pending funding rejection",
+          ""
+        ],
+        "nonce": 74,
+        "gasLimit": "259623",
+        "gasPrice": "25000000000",
+        "status": "success",
+        "hash": "0x0fc6e6b335c1c618b85440953497493e2b3e070a7069795d5461758cd18ac18a",
+        "blockNumber": "28829843",
+        "gasUsed": "244155",
+        "effectiveGasPrice": "25000000000",
+        "feeUsdc": "0.006103875",
+        "events": [
+          {
+            "eventName": "AgreementCreated",
+            "args": {
+              "agreementId": "2",
+              "payer": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+              "recipient": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+              "approver": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+              "amount": "1",
+              "conditionDeadline": "1793456235",
+              "conditionDescription": "Expired pending funding rejection",
+              "metadataURI": ""
+            }
+          }
+        ]
+      },
+      {
+        "label": "Approve exact schedule verification allowance",
+        "name": "USDC",
+        "contract": "0x3600000000000000000000000000000000000000",
+        "signer": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+        "functionName": "approve",
+        "args": [
+          "0x75f6b1b52801a734db711fbbcdc0b90b674a4592",
+          "35"
+        ],
+        "nonce": 75,
+        "gasLimit": "59028",
+        "gasPrice": "25000000000",
+        "status": "success",
+        "hash": "0xc29badbf6eaa5facf598526e2c5fc9652f013ef224776dde48fceb1a31c5650f",
+        "blockNumber": "28829849",
+        "gasUsed": "55414",
+        "effectiveGasPrice": "25000000000",
+        "feeUsdc": "0.00138535",
+        "events": [
+          {
+            "eventName": "Approval",
+            "args": {
+              "owner": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+              "spender": "0x75F6B1b52801A734dB711FBbcdc0B90B674a4592",
+              "value": "35"
+            }
+          }
+        ]
+      },
+      {
+        "label": "ScheduledPayout.createSchedule",
+        "name": "ScheduledPayout",
+        "contract": "0x75f6b1b52801a734db711fbbcdc0b90b674a4592",
+        "signer": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+        "functionName": "createSchedule",
+        "args": [
+          "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+          "10",
+          "1793456211",
+          "0",
+          "86400",
+          "1",
+          "Final execution surplus refund"
+        ],
+        "nonce": 76,
+        "gasLimit": "275817",
+        "gasPrice": "25000000000",
+        "status": "success",
+        "hash": "0xc12c884ed5a48e4812a425aec405f2969c9fdce25f9f2f03c81a79370a223766",
+        "blockNumber": "28829857",
+        "gasUsed": "259456",
+        "effectiveGasPrice": "25000000000",
+        "feeUsdc": "0.0064864",
+        "events": [
+          {
+            "eventName": "ScheduleCreated",
+            "args": {
+              "scheduleId": "1",
+              "payer": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+              "recipient": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+              "amount": "10",
+              "startTime": "1793456211",
+              "endTime": "0",
+              "intervalSeconds": "86400",
+              "maxExecutions": "1",
+              "description": "Final execution surplus refund"
+            }
+          }
+        ]
+      },
+      {
+        "label": "ScheduledPayout.fundSchedule",
+        "name": "ScheduledPayout",
+        "contract": "0x75f6b1b52801a734db711fbbcdc0b90b674a4592",
+        "signer": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+        "functionName": "fundSchedule",
+        "args": [
+          "1",
+          "30"
+        ],
+        "nonce": 77,
+        "gasLimit": "102167",
+        "gasPrice": "25000000000",
+        "status": "success",
+        "hash": "0x71420f3e25e64f228498122018a0a4dd81fa66438f54f97df86bd010fd0f4fd2",
+        "blockNumber": "28829864",
+        "gasUsed": "91498",
+        "effectiveGasPrice": "25000000000",
+        "feeUsdc": "0.00228745",
+        "events": [
+          {
+            "eventName": "ScheduleFunded",
+            "args": {
+              "scheduleId": "1",
+              "payer": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+              "fundAmount": "30",
+              "newBalance": "30"
+            }
+          }
+        ]
+      },
+      {
+        "label": "ScheduledPayout.executeSchedule",
+        "name": "ScheduledPayout",
+        "contract": "0x75f6b1b52801a734db711fbbcdc0b90b674a4592",
+        "signer": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+        "functionName": "executeSchedule",
+        "args": [
+          "1"
+        ],
+        "nonce": 78,
+        "gasLimit": "197914",
+        "gasPrice": "25000000000",
+        "status": "success",
+        "hash": "0x70a9639db7791abba7e86e1ae8134553f474e3ed90bb361b894166ba16f93875",
+        "blockNumber": "28829873",
+        "gasUsed": "173020",
+        "effectiveGasPrice": "25000000000",
+        "feeUsdc": "0.0043255",
+        "events": [
+          {
+            "eventName": "ScheduleExecuted",
+            "args": {
+              "scheduleId": "1",
+              "caller": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+              "recipient": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+              "amount": "10",
+              "executionCount": "1",
+              "totalPaid": "10"
+            }
+          },
+          {
+            "eventName": "ScheduleCompleted",
+            "args": {
+              "scheduleId": "1",
+              "refundedAmount": "20"
+            }
+          }
+        ]
+      },
+      {
+        "label": "ScheduledPayout.createSchedule",
+        "name": "ScheduledPayout",
+        "contract": "0x75f6b1b52801a734db711fbbcdc0b90b674a4592",
+        "signer": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+        "functionName": "createSchedule",
+        "args": [
+          "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+          "10",
+          "1793456227",
+          "1793456256",
+          "86400",
+          "0",
+          "Expired underfunded withdrawal"
+        ],
+        "nonce": 79,
+        "gasLimit": "257772",
+        "gasPrice": "25000000000",
+        "status": "success",
+        "hash": "0x3beac9e4feadd706eb6fa6566ba0aedfc41028097614675dc131e3a71a95a3c5",
+        "blockNumber": "28829889",
+        "gasUsed": "242406",
+        "effectiveGasPrice": "25000000000",
+        "feeUsdc": "0.00606015",
+        "events": [
+          {
+            "eventName": "ScheduleCreated",
+            "args": {
+              "scheduleId": "2",
+              "payer": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+              "recipient": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+              "amount": "10",
+              "startTime": "1793456227",
+              "endTime": "1793456256",
+              "intervalSeconds": "86400",
+              "maxExecutions": "0",
+              "description": "Expired underfunded withdrawal"
+            }
+          }
+        ]
+      },
+      {
+        "label": "ScheduledPayout.fundSchedule",
+        "name": "ScheduledPayout",
+        "contract": "0x75f6b1b52801a734db711fbbcdc0b90b674a4592",
+        "signer": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+        "functionName": "fundSchedule",
+        "args": [
+          "2",
+          "5"
+        ],
+        "nonce": 80,
+        "gasLimit": "101660",
+        "gasPrice": "25000000000",
+        "status": "success",
+        "hash": "0xdf7069715b91d7dadd3936c8e6c95eec15ed251e73124be9f1faaeb08562cfab",
+        "blockNumber": "28829898",
+        "gasUsed": "86814",
+        "effectiveGasPrice": "25000000000",
+        "feeUsdc": "0.00217035",
+        "events": [
+          {
+            "eventName": "ScheduleFunded",
+            "args": {
+              "scheduleId": "2",
+              "payer": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+              "fundAmount": "5",
+              "newBalance": "5"
+            }
+          }
+        ]
+      },
+      {
+        "label": "EscrowManager.claimRefund",
+        "name": "EscrowManager",
+        "contract": "0x5055fadc05000be926531dd26075d53804343de5",
+        "signer": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+        "functionName": "claimRefund",
+        "args": [
+          "1"
+        ],
+        "nonce": 81,
+        "gasLimit": "103145",
+        "gasPrice": "25000000000",
+        "status": "success",
+        "hash": "0x10e5b045bb030cf3f1b89cd75e62e8b33c956a3acf4626841a45fe8989a3c540",
+        "blockNumber": "28854886",
+        "gasUsed": "93239",
+        "effectiveGasPrice": "25000000000",
+        "feeUsdc": "0.002330975",
+        "events": [
+          {
+            "eventName": "Refunded",
+            "args": {
+              "escrowId": "1",
+              "amount": "10"
+            }
+          }
+        ]
+      },
+      {
+        "label": "EscrowManager.initiateDispute",
+        "name": "EscrowManager",
+        "contract": "0x5055fadc05000be926531dd26075d53804343de5",
+        "signer": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+        "functionName": "initiateDispute",
+        "args": [
+          "2"
+        ],
+        "nonce": 82,
+        "gasLimit": "34548",
+        "gasPrice": "25000000000",
+        "status": "success",
+        "hash": "0x3800b534291843b5e809979f8f80e687266232e23caebfafdf0f4fecf5fad5da",
+        "blockNumber": "28854902",
+        "gasUsed": "32547",
+        "effectiveGasPrice": "25000000000",
+        "feeUsdc": "0.000813675",
+        "events": [
+          {
+            "eventName": "Disputed",
+            "args": {
+              "escrowId": "2",
+              "caller": "0x0986Bfd653985c9Fa60a464784264444B542BfD7"
+            }
+          }
+        ]
+      },
+      {
+        "label": "EscrowManager.resolveDispute",
+        "name": "EscrowManager",
+        "contract": "0x5055fadc05000be926531dd26075d53804343de5",
+        "signer": "0x95F447265FE3928CA4f0404487B82545886eB1dD",
+        "functionName": "resolveDispute",
+        "args": [
+          "2",
+          true
+        ],
+        "nonce": 1,
+        "gasLimit": "157347",
+        "gasPrice": "25000000000",
+        "status": "success",
+        "hash": "0xa2046e7dde7ba3ccbdd5f06c02a6ef2012e3381f7586974758ba3b2ed0b2201e",
+        "blockNumber": "28854919",
+        "gasUsed": "144252",
+        "effectiveGasPrice": "25000000000",
+        "feeUsdc": "0.0036063",
+        "events": [
+          {
+            "eventName": "Resolved",
+            "args": {
+              "escrowId": "2",
+              "releasedToBeneficiary": true,
+              "amount": "20"
+            }
+          }
+        ]
+      },
+      {
+        "label": "ScheduledPayout.withdrawExcessFunds",
+        "name": "ScheduledPayout",
+        "contract": "0x75f6b1b52801a734db711fbbcdc0b90b674a4592",
+        "signer": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+        "functionName": "withdrawExcessFunds",
+        "args": [
+          "2",
+          "5"
+        ],
+        "nonce": 83,
+        "gasLimit": "77456",
+        "gasPrice": "25000000000",
+        "status": "success",
+        "hash": "0xd1f7718edd6cd9ffa1b4617ac8ed99feef57d9a0e23660fc6341066772568726",
+        "blockNumber": "28854941",
+        "gasUsed": "63396",
+        "effectiveGasPrice": "25000000000",
+        "feeUsdc": "0.0015849",
+        "events": [
+          {
+            "eventName": "FundsWithdrawn",
+            "args": {
+              "scheduleId": "2",
+              "amount": "5",
+              "remainingBalance": "0"
+            }
+          }
+        ]
+      },
+      {
+        "label": "ScheduledPayout.cancelSchedule",
+        "name": "ScheduledPayout",
+        "contract": "0x75f6b1b52801a734db711fbbcdc0b90b674a4592",
+        "signer": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+        "functionName": "cancelSchedule",
+        "args": [
+          "2"
+        ],
+        "nonce": 84,
+        "gasLimit": "65934",
+        "gasPrice": "25000000000",
+        "status": "success",
+        "hash": "0x76846a2bb3331ca4ca1aa2ce3815ecc24b96d574aeba6795b869ae59dfe90b86",
+        "blockNumber": "28854954",
+        "gasUsed": "52584",
+        "effectiveGasPrice": "25000000000",
+        "feeUsdc": "0.0013146",
+        "events": [
+          {
+            "eventName": "ScheduleCancelled",
+            "args": {
+              "scheduleId": "2",
+              "refundedAmount": "0"
+            }
+          }
+        ]
+      },
+      {
+        "label": "ConditionalPayout.cancelAgreement",
+        "name": "ConditionalPayout",
+        "contract": "0x83bcda8e6093bfa97ddb79cad76d121ba2757856",
+        "signer": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+        "functionName": "cancelAgreement",
+        "args": [
+          "2"
+        ],
+        "nonce": 85,
+        "gasLimit": "50025",
+        "gasPrice": "25000000000",
+        "status": "success",
+        "hash": "0x50d968b8a991beed57fe50e9f756dbdf59f1b68342eaf8f4f026362a56c3004f",
+        "blockNumber": "28854970",
+        "gasUsed": "47258",
+        "effectiveGasPrice": "25000000000",
+        "feeUsdc": "0.00118145",
+        "events": [
+          {
+            "eventName": "AgreementCancelled",
+            "args": {
+              "agreementId": "2"
+            }
+          }
+        ]
+      },
+      {
+        "label": "Return all remaining controlled arbiter USDC",
+        "signer": "0x95F447265FE3928CA4f0404487B82545886eB1dD",
+        "to": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+        "value": "1409200000000000",
+        "nonce": 2,
+        "gasLimit": "21000",
+        "gasPrice": "25000000000",
+        "status": "success",
+        "hash": "0xec9210697713e61b04550854b05d133ed34cdec11cc7b02959174fe671dc11be",
+        "blockNumber": "28854990",
+        "gasUsed": "21000",
+        "effectiveGasPrice": "25000000000",
+        "feeUsdc": "0.000525",
+        "events": []
+      }
+    ],
+    "checks": [
+      {
+        "label": "EscrowManager deployed runtime exactly matches the fixed artifact with canonical USDC",
+        "passed": true
+      },
+      {
+        "label": "ConditionalPayout deployed runtime exactly matches the fixed artifact with canonical USDC",
+        "passed": true
+      },
+      {
+        "label": "ScheduledPayout deployed runtime exactly matches the fixed artifact with canonical USDC",
+        "passed": true
+      },
+      {
+        "label": "EscrowManager.createEscrow rejects InvalidArbiter without broadcast",
+        "passed": true
+      },
+      {
+        "label": "EscrowManager.createEscrow rejects InvalidDeadline without broadcast",
+        "passed": true
+      },
+      {
+        "label": "First resolved milestone refunds exactly its own amount",
+        "passed": true
+      },
+      {
+        "label": "ConditionalPayout.approveCondition rejects Unauthorized without broadcast",
+        "passed": true
+      },
+      {
+        "label": "Replacement conditional payment is released",
+        "passed": true
+      },
+      {
+        "label": "Final scheduled execution refunds the exact unused pool",
+        "passed": true
+      },
+      {
+        "label": "Scheduled payout completes exactly once",
+        "passed": true
+      },
+      {
+        "label": "ScheduledPayout.fundSchedule rejects InactiveSchedule without broadcast",
+        "passed": true
+      },
+      {
+        "label": "ScheduledPayout.executeSchedule rejects InactiveSchedule without broadcast",
+        "passed": true
+      },
+      {
+        "label": "Reviewed recovery checkpoint: both test escrows remain funded",
+        "passed": true
+      },
+      {
+        "label": "EscrowManager.approveRelease rejects DeadlinePassed without broadcast",
+        "passed": true
+      },
+      {
+        "label": "Parent refund preserves the other escrow collateral after a milestone refund",
+        "passed": true
+      },
+      {
+        "label": "EscrowManager.approveRelease rejects DeadlinePassed without broadcast",
+        "passed": true
+      },
+      {
+        "label": "Independent arbiter settles the protected escrow through whole dispute resolution",
+        "passed": true
+      },
+      {
+        "label": "Whole escrow dispute reports the exact remaining beneficiary payout",
+        "passed": true
+      },
+      {
+        "label": "ScheduledPayout.fundSchedule rejects EndTimePassed without broadcast",
+        "passed": true
+      },
+      {
+        "label": "Expired schedule recovers its entire underfunded pool",
+        "passed": true
+      },
+      {
+        "label": "ScheduledPayout.fundSchedule rejects InactiveSchedule without broadcast",
+        "passed": true
+      },
+      {
+        "label": "ConditionalPayout.fundAgreement rejects DeadlinePassed without broadcast",
+        "passed": true
+      },
+      {
+        "label": "EscrowManager has no leftover verification principal",
+        "passed": true
+      },
+      {
+        "label": "ConditionalPayout has no leftover verification principal",
+        "passed": true
+      },
+      {
+        "label": "ScheduledPayout has no leftover verification principal",
+        "passed": true
+      },
+      {
+        "label": "Total additional gas spent is below the authorized 0.20 USDC cap",
+        "passed": true
+      },
+      {
+        "label": "Controlled arbiter has no remaining funds",
+        "passed": true
+      }
+    ],
+    "records": {
+      "escrowRefund": "1",
+      "escrowProtected": "2",
+      "conditionalReleased": "1",
+      "conditionalPending": "2",
+      "scheduleCompleted": "1",
+      "scheduleExpired": "2"
+    },
+    "deployedAt": "2026-10-31T14:14:29.982Z",
+    "verificationStartedAt": "2026-10-31T14:15:57.822Z",
+    "arbiter": "0x95F447265FE3928CA4f0404487B82545886eB1dD",
+    "recovery": {
+      "reason": "RPC connectivity interruptions; protected test escrow elapsed before recovery, so settle through whole dispute resolution",
+      "startedAt": "2026-10-31T17:48:17.567Z"
+    },
+    "operationalStops": [
+      {
+        "label": "Reviewed resume checkpoint: refund remains funded and protected escrow has time to release",
+        "passed": false,
+        "classification": "Safety checkpoint stopped before broadcast because the escrow deadline elapsed"
+      }
+    ],
+    "finalArbiterNativeBalance": "0",
+    "finalNativeBalance": "227410037538579305",
+    "totalSpentUsdc": "0.192467625",
+    "verifiedAt": "2026-10-31T17:49:21.960Z"
+  },
+  "independentPostflight": {
+    "verifiedAt": "2026-10-31T17:50:50.224Z",
+    "chainId": 5042,
+    "wallet": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+    "finalBlock": "28855154",
+    "finalNativeUsdc": "0.227410037538579305",
+    "finalArbiterNativeUsdc": "0",
+    "additionalTotalGasUsdc": "0.192467625",
+    "primaryBalanceDecreaseUsdc": "0.192467625",
+    "transactionCount": 29,
+    "checks": [
+      {
+        "label": "Independent RPC chain check",
+        "passed": true
+      },
+      {
+        "label": "All replacement and verification receipts succeeded",
+        "passed": true,
+        "details": {
+          "count": 29
+        }
+      },
+      {
+        "label": "Independent gas sum agrees with journal",
+        "passed": true
+      },
+      {
+        "label": "Wallet decrease exactly reconciles with all receipt gas",
+        "passed": true,
+        "details": {
+          "decreaseUsdc": "0.192467625",
+          "receiptGasUsdc": "0.192467625"
+        }
+      },
+      {
+        "label": "Approved additional spending stays below 0.20 USDC",
+        "passed": true
+      },
+      {
+        "label": "Temporary arbiter balance is zero",
+        "passed": true
+      },
+      {
+        "label": "EscrowManager deployed runtime matches fixed bytecode and canonical USDC",
+        "passed": true
+      },
+      {
+        "label": "EscrowManager holds zero verification principal",
+        "passed": true
+      },
+      {
+        "label": "EscrowManager exact verification allowance fully consumed",
+        "passed": true
+      },
+      {
+        "label": "EscrowManager returned all deposited principal",
+        "passed": true,
+        "details": {
+          "inbound": "40",
+          "outbound": "40"
+        }
+      },
+      {
+        "label": "ConditionalPayout deployed runtime matches fixed bytecode and canonical USDC",
+        "passed": true
+      },
+      {
+        "label": "ConditionalPayout holds zero verification principal",
+        "passed": true
+      },
+      {
+        "label": "ConditionalPayout exact verification allowance fully consumed",
+        "passed": true
+      },
+      {
+        "label": "ConditionalPayout returned all deposited principal",
+        "passed": true,
+        "details": {
+          "inbound": "10",
+          "outbound": "10"
+        }
+      },
+      {
+        "label": "ScheduledPayout deployed runtime matches fixed bytecode and canonical USDC",
+        "passed": true
+      },
+      {
+        "label": "ScheduledPayout holds zero verification principal",
+        "passed": true
+      },
+      {
+        "label": "ScheduledPayout exact verification allowance fully consumed",
+        "passed": true
+      },
+      {
+        "label": "ScheduledPayout returned all deposited principal",
+        "passed": true,
+        "details": {
+          "inbound": "35",
+          "outbound": "35"
+        }
+      }
+    ],
+    "receipts": [
+      {
+        "label": "Deploy EscrowManager",
+        "hash": "0xba88bb89db5f31ed3b3040f7a2467fdcfb2befbd7d820796574b2674da3a0791",
+        "status": "success",
+        "gasUsed": "2129091",
+        "effectiveGasPrice": "25000000000",
+        "feeWei": "53227275000000000",
+        "transfers": []
+      },
+      {
+        "label": "Deploy ConditionalPayout",
+        "hash": "0xc8bb09ae1fb45cd790faea921171f8f99f054d975beaf63936599fe82de39f63",
+        "status": "success",
+        "gasUsed": "1051959",
+        "effectiveGasPrice": "25000000000",
+        "feeWei": "26298975000000000",
+        "transfers": []
+      },
+      {
+        "label": "Deploy ScheduledPayout",
+        "hash": "0xdc86d50e0f938ee6cc37fb5a7da70fc93e4cea68c0fed6fdfc864695888a68c6",
+        "status": "success",
+        "gasUsed": "1397129",
+        "effectiveGasPrice": "25000000000",
+        "feeWei": "34928225000000000",
+        "transfers": []
+      },
+      {
+        "label": "Fund controlled verification arbiter",
+        "hash": "0xb31f3999241f4e31b2b16246b36bece7b0c355ac799f95472970603b09e169b1",
+        "status": "success",
+        "gasUsed": "21000",
+        "effectiveGasPrice": "25000000000",
+        "feeWei": "525000000000000",
+        "transfers": []
+      },
+      {
+        "label": "Approve exact escrow verification allowance",
+        "hash": "0x034041533b80dbbd2c0364528f2acb0be3a8cfcf1380f9ae9adebbb7a79e415d",
+        "status": "success",
+        "gasUsed": "55402",
+        "effectiveGasPrice": "25000000000",
+        "feeWei": "1385050000000000",
+        "transfers": []
+      },
+      {
+        "label": "EscrowManager.createEscrow",
+        "hash": "0xaf85298071d831a1f1f4c9d453a779b1791bf07e9aef5f2c3aac134a5d363f8d",
+        "status": "success",
+        "gasUsed": "358661",
+        "effectiveGasPrice": "25000000000",
+        "feeWei": "8966525000000000",
+        "transfers": []
+      },
+      {
+        "label": "EscrowManager.fundEscrow",
+        "hash": "0x6b529e86383a81a7190dc615068051cc467faa21e8b21378fdbd9ce151bcbe46",
+        "status": "success",
+        "gasUsed": "88990",
+        "effectiveGasPrice": "25000000000",
+        "feeWei": "2224750000000000",
+        "transfers": [
+          {
+            "from": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+            "to": "0x5055fadc05000be926531Dd26075D53804343De5",
+            "value": "20"
+          }
+        ]
+      },
+      {
+        "label": "EscrowManager.disputeMilestone",
+        "hash": "0xc55bfde70fc26762189a3aff2cd6e3001230156dc1c9a4eddf4275625b093aba",
+        "status": "success",
+        "gasUsed": "54306",
+        "effectiveGasPrice": "25000000000",
+        "feeWei": "1357650000000000",
+        "transfers": []
+      },
+      {
+        "label": "EscrowManager.resolveMilestone",
+        "hash": "0xf70ad1d6847548b8cf02c836fb33a5f03fcdd08907e958b8f990fbaf87024b07",
+        "status": "success",
+        "gasUsed": "78380",
+        "effectiveGasPrice": "25000000000",
+        "feeWei": "1959500000000000",
+        "transfers": [
+          {
+            "from": "0x5055fadc05000be926531Dd26075D53804343De5",
+            "to": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+            "value": "10"
+          }
+        ]
+      },
+      {
+        "label": "EscrowManager.createEscrow",
+        "hash": "0xed8b3ce1c4b9aedbbc94e6a6cdd4c3ae74caf2abc9db0c1808a48feafd735b24",
+        "status": "success",
+        "gasUsed": "324461",
+        "effectiveGasPrice": "25000000000",
+        "feeWei": "8111525000000000",
+        "transfers": []
+      },
+      {
+        "label": "EscrowManager.fundEscrow",
+        "hash": "0x2b1ca2c88b7a945bf99ae8be5679b8de8570687c20dce714bcfdc606c3952e83",
+        "status": "success",
+        "gasUsed": "84190",
+        "effectiveGasPrice": "25000000000",
+        "feeWei": "2104750000000000",
+        "transfers": [
+          {
+            "from": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+            "to": "0x5055fadc05000be926531Dd26075D53804343De5",
+            "value": "20"
+          }
+        ]
+      },
+      {
+        "label": "Approve exact conditional verification allowance",
+        "hash": "0x05d4e4ad15bc39cbffa96d7da1671bb55e008abaea5981811ba8dc59fddf50cb",
+        "status": "success",
+        "gasUsed": "55414",
+        "effectiveGasPrice": "25000000000",
+        "feeWei": "1385350000000000",
+        "transfers": []
+      },
+      {
+        "label": "ConditionalPayout.createAgreement",
+        "hash": "0x120e0e029697fc7cde05037cb24c2389471068538b8409035553cf6793237ca3",
+        "status": "success",
+        "gasUsed": "238696",
+        "effectiveGasPrice": "25000000000",
+        "feeWei": "5967400000000000",
+        "transfers": []
+      },
+      {
+        "label": "ConditionalPayout.fundAgreement",
+        "hash": "0x23c1014aa7abd90f68714da3aa105d553e46d2b9daf0ddf2684937a633f43b3d",
+        "status": "success",
+        "gasUsed": "83952",
+        "effectiveGasPrice": "25000000000",
+        "feeWei": "2098800000000000",
+        "transfers": [
+          {
+            "from": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+            "to": "0x83bcDa8E6093bFa97DDb79CaD76d121BA2757856",
+            "value": "10"
+          }
+        ]
+      },
+      {
+        "label": "ConditionalPayout.approveCondition",
+        "hash": "0x12fb97bff979cc6e39dec168282e081d9f97d49231b225b76d6bc2ae4c7a9789",
+        "status": "success",
+        "gasUsed": "70035",
+        "effectiveGasPrice": "25000000000",
+        "feeWei": "1750875000000000",
+        "transfers": [
+          {
+            "from": "0x83bcDa8E6093bFa97DDb79CaD76d121BA2757856",
+            "to": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+            "value": "10"
+          }
+        ]
+      },
+      {
+        "label": "ConditionalPayout.createAgreement",
+        "hash": "0x0fc6e6b335c1c618b85440953497493e2b3e070a7069795d5461758cd18ac18a",
+        "status": "success",
+        "gasUsed": "244155",
+        "effectiveGasPrice": "25000000000",
+        "feeWei": "6103875000000000",
+        "transfers": []
+      },
+      {
+        "label": "Approve exact schedule verification allowance",
+        "hash": "0xc29badbf6eaa5facf598526e2c5fc9652f013ef224776dde48fceb1a31c5650f",
+        "status": "success",
+        "gasUsed": "55414",
+        "effectiveGasPrice": "25000000000",
+        "feeWei": "1385350000000000",
+        "transfers": []
+      },
+      {
+        "label": "ScheduledPayout.createSchedule",
+        "hash": "0xc12c884ed5a48e4812a425aec405f2969c9fdce25f9f2f03c81a79370a223766",
+        "status": "success",
+        "gasUsed": "259456",
+        "effectiveGasPrice": "25000000000",
+        "feeWei": "6486400000000000",
+        "transfers": []
+      },
+      {
+        "label": "ScheduledPayout.fundSchedule",
+        "hash": "0x71420f3e25e64f228498122018a0a4dd81fa66438f54f97df86bd010fd0f4fd2",
+        "status": "success",
+        "gasUsed": "91498",
+        "effectiveGasPrice": "25000000000",
+        "feeWei": "2287450000000000",
+        "transfers": [
+          {
+            "from": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+            "to": "0x75F6B1b52801A734dB711FBbcdc0B90B674a4592",
+            "value": "30"
+          }
+        ]
+      },
+      {
+        "label": "ScheduledPayout.executeSchedule",
+        "hash": "0x70a9639db7791abba7e86e1ae8134553f474e3ed90bb361b894166ba16f93875",
+        "status": "success",
+        "gasUsed": "173020",
+        "effectiveGasPrice": "25000000000",
+        "feeWei": "4325500000000000",
+        "transfers": [
+          {
+            "from": "0x75F6B1b52801A734dB711FBbcdc0B90B674a4592",
+            "to": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+            "value": "10"
+          },
+          {
+            "from": "0x75F6B1b52801A734dB711FBbcdc0B90B674a4592",
+            "to": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+            "value": "20"
+          }
+        ]
+      },
+      {
+        "label": "ScheduledPayout.createSchedule",
+        "hash": "0x3beac9e4feadd706eb6fa6566ba0aedfc41028097614675dc131e3a71a95a3c5",
+        "status": "success",
+        "gasUsed": "242406",
+        "effectiveGasPrice": "25000000000",
+        "feeWei": "6060150000000000",
+        "transfers": []
+      },
+      {
+        "label": "ScheduledPayout.fundSchedule",
+        "hash": "0xdf7069715b91d7dadd3936c8e6c95eec15ed251e73124be9f1faaeb08562cfab",
+        "status": "success",
+        "gasUsed": "86814",
+        "effectiveGasPrice": "25000000000",
+        "feeWei": "2170350000000000",
+        "transfers": [
+          {
+            "from": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+            "to": "0x75F6B1b52801A734dB711FBbcdc0B90B674a4592",
+            "value": "5"
+          }
+        ]
+      },
+      {
+        "label": "EscrowManager.claimRefund",
+        "hash": "0x10e5b045bb030cf3f1b89cd75e62e8b33c956a3acf4626841a45fe8989a3c540",
+        "status": "success",
+        "gasUsed": "93239",
+        "effectiveGasPrice": "25000000000",
+        "feeWei": "2330975000000000",
+        "transfers": [
+          {
+            "from": "0x5055fadc05000be926531Dd26075D53804343De5",
+            "to": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+            "value": "10"
+          }
+        ]
+      },
+      {
+        "label": "EscrowManager.initiateDispute",
+        "hash": "0x3800b534291843b5e809979f8f80e687266232e23caebfafdf0f4fecf5fad5da",
+        "status": "success",
+        "gasUsed": "32547",
+        "effectiveGasPrice": "25000000000",
+        "feeWei": "813675000000000",
+        "transfers": []
+      },
+      {
+        "label": "EscrowManager.resolveDispute",
+        "hash": "0xa2046e7dde7ba3ccbdd5f06c02a6ef2012e3381f7586974758ba3b2ed0b2201e",
+        "status": "success",
+        "gasUsed": "144252",
+        "effectiveGasPrice": "25000000000",
+        "feeWei": "3606300000000000",
+        "transfers": [
+          {
+            "from": "0x5055fadc05000be926531Dd26075D53804343De5",
+            "to": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+            "value": "20"
+          }
+        ]
+      },
+      {
+        "label": "ScheduledPayout.withdrawExcessFunds",
+        "hash": "0xd1f7718edd6cd9ffa1b4617ac8ed99feef57d9a0e23660fc6341066772568726",
+        "status": "success",
+        "gasUsed": "63396",
+        "effectiveGasPrice": "25000000000",
+        "feeWei": "1584900000000000",
+        "transfers": [
+          {
+            "from": "0x75F6B1b52801A734dB711FBbcdc0B90B674a4592",
+            "to": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+            "value": "5"
+          }
+        ]
+      },
+      {
+        "label": "ScheduledPayout.cancelSchedule",
+        "hash": "0x76846a2bb3331ca4ca1aa2ce3815ecc24b96d574aeba6795b869ae59dfe90b86",
+        "status": "success",
+        "gasUsed": "52584",
+        "effectiveGasPrice": "25000000000",
+        "feeWei": "1314600000000000",
+        "transfers": []
+      },
+      {
+        "label": "ConditionalPayout.cancelAgreement",
+        "hash": "0x50d968b8a991beed57fe50e9f756dbdf59f1b68342eaf8f4f026362a56c3004f",
+        "status": "success",
+        "gasUsed": "47258",
+        "effectiveGasPrice": "25000000000",
+        "feeWei": "1181450000000000",
+        "transfers": []
+      },
+      {
+        "label": "Return all remaining controlled arbiter USDC",
+        "hash": "0xec9210697713e61b04550854b05d133ed34cdec11cc7b02959174fe671dc11be",
+        "status": "success",
+        "gasUsed": "21000",
+        "effectiveGasPrice": "25000000000",
+        "feeWei": "525000000000000",
+        "transfers": []
+      }
+    ]
+  }
+}

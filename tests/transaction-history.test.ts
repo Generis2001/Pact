@@ -2,7 +2,7 @@ import { expect, test } from 'bun:test'
 import { encodeFunctionData, type Address, type Abi } from 'viem'
 import { mergeHistory, fetchHistoryPage, type ExplorerItem, type HistoryFeature } from '../src/lib/transaction-history'
 import {
-  ORIGINAL_CONTRACT_ADDRESSES as addresses, USDC_ADDRESS, ERC20_ABI, ESCROW_MANAGER_ABI,
+  ORIGINAL_CONTRACT_ADDRESSES as addresses, DEFAULT_CONTRACT_ADDRESSES as current, USDC_ADDRESS, ERC20_ABI, ESCROW_MANAGER_ABI,
   CONDITIONAL_PAYOUT_ABI, BATCH_PAYOUT_ABI, SCHEDULED_PAYOUT_ABI, VESTING_VAULT_ABI,
 } from '../src/lib/contracts'
 
@@ -42,6 +42,21 @@ test('merges repeated pages by hash and log index without losing equal-value tra
   expect(records).toHaveLength(1)
   expect(records[0].transfers).toHaveLength(2)
   expect(records[0].transfers[0]).toMatchObject({ amount: '0.00001', direction: 'Received' })
+})
+
+test('replacement payments, received refunds, and approvals keep their feature classifications', () => {
+  const records = mergeHistory(wallet, {
+    transactions: [
+      tx(1, current.EscrowManager, ESCROW_MANAGER_ABI, 'claimRefund', [1n]),
+      tx(2, current.ConditionalPayout, CONDITIONAL_PAYOUT_ABI, 'approveCondition', [1n]),
+      tx(3, USDC_ADDRESS, ERC20_ABI, 'approve', [current.ScheduledPayout, 35n]),
+    ],
+    'token-transfers': [transfer(4, current.ScheduledPayout, wallet, 1)],
+  })
+  expect(records.map((r) => r.feature)).toEqual(['scheduled', 'scheduled', 'conditional', 'escrow'])
+  expect(records[0].action).toBe('Received payout / refund')
+  expect(records[1].detail).toBe('0.000035 USDC allowance')
+  expect(records[3].action).toBe('Claim refund')
 })
 
 test('includes received payouts triggered by a different wallet and ordinary Arc activity', () => {

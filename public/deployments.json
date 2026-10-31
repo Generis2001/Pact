@@ -1,0 +1,27 @@
+{
+  "chainId": 5042,
+  "usdc": "0x3600000000000000000000000000000000000000",
+  "deployedAt": "2026-10-31T14:14:29.982Z",
+  "verifiedAt": "2026-10-31T17:49:21.960Z",
+  "current": {
+    "EscrowManager": "0x5055fadc05000be926531dd26075d53804343de5",
+    "ConditionalPayout": "0x83bcda8e6093bfa97ddb79cad76d121ba2757856",
+    "BatchPayout": "0xab3f589c7ca55aA6272B1b159ed12d0E7623F798",
+    "ScheduledPayout": "0x75f6b1b52801a734db711fbbcdc0b90b674a4592",
+    "VestingVault": "0x620eBbf0F0d7acE2202Db95fd6ee0BB42F9510A6"
+  },
+  "original": {
+    "EscrowManager": "0x3eF17D9Cd787030Eb68Eb6b2FC6D7F298B9B136F",
+    "ConditionalPayout": "0x196B618c6a31A5100b5F9774089E3f6913B9aa55",
+    "BatchPayout": "0xab3f589c7ca55aA6272B1b159ed12d0E7623F798",
+    "ScheduledPayout": "0x5B4A641Fd1C2E67205d9d4947bcBD63EEDddD5Ab",
+    "VestingVault": "0x620eBbf0F0d7acE2202Db95fd6ee0BB42F9510A6"
+  },
+  "replacementTransactions": {
+    "EscrowManager": "0xba88bb89db5f31ed3b3040f7a2467fdcfb2befbd7d820796574b2674da3a0791",
+    "ConditionalPayout": "0xc8bb09ae1fb45cd790faea921171f8f99f054d975beaf63936599fe82de39f63",
+    "ScheduledPayout": "0xdc86d50e0f938ee6cc37fb5a7da70fc93e4cea68c0fed6fdfc864695888a68c6"
+  },
+  "additionalGasUsdc": "0.192467625",
+  "evidence": "docs/mainnet-upgrade-2026-10-31.json"
+}

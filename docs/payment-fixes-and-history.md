@@ -2,9 +2,13 @@
 
 ## Deployment status
 
-The frontend fixes and Transaction History are ready to ship. Solidity fixes are validated in source and local deployments. The original Arc mainnet contracts are immutable and remain unchanged. Replacement deployments of EscrowManager, ConditionalPayout, and ScheduledPayout are still required. BatchPayout and VestingVault do not need replacement for these fixes.
+Fixed EscrowManager, ConditionalPayout, and ScheduledPayout replacements are deployed on Arc mainnet and are the current frontend/backend defaults. BatchPayout and VestingVault retain their original addresses. Transaction History recognizes both versions. The original immutable contracts remain unchanged.
 
-The original mainnet defaults remain configured. Updating a Git repository or deploying the website does not update these contracts. Do not treat source test results as proof that the original deployments have been repaired.
+Choose **Existing agreements (original)** to manage older records. Original mode hides creation forms; switching contracts resets IDs, receipts, and allowances. Existing funds and approvals do not migrate. The original escrow settlement defect still applies to original agreements; its view warns about previously resolved milestones.
+
+Replacement deployment and live verification completed with **29 successful transactions**, **27 runtime/state/rejection checks**, and **18 independent postflight checks**. Additional gas was **0.192467625 USDC**, within the separately approved 0.20 USDC cap. The main wallet decreased from 0.419877662538579305 to 0.227410037538579305 USDC, exactly equal to receipt gas. All replacement test principal and exact allowances are cleared; the temporary arbiter has zero funds. Public addresses and deployment hashes are in [deployments.json](../public/deployments.json); complete evidence is in [mainnet-upgrade-2026-10-31.json](./mainnet-upgrade-2026-10-31.json).
+
+Live checks verified escrow parent refunds after milestone refunds preserve a second escrow's collateral; independent whole-dispute settlement records the exact beneficiary payout; expired escrow approvals reject; conditional release and expired funding rejection; scheduled final execution surplus refunds; completed/cancelled/expired funding rejection; and full withdrawal of an expired underfunded pool. RPC connectivity interruptions were recovered from confirmed receipts. The second escrow expired during the interruption and was settled by its independent arbiter through dispute resolution; dual-release behavior is covered by the earlier mainnet test and local tests. Deployed runtime bytes exactly match the fixed artifacts with canonical USDC immutables; this is runtime verification, not a third-party audit or a claim of explorer source verification.
 
 ## Mainnet verification
 
@@ -62,12 +66,13 @@ Browser verification against live explorer data loaded **78 unique indexed trans
 ## Validation
 
 - Foundry: 195 passing tests, including 17 new regressions and mixed-settlement fuzz coverage.
-- Bun: 19 frontend/backend tests covering ABI parity, exact inputs, indexed history merging/pagination/errors, and schedule-completion refund decoding.
+- Bun: 22 frontend/backend tests covering ABI parity, exact inputs, indexed history merging/pagination/errors, and schedule-completion refund decoding.
 - TypeScript: frontend/scripts, server, and tests checked separately.
 - Lint and production Vite build.
+- Replacement browser views read live current/original escrow and schedule records. All three version selectors use the correct explorer address; original creation forms are hidden, switching clears IDs, and the mobile selector has no horizontal overflow. The read-only provider recorded zero signing requests.
 - Isolated browser writes through an unlocked local test provider on an Anvil chain: escrow creation/funding/dual approval, conditional release, scheduled withdrawal/completion refund/cancellation, batch execution, and vesting claim. All signing routes were constrained to local RPC and local contract addresses; no additional mainnet funds were spent.
 
-## Replacement deployment plan
+## Replacement deployment reference
 
 Read-only estimates from Arc RPC at `2026-10-31T13:24:47Z`, gas price 25,000,000,000 wei:
 
@@ -78,7 +83,7 @@ Read-only estimates from Arc RPC at `2026-10-31T13:24:47Z`, gas price 25,000,000
 | ScheduledPayout | 1,409,385 | 0.035234625 |
 | Total | 4,618,016 | **0.1154504** |
 
-A 30% margin gives 0.15008552 USDC for deployment, before additional verification transactions. This exceeds the original remaining allowance of 0.011280325 USDC, so broadcasting requires a separately authorized budget. Re-estimate immediately before any deployment.
+The original estimate exceeded the remaining 0.011280325 USDC test allowance. A separate additional 0.20 USDC allowance was approved, and replacements were deployed at an actual deployment cost of 0.114454475 USDC. Live verification and cleanup brought the additional total to 0.192467625 USDC. The commands below are a reference for future separately authorized deployments; do not redeploy these replacements.
 
 ```bash
 forge build
@@ -90,4 +95,4 @@ forge script contracts/script/DeployFixes.s.sol:DeployFixes \
 # Review the simulation before adding --broadcast.
 ```
 
-Before changing the three frontend/backend address bindings, preserve an explicit route to the original agreements. Existing IDs, approvals, and funds stay in the original contracts and do not migrate automatically. History already recognizes the original addresses. Replacement approvals must target the new spender addresses. Verify deployed code, regenerated ABIs, receipts, and final balances after broadcasting; the original vulnerable escrow deployment is not repaired by redeployment.
+The frontend/backend address bindings now use the replacements and preserve an explicit UI route to the original agreements. Existing IDs, approvals, and funds stay in the original contracts and do not migrate automatically. History already recognizes the original addresses. Replacement approvals must target the new spender addresses. Verify deployed code, regenerated ABIs, receipts, and final balances after broadcasting; the original vulnerable escrow deployment is not repaired by redeployment.

@@ -25,7 +25,7 @@ All contracts accept the USDC address as the first constructor argument.
 
 The deployed addresses are listed in the README and `.env.example`. The frontend and backend use mainnet.
 
-October 31 fixes require replacement deployments of three immutable contracts; original mainnet defaults have not changed. See [payment-fixes-and-history.md](./payment-fixes-and-history.md) for the deployment script, read-only cost estimate, validation, and legacy-record requirements.
+October 31 replacements of EscrowManager, ConditionalPayout, and ScheduledPayout are deployed and verified on mainnet. Frontend/backend defaults and `.env.example` point to them; known stale original environment values resolve to the replacement. Explicit custom addresses remain supported. Original agreements stay at their original addresses and are accessible through the Agreement version selector. See [payment-fixes-and-history.md](./payment-fixes-and-history.md), [deployment manifest](../public/deployments.json), and [live evidence](./mainnet-upgrade-2026-10-31.json).
 
 ## Arc Testnet (separate deployment)
 

@@ -26,10 +26,10 @@ Pact is a programmable payments platform on Arc featuring non-custodial escrow, 
 
 | Contract | Address | Deployment Tx Hash |
 | :--- | :--- | :--- |
-| **EscrowManager** | `0x3eF17D9Cd787030Eb68Eb6b2FC6D7F298B9B136F` | `0xed8d9b0f7642142ed36614f06aa53b3fa504c961dc9bcf6070dd99dcc1074b85` |
-| **ConditionalPayout** | `0x196B618c6a31A5100b5F9774089E3f6913B9aa55` | `0x7dc0f7e75ad44f499f13160c0a1bc511e01d7447e974081950f456487ba61824` |
+| **EscrowManager** | `0x5055fadc05000be926531dd26075d53804343de5` | `0xba88bb89db5f31ed3b3040f7a2467fdcfb2befbd7d820796574b2674da3a0791` |
+| **ConditionalPayout** | `0x83bcda8e6093bfa97ddb79cad76d121ba2757856` | `0xc8bb09ae1fb45cd790faea921171f8f99f054d975beaf63936599fe82de39f63` |
 | **BatchPayout** | `0xab3f589c7ca55aA6272B1b159ed12d0E7623F798` | `0x64ea56e5e385b37000a132024618ce84540a850244509c3a080465eaca4b2fd8` |
-| **ScheduledPayout** | `0x5B4A641Fd1C2E67205d9d4947bcBD63EEDddD5Ab` | `0x09f987a19bd8877ee49198786084e3ca93076c631c4118d5332e767ac0e94ce1` |
+| **ScheduledPayout** | `0x75f6b1b52801a734db711fbbcdc0b90b674a4592` | `0xdc86d50e0f938ee6cc37fb5a7da70fc93e4cea68c0fed6fdfc864695888a68c6` |
 | **VestingVault** | `0x620eBbf0F0d7acE2202Db95fd6ee0BB42F9510A6` | `0x88bbae2f398ddae9ac07a03aa7e2560295949acd60cf895b34cb2e8913bd10aa` |
 
 Deployer Address: `0x0986Bfd653985c9Fa60a464784264444B542BfD7`
@@ -60,7 +60,8 @@ Deployer Address: `0x0986Bfd653985c9Fa60a464784264444B542BfD7`
 
 ## Recent Code Integration
 
-- October 31 payment verification: 29 successful Arc mainnet transactions; 0.088719675 USDC total gas, all test principal settled. Source fixes for escrow double settlement/deadlines/role overlap, terminal scheduled funding/refunds/withdrawals, and expired conditional funding passed 195 Foundry tests. **The three immutable mainnet contracts have not been replaced; original defaults remain.** See `docs/payment-fixes-and-history.md` and public evidence `docs/mainnet-test-2026-10-31.json` for limits and the 0.1154504 USDC replacement estimate. Do not spend beyond the original 0.1 USDC cap without a separately authorized budget.
+- October 31 replacement deployment: fixed EscrowManager, ConditionalPayout, and ScheduledPayout are live at the current addresses above. 29 successful deployment/verification transactions spent **0.192467625 USDC** under a separately approved additional 0.20 USDC cap; independent receipt gas equals the main wallet decrease, all test principal and exact allowances are cleared, and the controlled arbiter has zero funds. The earlier all-feature test spent 0.088719675 USDC. No further spending is authorized. See `docs/mainnet-upgrade-2026-10-31.json` and `public/deployments.json`.
+- `src/lib/deployments.ts` holds current and original addresses. Known stale original environment values resolve to replacements; explicit custom/disabled bindings remain available. Escrow/Conditional/Scheduled provide an Agreement version selector. Switching remounts forms to isolate IDs/receipts/allowances; original mode hides creation and manages existing records. Original immutable contracts remain unchanged, including the old escrow settlement defect.
 - Connected-wallet Transaction History uses paginated Arc Explorer v2 transactions/token transfers/internal transactions directly, merges by hash/log index, recognizes original/current Pact deployments, and includes received payouts and other Arc activity. Queries isolate wallet accounts; disconnect hides the view. Browser verified 78 unique live indexed transactions and all five feature filters. Explorer errors/lag are explicit; the recent backend event store is not complete wallet history.
 - `src/lib/contract-abis.ts` is generated from Foundry artifacts via `bun run contracts:abi`. Shared receipt/allowance handling lives in `src/lib/use-transaction.ts`; exact input validation prevents negative fractional values and precision truncation. `bun run test` covers frontend/history/backend regressions; test types live in `tsconfig.test.json`, separate from frontend tracing.
 

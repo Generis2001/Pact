@@ -15,6 +15,7 @@ import { Menu, X } from 'lucide-react'
 import { useAccount, useReadContract } from 'wagmi'
 import { ERC20_ABI, USDC_ADDRESS, ARC_CHAIN_ID } from '@/lib/contracts'
 import { formatUsdc } from '@/lib/utils'
+import { PaymentDeployment } from '@/lib/payment-deployment'
 
 export type PaymentTab = 'escrow' | 'conditional' | 'batch' | 'scheduled' | 'vesting'
 export type Tab = 'dashboard' | PaymentTab | 'history'
@@ -36,10 +37,10 @@ export function Shell() {
 
   const PANELS: Record<Tab, React.ReactNode> = {
     dashboard:   <Dashboard onNav={setTab} />,
-    escrow:      <EscrowPanel />,
-    conditional: <ConditionalPanel />,
+    escrow:      <PaymentDeployment key="escrow" name="EscrowManager"><EscrowPanel /></PaymentDeployment>,
+    conditional: <PaymentDeployment key="conditional" name="ConditionalPayout"><ConditionalPanel /></PaymentDeployment>,
     batch:       <BatchPanel />,
-    scheduled:   <ScheduledPanel />,
+    scheduled:   <PaymentDeployment key="scheduled" name="ScheduledPayout"><ScheduledPanel /></PaymentDeployment>,
     vesting:     <VestingPanel />,
     history:     isConnected && address ? <HistoryPanel key={address.toLowerCase()} address={address} /> : null,
   }

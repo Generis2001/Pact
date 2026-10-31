@@ -8,10 +8,10 @@ Pact is a programmable money platform built with **Arc Studio** on **Arc Mainnet
 
 | Contract | Address | Explorer Link |
 | :--- | :--- | :--- |
-| **EscrowManager** | `0x3eF17D9Cd787030Eb68Eb6b2FC6D7F298B9B136F` | [View on Arc Explorer](https://explorer.arc.io/address/0x3eF17D9Cd787030Eb68Eb6b2FC6D7F298B9B136F) |
-| **ConditionalPayout** | `0x196B618c6a31A5100b5F9774089E3f6913B9aa55` | [View on Arc Explorer](https://explorer.arc.io/address/0x196B618c6a31A5100b5F9774089E3f6913B9aa55) |
+| **EscrowManager** | `0x5055fadc05000be926531dd26075d53804343de5` | [View on Arc Explorer](https://explorer.arc.io/address/0x5055fadc05000be926531dd26075d53804343de5) |
+| **ConditionalPayout** | `0x83bcda8e6093bfa97ddb79cad76d121ba2757856` | [View on Arc Explorer](https://explorer.arc.io/address/0x83bcda8e6093bfa97ddb79cad76d121ba2757856) |
 | **BatchPayout** | `0xab3f589c7ca55aA6272B1b159ed12d0E7623F798` | [View on Arc Explorer](https://explorer.arc.io/address/0xab3f589c7ca55aA6272B1b159ed12d0E7623F798) |
-| **ScheduledPayout** | `0x5B4A641Fd1C2E67205d9d4947bcBD63EEDddD5Ab` | [View on Arc Explorer](https://explorer.arc.io/address/0x5B4A641Fd1C2E67205d9d4947bcBD63EEDddD5Ab) |
+| **ScheduledPayout** | `0x75f6b1b52801a734db711fbbcdc0b90b674a4592` | [View on Arc Explorer](https://explorer.arc.io/address/0x75f6b1b52801a734db711fbbcdc0b90b674a4592) |
 | **VestingVault** | `0x620eBbf0F0d7acE2202Db95fd6ee0BB42F9510A6` | [View on Arc Explorer](https://explorer.arc.io/address/0x620eBbf0F0d7acE2202Db95fd6ee0BB42F9510A6) |
 | **USDC (ERC-20)** | `0x3600000000000000000000000000000000000000` | [View on Arc Explorer](https://explorer.arc.io/address/0x3600000000000000000000000000000000000000) |
 
@@ -25,7 +25,9 @@ Pact is a programmable money platform built with **Arc Studio** on **Arc Mainnet
 
 ## On-Chain Feature Verification & Testing
 
-The project records transactions for four payment features on Arc Mainnet. Read-only RPC checks confirmed successful escrow funding, agreement creation, batch payments, and schedule creation; see [mainnet verification](docs/mainnet-verification.md) for the evidence and limits. Vesting activity has not been confirmed by these checks.
+All five payment features were tested on Arc mainnet on October 31. The original feature test spent 0.088719675 USDC. EscrowManager, ConditionalPayout, and ScheduledPayout were then replaced with fixed contracts; deployment and live verification spent an additional 0.192467625 USDC under a separately approved 0.20 USDC cap. See [payment verification](docs/payment-fixes-and-history.md) and [replacement evidence](docs/mainnet-upgrade-2026-10-31.json).
+
+New agreements use the replacement contracts above. Choose **Existing agreements (original)** in Escrow, Conditional Payout, or Scheduled Payout to manage older records. Existing IDs, funds, and approvals stay in their original contracts. Connected-wallet Transaction History includes both versions and all five payment features.
 
 Previously recorded feature actions:
 
@@ -81,7 +83,7 @@ bun run dev
 # Build contracts with Foundry
 forge build
 
-# Run unit and invariant test suite (178 tests passed)
+# Run unit and invariant test suite (195 tests passed)
 forge test
 ```
 

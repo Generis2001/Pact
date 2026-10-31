@@ -10,6 +10,7 @@
 
 import { createPublicClient, defineChain, http, type AbiEvent } from 'viem'
 import { ESCROW_MANAGER_ABI, CONDITIONAL_PAYOUT_ABI, BATCH_PAYOUT_ABI, SCHEDULED_PAYOUT_ABI, VESTING_VAULT_ABI } from '../src/lib/contract-abis'
+import { resolveDeploymentAddress } from '../src/lib/deployments'
 
 const PORT = parseInt(process.env.SERVER_PORT ?? '3001')
 
@@ -29,11 +30,11 @@ const client = createPublicClient({ chain: arcMainnet, transport: http(rpcUrl), 
 // Contract addresses from env (set after deploy)
 // ---------------------------------------------------------------------------
 const ADDR = {
-  EscrowManager:     (process.env.VITE_ESCROW_MANAGER     ?? '') as `0x${string}`,
-  ConditionalPayout: (process.env.VITE_CONDITIONAL_PAYOUT ?? '') as `0x${string}`,
-  BatchPayout:       (process.env.VITE_BATCH_PAYOUT        ?? '') as `0x${string}`,
-  ScheduledPayout:   (process.env.VITE_SCHEDULED_PAYOUT    ?? '') as `0x${string}`,
-  VestingVault:      (process.env.VITE_VESTING_VAULT       ?? '') as `0x${string}`,
+  EscrowManager: resolveDeploymentAddress('EscrowManager', process.env.VITE_ESCROW_MANAGER),
+  ConditionalPayout: resolveDeploymentAddress('ConditionalPayout', process.env.VITE_CONDITIONAL_PAYOUT),
+  BatchPayout: resolveDeploymentAddress('BatchPayout', process.env.VITE_BATCH_PAYOUT),
+  ScheduledPayout: resolveDeploymentAddress('ScheduledPayout', process.env.VITE_SCHEDULED_PAYOUT),
+  VestingVault: resolveDeploymentAddress('VestingVault', process.env.VITE_VESTING_VAULT),
 }
 
 const isDeployed = (addr: string) => addr && addr.length > 2

@@ -1,3 +1,4 @@
+import { usePaymentDeployment } from '@/lib/payment-deployment'
 import { useState } from 'react'
 import { useAccount, useWriteContract, useReadContract } from 'wagmi'
 import { toast } from 'sonner'
@@ -9,7 +10,7 @@ import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
 import { ExternalLink } from 'lucide-react'
 import {
-  CONDITIONAL_PAYOUT_ABI, ERC20_ABI, USDC_ADDRESS, CONTRACT_ADDRESSES,
+  CONDITIONAL_PAYOUT_ABI, ERC20_ABI, USDC_ADDRESS,
   ARC_CHAIN_ID, AGREEMENT_STATE_LABELS, AgreementState,
 } from '@/lib/contracts'
 import { isValidAddress, readUsdcInput, parseRecordId, parseTimestampInput, isSameAddress, formatUsdc, formatAddress, formatTimestamp, parseOnchainError } from '@/lib/utils'
@@ -20,6 +21,7 @@ const STATE_VARIANT: Record<number, 'default' | 'success' | 'warning' | 'danger'
 }
 
 export function ConditionalPanel() {
+  const { address: contractAddress, legacy } = usePaymentDeployment('ConditionalPayout')
   const { address } = useAccount()
   const now = useChainTimestamp()
   const [recipient, setRecipient] = useState('')
@@ -50,16 +52,16 @@ export function ConditionalPanel() {
   const { isLoading: isConfirmingExpiry } = useTransactionReceipt(expiryHash)
 
   const { data: userIds } = useReadContract({
-    address: CONTRACT_ADDRESSES.ConditionalPayout,
+    address: contractAddress,
     abi: CONDITIONAL_PAYOUT_ABI,
     functionName: 'getUserAgreements',
     args: address ? [address] : undefined,
     chainId: ARC_CHAIN_ID,
-    query: { enabled: !!address && !!CONTRACT_ADDRESSES.ConditionalPayout },
+    query: { enabled: !!address && !!contractAddress },
   })
 
   const { data: viewAgreement } = useReadContract({
-    address: CONTRACT_ADDRESSES.ConditionalPayout,
+    address: contractAddress,
     abi: CONDITIONAL_PAYOUT_ABI,
     functionName: 'getAgreement',
     args: viewRecordId ? [viewRecordId] : undefined,
@@ -68,19 +70,20 @@ export function ConditionalPanel() {
   })
 
   const parsedAmount = readUsdcInput(amount)
-  const { data: allowance = 0n } = useUsdcAllowance(CONTRACT_ADDRESSES.ConditionalPayout)
-  const notDeployed = !CONTRACT_ADDRESSES.ConditionalPayout
+  const { data: allowance = 0n } = useUsdcAllowance(contractAddress)
+  const notDeployed = !contractAddress
 
   function handleApproveUSDC(amount: bigint) {
-    if (!CONTRACT_ADDRESSES.ConditionalPayout || amount <= 0n) return
+    if (!contractAddress || amount <= 0n) return
     approve({
       chainId: ARC_CHAIN_ID,
       address: USDC_ADDRESS, abi: ERC20_ABI, functionName: 'approve',
-      args: [CONTRACT_ADDRESSES.ConditionalPayout, amount],
+      args: [contractAddress, amount],
     })
   }
 
   function handleCreate() {
+    if (legacy) return
     if (!isValidAddress(recipient)) { toast.error('Invalid recipient'); return }
     if (!isValidAddress(approver)) { toast.error('Invalid approver'); return }
     if (!amount || parsedAmount === 0n) { toast.error('Amount required'); return }
@@ -91,7 +94,7 @@ export function ConditionalPanel() {
 
     create({
       chainId: ARC_CHAIN_ID,
-      address: CONTRACT_ADDRESSES.ConditionalPayout,
+      address: contractAddress,
       abi: CONDITIONAL_PAYOUT_ABI,
       functionName: 'createAgreement',
       args: [recipient as `0x${string}`, approver as `0x${string}`, parsedAmount, deadlineTs, conditionDesc, metadataURI],
@@ -114,7 +117,7 @@ export function ConditionalPanel() {
         </div>
       )}
 
-      <Card>
+      {!legacy && <Card>
         <CardLabel>Create Agreement</CardLabel>
         <div className="mt-4 space-y-3">
           <Input label="Recipient" value={recipient} onChange={setRecipient} placeholder="0x…"
@@ -137,7 +140,7 @@ export function ConditionalPanel() {
           )}
           {createError && <p className="text-xs" style={{ color: 'var(--danger)' }}>{parseOnchainError(createError)}</p>}
         </div>
-      </Card>
+      </Card>}
 
       {/* Look up */}
       <Card>
@@ -168,7 +171,7 @@ export function ConditionalPanel() {
                   ) : (
                   <Button size="sm" onClick={() => fund({
                     chainId: ARC_CHAIN_ID,
-                    address: CONTRACT_ADDRESSES.ConditionalPayout, abi: CONDITIONAL_PAYOUT_ABI,
+                    address: contractAddress, abi: CONDITIONAL_PAYOUT_ABI,
                     functionName: 'fundAgreement', args: [viewRecordId!],
                   })} loading={isFunding || isConfirmingFund}>
                     Fund Agreement
@@ -176,7 +179,7 @@ export function ConditionalPanel() {
                   ))}
                   <Button size="sm" variant="danger" onClick={() => cancel({
                     chainId: ARC_CHAIN_ID,
-                    address: CONTRACT_ADDRESSES.ConditionalPayout, abi: CONDITIONAL_PAYOUT_ABI,
+                    address: contractAddress, abi: CONDITIONAL_PAYOUT_ABI,
                     functionName: 'cancelAgreement', args: [viewRecordId!],
                   })} loading={isCancelling || isConfirmingCancel}>
                     Cancel
@@ -186,7 +189,7 @@ export function ConditionalPanel() {
               {(viewAgreement.state as AgreementState) === AgreementState.ACTIVE && isSameAddress(address, viewAgreement.approver) && now <= viewAgreement.conditionDeadline && (
                 <Button size="sm" onClick={() => approveCondition({
                   chainId: ARC_CHAIN_ID,
-                  address: CONTRACT_ADDRESSES.ConditionalPayout, abi: CONDITIONAL_PAYOUT_ABI,
+                  address: contractAddress, abi: CONDITIONAL_PAYOUT_ABI,
                   functionName: 'approveCondition', args: [viewRecordId!],
                 })} loading={isAC || isConfirmingAC}>
                   Approve Condition
@@ -195,7 +198,7 @@ export function ConditionalPanel() {
               {(viewAgreement.state as AgreementState) === AgreementState.ACTIVE && isSameAddress(address, viewAgreement.payer) && now > viewAgreement.conditionDeadline && (
                 <Button size="sm" variant="secondary" onClick={() => claimExpiry({
                   chainId: ARC_CHAIN_ID,
-                  address: CONTRACT_ADDRESSES.ConditionalPayout, abi: CONDITIONAL_PAYOUT_ABI,
+                  address: contractAddress, abi: CONDITIONAL_PAYOUT_ABI,
                   functionName: 'claimExpiry', args: [viewRecordId!],
                 })} loading={isExpiring || isConfirmingExpiry}>
                   Claim Expiry (after deadline)
@@ -222,13 +225,14 @@ export function ConditionalPanel() {
 }
 
 function AgreementRow({ id }: { id: bigint }) {
+  const { address: contractAddress } = usePaymentDeployment('ConditionalPayout')
   const { data } = useReadContract({
-    address: CONTRACT_ADDRESSES.ConditionalPayout,
+    address: contractAddress,
     abi: CONDITIONAL_PAYOUT_ABI,
     functionName: 'getAgreement',
     args: [id],
     chainId: ARC_CHAIN_ID,
-    query: { enabled: !!CONTRACT_ADDRESSES.ConditionalPayout },
+    query: { enabled: !!contractAddress },
   })
   const STATE_VARIANT: Record<number, 'default' | 'success' | 'warning' | 'danger' | 'muted'> = {
     0: 'muted', 1: 'default', 2: 'success', 3: 'warning', 4: 'danger',

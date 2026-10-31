@@ -1,3 +1,4 @@
+import { usePaymentDeployment } from '@/lib/payment-deployment'
 import { useState } from 'react'
 import { useAccount, useWriteContract, useReadContract } from 'wagmi'
 import { toast } from 'sonner'
@@ -9,7 +10,7 @@ import { TxButton } from '@/components/ui/TxButton'
 import { Badge } from '@/components/ui/Badge'
 import { Plus, Trash2, ExternalLink, ChevronDown, ChevronUp } from 'lucide-react'
 import {
-  ESCROW_MANAGER_ABI, CONTRACT_ADDRESSES, ERC20_ABI, USDC_ADDRESS,
+  ESCROW_MANAGER_ABI, ERC20_ABI, USDC_ADDRESS,
   ARC_CHAIN_ID, ESCROW_STATE_LABELS, EscrowState,
 } from '@/lib/contracts'
 import {
@@ -25,6 +26,7 @@ const STATE_VARIANT: Record<number, 'default' | 'success' | 'warning' | 'danger'
 }
 
 export function EscrowPanel() {
+  const { address: contractAddress, legacy } = usePaymentDeployment('EscrowManager')
   const { address } = useAccount()
   const now = useChainTimestamp()
   const [beneficiary, setBeneficiary] = useState('')
@@ -66,16 +68,16 @@ export function EscrowPanel() {
 
   // Read
   const { data: userEscrowIds } = useReadContract({
-    address: CONTRACT_ADDRESSES.EscrowManager,
+    address: contractAddress,
     abi: ESCROW_MANAGER_ABI,
     functionName: 'getUserEscrows',
     args: address ? [address] : undefined,
     chainId: ARC_CHAIN_ID,
-    query: { enabled: !!address && !!CONTRACT_ADDRESSES.EscrowManager },
+    query: { enabled: !!address && !!contractAddress },
   })
 
   const { data: viewEscrow } = useReadContract({
-    address: CONTRACT_ADDRESSES.EscrowManager,
+    address: contractAddress,
     abi: ESCROW_MANAGER_ABI,
     functionName: 'getEscrow',
     args: viewRecordId ? [viewRecordId] : undefined,
@@ -100,17 +102,18 @@ export function EscrowPanel() {
   }
 
   function handleApprove(amount: bigint) {
-    if (!CONTRACT_ADDRESSES.EscrowManager || amount <= 0n) return
+    if (!contractAddress || amount <= 0n) return
     approve({
       chainId: ARC_CHAIN_ID,
       address: USDC_ADDRESS,
       abi: ERC20_ABI,
       functionName: 'approve',
-      args: [CONTRACT_ADDRESSES.EscrowManager, amount],
+      args: [contractAddress, amount],
     })
   }
 
   function handleCreate() {
+    if (legacy) return
     if (!isValidAddress(beneficiary)) { toast.error('Invalid beneficiary address'); return }
     if (!isValidAddress(arbiter)) { toast.error('Invalid arbiter address'); return }
     if (isSameAddress(arbiter, address)) { toast.error('The arbiter must be different from the depositor.'); return }
@@ -131,15 +134,15 @@ export function EscrowPanel() {
 
     createEscrow({
       chainId: ARC_CHAIN_ID,
-      address: CONTRACT_ADDRESSES.EscrowManager,
+      address: contractAddress,
       abi: ESCROW_MANAGER_ABI,
       functionName: 'createEscrow',
       args: [beneficiary as `0x${string}`, arbiter as `0x${string}`, deadlineTs, milestoneTuples],
     })
   }
 
-  const { data: allowance = 0n } = useUsdcAllowance(CONTRACT_ADDRESSES.EscrowManager)
-  const notDeployed = !CONTRACT_ADDRESSES.EscrowManager
+  const { data: allowance = 0n } = useUsdcAllowance(contractAddress)
+  const notDeployed = !contractAddress
 
   return (
     <div className="max-w-2xl mx-auto space-y-5">
@@ -158,7 +161,7 @@ export function EscrowPanel() {
       )}
 
       {/* Create form */}
-      <Card>
+      {!legacy && <Card>
         <CardLabel>Create Escrow</CardLabel>
         <div className="mt-4 space-y-3">
           <Input label="Beneficiary address" value={beneficiary} onChange={setBeneficiary}
@@ -216,7 +219,7 @@ export function EscrowPanel() {
           )}
           {createError && <p className="text-xs" style={{ color: 'var(--danger)' }}>{parseOnchainError(createError)}</p>}
         </div>
-      </Card>
+      </Card>}
 
       {/* View escrow */}
       <Card>
@@ -244,7 +247,7 @@ export function EscrowPanel() {
               ) : (
               <Button size="sm" onClick={() => fundEscrow({
                 chainId: ARC_CHAIN_ID,
-                address: CONTRACT_ADDRESSES.EscrowManager, abi: ESCROW_MANAGER_ABI,
+                address: contractAddress, abi: ESCROW_MANAGER_ABI,
                 functionName: 'fundEscrow', args: [viewRecordId!],
               })} loading={isFunding || isConfirmingFund}>
                 Fund Escrow
@@ -255,7 +258,7 @@ export function EscrowPanel() {
               <div className="flex gap-2 flex-wrap">
                 <Button size="sm" onClick={() => dispute({
                   chainId: ARC_CHAIN_ID,
-                  address: CONTRACT_ADDRESSES.EscrowManager, abi: ESCROW_MANAGER_ABI,
+                  address: contractAddress, abi: ESCROW_MANAGER_ABI,
                   functionName: 'initiateDispute', args: [viewRecordId!],
                 })} variant="danger" loading={isDisputing || isConfirmingDispute}>
                   Dispute
@@ -265,7 +268,7 @@ export function EscrowPanel() {
             {((viewEscrow.state as EscrowState) === EscrowState.FUNDED || (viewEscrow.state as EscrowState) === EscrowState.CREATED) && isSameAddress(address, viewEscrow.depositor) && now > viewEscrow.deadline && (
               <Button size="sm" variant="secondary" onClick={() => claimRefund({
                 chainId: ARC_CHAIN_ID,
-                address: CONTRACT_ADDRESSES.EscrowManager, abi: ESCROW_MANAGER_ABI,
+                address: contractAddress, abi: ESCROW_MANAGER_ABI,
                 functionName: 'claimRefund', args: [viewRecordId!],
               })} loading={isRefunding || isConfirmingRefund}>
                 Claim Refund (after deadline)
@@ -275,7 +278,7 @@ export function EscrowPanel() {
               <div className="flex gap-2 flex-wrap">
                 {[true, false].map((release) => (
                   <Button key={String(release)} size="sm" variant={release ? 'primary' : 'secondary'} loading={isResolving || isConfirmingResolve}
-                    onClick={() => resolve({ chainId: ARC_CHAIN_ID, address: CONTRACT_ADDRESSES.EscrowManager, abi: ESCROW_MANAGER_ABI, functionName: 'resolveDispute', args: [viewRecordId!, release] })}>
+                    onClick={() => resolve({ chainId: ARC_CHAIN_ID, address: contractAddress, abi: ESCROW_MANAGER_ABI, functionName: 'resolveDispute', args: [viewRecordId!, release] })}>
                     {release ? 'Resolve: Release' : 'Resolve: Refund'}
                   </Button>
                 ))}
@@ -295,12 +298,12 @@ export function EscrowPanel() {
                 onToggle={() => setExpandedId(expandedId === id ? null : id)}
                 onApprove={(milestoneIdx) => approveMilestone({
                   chainId: ARC_CHAIN_ID,
-                  address: CONTRACT_ADDRESSES.EscrowManager, abi: ESCROW_MANAGER_ABI,
+                  address: contractAddress, abi: ESCROW_MANAGER_ABI,
                   functionName: 'approveMilestone', args: [id, milestoneIdx],
                 })}
                 isApprovingMilestone={isApprovingMilestone || isConfirmingMilestone}
-                onDispute={(index) => dispute({ chainId: ARC_CHAIN_ID, address: CONTRACT_ADDRESSES.EscrowManager, abi: ESCROW_MANAGER_ABI, functionName: 'disputeMilestone', args: [id, index] })}
-                onResolve={(index, release) => resolve({ chainId: ARC_CHAIN_ID, address: CONTRACT_ADDRESSES.EscrowManager, abi: ESCROW_MANAGER_ABI, functionName: 'resolveMilestone', args: [id, index, release] })}
+                onDispute={(index) => dispute({ chainId: ARC_CHAIN_ID, address: contractAddress, abi: ESCROW_MANAGER_ABI, functionName: 'disputeMilestone', args: [id, index] })}
+                onResolve={(index, release) => resolve({ chainId: ARC_CHAIN_ID, address: contractAddress, abi: ESCROW_MANAGER_ABI, functionName: 'resolveMilestone', args: [id, index, release] })}
                 isDisputing={isDisputing || isConfirmingDispute}
                 isResolving={isResolving || isConfirmingResolve}
               />
@@ -323,23 +326,24 @@ function EscrowRow({ id, expanded, onToggle, onApprove, isApprovingMilestone, on
   isDisputing: boolean
   isResolving: boolean
 }) {
+  const { address: contractAddress } = usePaymentDeployment('EscrowManager')
   const { address } = useAccount()
   const now = useChainTimestamp()
   const { data: esc } = useReadContract({
-    address: CONTRACT_ADDRESSES.EscrowManager,
+    address: contractAddress,
     abi: ESCROW_MANAGER_ABI,
     functionName: 'getEscrow',
     args: [id],
     chainId: ARC_CHAIN_ID,
-    query: { enabled: !!CONTRACT_ADDRESSES.EscrowManager },
+    query: { enabled: !!contractAddress },
   })
   const { data: milestones } = useReadContract({
-    address: CONTRACT_ADDRESSES.EscrowManager,
+    address: contractAddress,
     abi: ESCROW_MANAGER_ABI,
     functionName: 'getMilestones',
     args: [id],
     chainId: ARC_CHAIN_ID,
-    query: { enabled: expanded && !!CONTRACT_ADDRESSES.EscrowManager },
+    query: { enabled: expanded && !!contractAddress },
   })
 
   if (!esc) return null

@@ -1,6 +1,6 @@
 import { decodeFunctionData, formatUnits, parseUnits, type Abi, type Address, type Hex } from 'viem'
 import {
-  CONTRACT_ADDRESSES, ORIGINAL_CONTRACT_ADDRESSES, USDC_ADDRESS,
+  CONTRACT_ADDRESSES, DEFAULT_CONTRACT_ADDRESSES, ORIGINAL_CONTRACT_ADDRESSES, USDC_ADDRESS,
   ESCROW_MANAGER_ABI, CONDITIONAL_PAYOUT_ABI, BATCH_PAYOUT_ABI, SCHEDULED_PAYOUT_ABI, VESTING_VAULT_ABI, ERC20_ABI,
 } from './contracts'
 
@@ -58,7 +58,8 @@ const modules: { name: keyof typeof CONTRACT_ADDRESSES; feature: HistoryFeature;
   { name: 'VestingVault', feature: 'vesting', abi: VESTING_VAULT_ABI },
 ]
 const same = (a?: string | null, b?: string | null) => !!a && !!b && a.toLowerCase() === b.toLowerCase()
-const moduleAt = (address?: string | null) => modules.find((m) => same(address, CONTRACT_ADDRESSES[m.name]) || same(address, ORIGINAL_CONTRACT_ADDRESSES[m.name]))
+const moduleAt = (address?: string | null) => modules.find((m) =>
+  same(address, CONTRACT_ADDRESSES[m.name]) || same(address, DEFAULT_CONTRACT_ADDRESSES[m.name]) || same(address, ORIGINAL_CONTRACT_ADDRESSES[m.name]))
 const actions: Record<string, string> = {
   createEscrow: 'Create escrow', fundEscrow: 'Fund escrow', approveRelease: 'Approve escrow release',
   approveMilestone: 'Approve milestone', disputeMilestone: 'Dispute milestone', resolveMilestone: 'Resolve milestone',
