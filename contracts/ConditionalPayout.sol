@@ -117,6 +117,7 @@ contract ConditionalPayout is ReentrancyGuard {
         if (agr.payer == address(0)) revert AgreementNotFound();
         if (msg.sender != agr.payer) revert Unauthorized();
         if (agr.state != AgreementState.PENDING) revert InvalidState();
+        if (block.timestamp > agr.conditionDeadline) revert DeadlinePassed();
 
         agr.state = AgreementState.ACTIVE;
         _usdc.safeTransferFrom(msg.sender, address(this), agr.amount);

@@ -40,6 +40,7 @@ function logFor(address: Hex, block: bigint) {
 let head = 100n
 let failVesting = false
 let dueChecks = 0
+let includeCompletion = false
 const ranges: string[] = []
 
 const fetchMock = spyOn(globalThis, 'fetch').mockImplementation(Object.assign(async (_input: URL | RequestInfo, init?: RequestInit) => {
@@ -57,7 +58,14 @@ const fetchMock = spyOn(globalThis, 'fetch').mockImplementation(Object.assign(as
     if (failVesting && filter.address === vestingAddress) {
       return Response.json({ jsonrpc: '2.0', id: request.id, error: { code: -32602, message: 'Temporary RPC failure' } })
     }
-    result = [logFor(filter.address, head)]
+    const logs = [logFor(filter.address, head)]
+    if (includeCompletion && filter.address === scheduledAddress) {
+      const abi = parseAbi(['event ScheduleCompleted(uint256 indexed scheduleId, uint256 refundedAmount)'])
+      logs.push({ ...logFor(filter.address, head), logIndex: '0x2',
+        topics: encodeEventTopics({ abi, eventName: 'ScheduleCompleted', args: { scheduleId: 1n } }),
+        data: encodeAbiParameters([{ type: 'uint256' }], [123n]) })
+    }
+    result = logs
   } else if (request.method === 'eth_call') {
     dueChecks++
     result = encodeAbiParameters([{ type: 'bool' }], [true])
@@ -133,5 +141,14 @@ describe('backend event indexing', () => {
     }
     expect(await request('/events?limit=1').json()).toHaveLength(1)
     expect(request('/events/address').status).toBe(400)
+  })
+
+  test('indexes completed schedules with the exact unused funding refund', async () => {
+    includeCompletion = true
+    head = 102n
+    await backend.poll()
+    const events = await request('/events?contract=ScheduledPayout').json()
+    expect(events.find((event: { eventName: string }) => event.eventName === 'ScheduleCompleted').args)
+      .toEqual({ scheduleId: '1', refundedAmount: '123' })
   })
 })

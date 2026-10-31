@@ -7,6 +7,7 @@ import { cn, parseOnchainError } from '@/lib/utils'
 import { ARC_CHAIN_ID } from '@/lib/contracts'
 import { useAccount, useSwitchChain } from 'wagmi'
 import { toast } from 'sonner'
+import { useEffect, useState } from 'react'
 
 export function TxButton({
   label, onClick, isPending, isConfirming, isSuccess, disabled, className,
@@ -21,6 +22,12 @@ export function TxButton({
 }) {
   const { isConnected, chainId } = useAccount()
   const { switchChain, isPending: isSwitching } = useSwitchChain()
+  const [showSuccess, setShowSuccess] = useState(true)
+  useEffect(() => {
+    if (!isSuccess || isPending || isConfirming) return
+    const timer = setTimeout(() => setShowSuccess(false), 2000)
+    return () => clearTimeout(timer)
+  }, [isSuccess, isPending, isConfirming])
 
   const wrongChain = isConnected && chainId !== ARC_CHAIN_ID
 
@@ -31,12 +38,13 @@ export function TxButton({
       })
       return
     }
+    setShowSuccess(true)
     onClick?.()
   }
 
   const busy = isPending || isConfirming || isSwitching
   // Allow a network switch before the form/approval prerequisites are met.
-  const isDisabled = !isConnected || busy || (!wrongChain && (disabled || isSuccess))
+  const isDisabled = !isConnected || busy || (!wrongChain && disabled)
 
   const content = !isConnected
     ? 'Connect Wallet'
@@ -46,7 +54,7 @@ export function TxButton({
     ? <span className="flex items-center gap-2"><Loader2 className="size-3.5 animate-spin" />Confirm in wallet…</span>
     : isConfirming
     ? <span className="flex items-center gap-2"><Loader2 className="size-3.5 animate-spin" />Confirming…</span>
-    : isSuccess
+    : isSuccess && showSuccess
     ? 'Done'
     : label
 
@@ -59,7 +67,7 @@ export function TxButton({
         'w-full rounded-2xl py-3.5 text-sm font-semibold text-white transition-all',
         'hover:scale-[1.01] active:scale-[0.99]',
         'disabled:cursor-not-allowed disabled:opacity-40 disabled:scale-100',
-        isSuccess
+        isSuccess && showSuccess
           ? 'bg-[var(--success)]'
           : wrongChain
           ? 'bg-[var(--warning)]'

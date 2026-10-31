@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils'
+import { useId } from 'react'
 
 export function Input({
   label, value, onChange, placeholder, type = 'text', error, hint,
@@ -15,14 +16,18 @@ export function Input({
   className?: string
   inputMode?: React.HTMLAttributes<HTMLInputElement>['inputMode']
 }) {
+  const id = useId()
   return (
     <div className={cn('flex flex-col gap-1', className)}>
       {label && (
-        <label className="text-xs font-semibold" style={{ color: 'var(--ink-2)' }}>
+        <label htmlFor={id} className="text-xs font-semibold" style={{ color: 'var(--ink-2)' }}>
           {label}
         </label>
       )}
       <input
+        id={id}
+        aria-invalid={!!error}
+        aria-describedby={error ? `${id}-error` : hint ? `${id}-hint` : undefined}
         type={type}
         inputMode={inputMode}
         value={value}
@@ -38,8 +43,8 @@ export function Input({
         )}
         style={{ background: 'var(--bg-overlay)', color: 'var(--ink)' }}
       />
-      {error && <p className="text-xs" style={{ color: 'var(--danger)' }}>{error}</p>}
-      {hint && !error && <p className="text-xs" style={{ color: 'var(--subtle)' }}>{hint}</p>}
+      {error && <p id={`${id}-error`} className="text-xs" style={{ color: 'var(--danger)' }}>{error}</p>}
+      {hint && !error && <p id={`${id}-hint`} className="text-xs" style={{ color: 'var(--subtle)' }}>{hint}</p>}
     </div>
   )
 }
@@ -56,14 +61,18 @@ export function Textarea({
   disabled?: boolean
   className?: string
 }) {
+  const id = useId()
   return (
     <div className={cn('flex flex-col gap-1', className)}>
       {label && (
-        <label className="text-xs font-semibold" style={{ color: 'var(--ink-2)' }}>
+        <label htmlFor={id} className="text-xs font-semibold" style={{ color: 'var(--ink-2)' }}>
           {label}
         </label>
       )}
       <textarea
+        id={id}
+        aria-invalid={!!error}
+        aria-describedby={error ? `${id}-error` : undefined}
         rows={rows}
         value={value}
         onChange={(e) => onChange(e.target.value)}
@@ -76,7 +85,7 @@ export function Textarea({
         )}
         style={{ background: 'var(--bg-overlay)', color: 'var(--ink)' }}
       />
-      {error && <p className="text-xs" style={{ color: 'var(--danger)' }}>{error}</p>}
+      {error && <p id={`${id}-error`} className="text-xs" style={{ color: 'var(--danger)' }}>{error}</p>}
     </div>
   )
 }

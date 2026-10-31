@@ -25,6 +25,8 @@ All contracts accept the USDC address as the first constructor argument.
 
 The deployed addresses are listed in the README and `.env.example`. The frontend and backend use mainnet.
 
+October 31 fixes require replacement deployments of three immutable contracts; original mainnet defaults have not changed. See [payment-fixes-and-history.md](./payment-fixes-and-history.md) for the deployment script, read-only cost estimate, validation, and legacy-record requirements.
+
 ## Arc Testnet (separate deployment)
 
 **USDC address:** `0x3600000000000000000000000000000000000000`
@@ -130,13 +132,13 @@ Health check: `curl http://localhost:3001/health`
 bun run contracts:test   # forge test -vv
 ```
 
-178 contract tests across all five contracts. Run `bun run server:test` for backend indexing and API regression tests, and `bun run check` for lint and TypeScript checks.
+195 contract tests across all five contracts. Run `bun run test` for frontend/history/backend regressions, `bun run contracts:abi` after ABI changes, and `bun run check` for lint and TypeScript checks.
 
 ---
 
 ## Mainnet Deployment Checklist
 
-- [ ] All 178 unit tests passing
+- [ ] All 195 contract tests passing
 - [ ] Independent third-party audit completed
 - [ ] Contract addresses verified on https://explorer.arc.io
 - [ ] VITE_* env vars set for mainnet addresses

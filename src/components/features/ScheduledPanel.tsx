@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { useAccount, useWriteContract, useWaitForTransactionReceipt, useReadContract } from 'wagmi'
+import { useAccount, useWriteContract, useReadContract } from 'wagmi'
 import { toast } from 'sonner'
+import { useTransactionReceipt, useUsdcAllowance, useChainTimestamp } from '@/lib/use-transaction'
 import { Card, InnerCard, CardLabel } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
@@ -9,8 +10,9 @@ import { Badge } from '@/components/ui/Badge'
 import { ExternalLink, Play, XCircle } from 'lucide-react'
 import {
   SCHEDULED_PAYOUT_ABI, ERC20_ABI, USDC_ADDRESS, CONTRACT_ADDRESSES, ARC_CHAIN_ID,
+  SCHEDULE_STATE_LABELS,
 } from '@/lib/contracts'
-import { isValidAddress, parseUsdc, formatUsdc, formatAddress, formatTimestamp, formatDuration, parseOnchainError } from '@/lib/utils'
+import { isValidAddress, readUsdcInput, parseRecordId, parseUintInput, parseTimestampInput, isSameAddress, formatUsdc, formatAddress, formatTimestamp, formatDuration, parseOnchainError } from '@/lib/utils'
 import { buildTxExplorerUrl } from '@/onchain-facts'
 
 const INTERVALS = [
@@ -22,6 +24,7 @@ const INTERVALS = [
 
 export function ScheduledPanel() {
   const { address } = useAccount()
+  const now = useChainTimestamp()
   const [recipient, setRecipient] = useState('')
   const [amount, setAmount] = useState('')
   const [startTime, setStartTime] = useState('')
@@ -35,23 +38,42 @@ export function ScheduledPanel() {
   const [executeId, setExecuteId] = useState('')
   const [cancelId, setCancelId] = useState('')
   const [viewId, setViewId] = useState('')
+  const viewRecordId = parseRecordId(viewId)
+  const fundRecordId = parseRecordId(fundId)
+  const executeRecordId = parseRecordId(executeId)
+  const cancelRecordId = parseRecordId(cancelId)
+  const [withdrawAmount, setWithdrawAmount] = useState('')
 
-  const { writeContract: approve, data: approveHash } = useWriteContract({ mutation: { onError: (error) => toast.error(parseOnchainError(error)) } })
-  const { isLoading: isApproving, isSuccess: approved } = useWaitForTransactionReceipt({ chainId: ARC_CHAIN_ID, hash: approveHash })
+  const { writeContract: approve, data: approveHash, isPending: isRequestingApproval } = useWriteContract({ mutation: { onError: (error) => toast.error(parseOnchainError(error)) } })
+  const { isLoading: isApproving } = useTransactionReceipt(approveHash)
 
   const { writeContract: create, data: createHash, isPending: isCreating } = useWriteContract({ mutation: { onError: (error) => toast.error(parseOnchainError(error)) } })
-  const { isLoading: isConfirmingCreate, isSuccess: createSuccess } = useWaitForTransactionReceipt({ chainId: ARC_CHAIN_ID, hash: createHash })
+  const { isLoading: isConfirmingCreate, isSuccess: createSuccess } = useTransactionReceipt(createHash, 'Schedule created.')
 
   const { writeContract: fund, data: fundHash, isPending: isFunding } = useWriteContract({ mutation: { onError: (error) => toast.error(parseOnchainError(error)) } })
-  const { isLoading: isConfirmingFund, isSuccess: fundSuccess } = useWaitForTransactionReceipt({ chainId: ARC_CHAIN_ID, hash: fundHash })
+  const { isLoading: isConfirmingFund, isSuccess: fundSuccess } = useTransactionReceipt(fundHash)
 
   const { writeContract: execute, data: execHash, isPending: isExecuting } = useWriteContract({ mutation: { onError: (error) => toast.error(parseOnchainError(error)) } })
-  const { isLoading: isConfirmingExec, isSuccess: execSuccess } = useWaitForTransactionReceipt({ chainId: ARC_CHAIN_ID, hash: execHash })
+  const { isLoading: isConfirmingExec, isSuccess: execSuccess } = useTransactionReceipt(execHash)
 
   const { writeContract: cancel, data: cancelHash, isPending: isCancelling } = useWriteContract({ mutation: { onError: (error) => toast.error(parseOnchainError(error)) } })
-  const { isLoading: isConfirmingCancel } = useWaitForTransactionReceipt({ chainId: ARC_CHAIN_ID, hash: cancelHash })
+  const { isLoading: isConfirmingCancel } = useTransactionReceipt(cancelHash)
 
-  const { data: payerIds, refetch: refetchIds } = useReadContract({
+  const { writeContract: withdraw, data: withdrawHash, isPending: isWithdrawing } = useWriteContract({ mutation: { onError: (error) => toast.error(parseOnchainError(error)) } })
+  const { isLoading: isConfirmingWithdraw } = useTransactionReceipt(withdrawHash, 'Funds withdrawn.')
+
+  const { data: fundSchedule } = useReadContract({
+    address: CONTRACT_ADDRESSES.ScheduledPayout, abi: SCHEDULED_PAYOUT_ABI, chainId: ARC_CHAIN_ID,
+    functionName: 'getSchedule', args: fundRecordId ? [fundRecordId] : undefined,
+    query: { enabled: !!fundRecordId },
+  })
+  const { data: cancelSchedule } = useReadContract({
+    address: CONTRACT_ADDRESSES.ScheduledPayout, abi: SCHEDULED_PAYOUT_ABI, chainId: ARC_CHAIN_ID,
+    functionName: 'getSchedule', args: cancelRecordId ? [cancelRecordId] : undefined,
+    query: { enabled: !!cancelRecordId },
+  })
+
+  const { data: payerIds } = useReadContract({
     address: CONTRACT_ADDRESSES.ScheduledPayout,
     abi: SCHEDULED_PAYOUT_ABI,
     functionName: 'getPayerSchedules',
@@ -64,56 +86,62 @@ export function ScheduledPanel() {
     address: CONTRACT_ADDRESSES.ScheduledPayout,
     abi: SCHEDULED_PAYOUT_ABI,
     functionName: 'getSchedule',
-    args: viewId ? [BigInt(viewId)] : undefined,
+    args: viewRecordId ? [viewRecordId] : undefined,
     chainId: ARC_CHAIN_ID,
-    query: { enabled: !!viewId && !isNaN(Number(viewId)) },
+    query: { enabled: !!viewRecordId },
   })
 
   const { data: viewBalance } = useReadContract({
     address: CONTRACT_ADDRESSES.ScheduledPayout,
     abi: SCHEDULED_PAYOUT_ABI,
     functionName: 'getBalance',
-    args: viewId ? [BigInt(viewId)] : undefined,
+    args: viewRecordId ? [viewRecordId] : undefined,
     chainId: ARC_CHAIN_ID,
-    query: { enabled: !!viewId && !isNaN(Number(viewId)) },
+    query: { enabled: !!viewRecordId },
   })
 
   const { data: isDue } = useReadContract({
     address: CONTRACT_ADDRESSES.ScheduledPayout,
     abi: SCHEDULED_PAYOUT_ABI,
     functionName: 'isDue',
-    args: executeId ? [BigInt(executeId)] : undefined,
+    args: executeRecordId ? [executeRecordId] : undefined,
     chainId: ARC_CHAIN_ID,
-    query: { enabled: !!executeId && !isNaN(Number(executeId)) },
+    query: { enabled: !!executeRecordId, refetchInterval: 5000 },
   })
 
-  const intervalSeconds = intervalPreset === 0 ? BigInt(customInterval || '0') : BigInt(intervalPreset)
-  const parsedFundAmount = fundAmount ? parseUsdc(fundAmount) : 0n
+  const intervalSeconds = intervalPreset === 0 ? parseRecordId(customInterval) ?? 0n : BigInt(intervalPreset)
+  const parsedFundAmount = readUsdcInput(fundAmount)
+  const parsedWithdrawAmount = readUsdcInput(withdrawAmount)
+  const { data: allowance = 0n } = useUsdcAllowance(CONTRACT_ADDRESSES.ScheduledPayout)
+  const approved = parsedFundAmount > 0n && allowance >= parsedFundAmount
   const notDeployed = !CONTRACT_ADDRESSES.ScheduledPayout
+  const canFund = !!fundSchedule && fundSchedule.active && isSameAddress(address, fundSchedule.payer)
+    && (fundSchedule.endTime === 0n || now <= fundSchedule.endTime)
+  const viewBuffer = viewSchedule?.active && (viewSchedule.endTime === 0n || now <= viewSchedule.endTime) ? viewSchedule.amount : 0n
+  const withdrawable = viewBalance !== undefined && viewBalance > viewBuffer ? viewBalance - viewBuffer : 0n
 
   function handleApprove() {
-    if (!CONTRACT_ADDRESSES.ScheduledPayout) return
+    if (!CONTRACT_ADDRESSES.ScheduledPayout || !canFund || parsedFundAmount === 0n) return
     approve({ chainId: ARC_CHAIN_ID, address: USDC_ADDRESS, abi: ERC20_ABI, functionName: 'approve', args: [CONTRACT_ADDRESSES.ScheduledPayout, parsedFundAmount] })
   }
 
   function handleCreate() {
     if (!isValidAddress(recipient)) { toast.error('Invalid recipient'); return }
-    if (!amount || parseUsdc(amount) === 0n) { toast.error('Amount required'); return }
-    if (intervalSeconds === 0n) { toast.error('Interval required'); return }
+    if (readUsdcInput(amount) === 0n) { toast.error('Enter a positive amount with at most 6 decimal places.'); return }
+    if (intervalSeconds < 86400n) { toast.error('Payment intervals must be at least one day.'); return }
 
-    const now = Math.floor(Date.now() / 1000)
-    const startTs = startTime ? BigInt(Math.floor(new Date(startTime).getTime() / 1000)) : BigInt(now)
-    const endTs = endTime ? BigInt(Math.floor(new Date(endTime).getTime() / 1000)) : 0n
-    const maxExec = maxExecutions ? BigInt(maxExecutions) : 0n
+    const startTs = startTime ? parseTimestampInput(startTime) : now
+    const endTs = endTime ? parseTimestampInput(endTime) : 0n
+    const maxExec = maxExecutions.trim() ? parseUintInput(maxExecutions) : 0n
+    if (startTs === undefined || endTs === undefined || (endTs !== 0n && endTs <= startTs)) { toast.error('End time must be after start time.'); return }
+    if (maxExec === undefined) { toast.error('Maximum executions must be a whole number.'); return }
 
     create({
       chainId: ARC_CHAIN_ID,
       address: CONTRACT_ADDRESSES.ScheduledPayout,
       abi: SCHEDULED_PAYOUT_ABI,
       functionName: 'createSchedule',
-      args: [recipient as `0x${string}`, parseUsdc(amount), startTs, endTs, intervalSeconds, maxExec, description],
-    }, {
-      onSuccess: () => { toast.success('Schedule created!'); void refetchIds() },
+      args: [recipient as `0x${string}`, readUsdcInput(amount), startTs, endTs, intervalSeconds, maxExec, description],
     })
   }
 
@@ -122,7 +150,7 @@ export function ScheduledPanel() {
       <div>
         <h1 className="display text-2xl font-bold" style={{ color: 'var(--ink)' }}>Scheduled Payout</h1>
         <p className="mt-1 text-sm" style={{ color: 'var(--muted)' }}>
-          Recurring or one-time USDC payments. Fund a pool and payments execute automatically when due.
+          Recurring or one-time USDC payments. Fund a pool, then trigger each payment when due.
         </p>
       </div>
 
@@ -186,14 +214,14 @@ export function ScheduledPanel() {
             <Input label="Fund amount (USDC)" value={fundAmount} onChange={setFundAmount} placeholder="0.00" inputMode="decimal" />
           </div>
           <div className="grid grid-cols-2 gap-2">
-            <Button variant="secondary" onClick={handleApprove} loading={isApproving} disabled={!address || parsedFundAmount === 0n}>
+            <Button variant="secondary" onClick={handleApprove} loading={isApproving || isRequestingApproval} disabled={!canFund || parsedFundAmount === 0n || approved}>
               {approved ? 'Approved' : 'Approve USDC'}
             </Button>
             <TxButton label="Fund" onClick={() => fund({
               chainId: ARC_CHAIN_ID,
               address: CONTRACT_ADDRESSES.ScheduledPayout, abi: SCHEDULED_PAYOUT_ABI,
-              functionName: 'fundSchedule', args: [BigInt(fundId || '0'), parsedFundAmount],
-            })} isPending={isFunding} isConfirming={isConfirmingFund} isSuccess={fundSuccess} disabled={!approved || !fundId} />
+              functionName: 'fundSchedule', args: [fundRecordId!, parsedFundAmount],
+            })} isPending={isFunding} isConfirming={isConfirmingFund} isSuccess={fundSuccess} disabled={!approved || !canFund} />
           </div>
         </div>
       </Card>
@@ -212,9 +240,9 @@ export function ScheduledPanel() {
               onClick={() => execute({
                 chainId: ARC_CHAIN_ID,
                 address: CONTRACT_ADDRESSES.ScheduledPayout, abi: SCHEDULED_PAYOUT_ABI,
-                functionName: 'executeSchedule', args: [BigInt(executeId || '0')],
+                functionName: 'executeSchedule', args: [executeRecordId!],
               })} isPending={isExecuting} isConfirming={isConfirmingExec} isSuccess={execSuccess}
-              disabled={!executeId || !isDue} className="mt-2" />
+              disabled={!executeRecordId || !isDue} className="mt-2" />
           </div>
           <div>
             <CardLabel>Cancel Schedule</CardLabel>
@@ -223,8 +251,8 @@ export function ScheduledPanel() {
             <Button variant="danger" className="mt-2 w-full" onClick={() => cancel({
               chainId: ARC_CHAIN_ID,
               address: CONTRACT_ADDRESSES.ScheduledPayout, abi: SCHEDULED_PAYOUT_ABI,
-              functionName: 'cancelSchedule', args: [BigInt(cancelId || '0')],
-            })} loading={isCancelling || isConfirmingCancel} disabled={!cancelId}>
+              functionName: 'cancelSchedule', args: [cancelRecordId!],
+            })} loading={isCancelling || isConfirmingCancel} disabled={!cancelSchedule?.active || !isSameAddress(address, cancelSchedule.payer)}>
               <XCircle className="size-3.5" /> Cancel
             </Button>
           </div>
@@ -239,7 +267,7 @@ export function ScheduledPanel() {
           {viewSchedule && (
             <InnerCard className="mt-3 space-y-2">
               <div className="flex items-center justify-between">
-                <Badge variant={viewSchedule.active ? 'success' : 'muted'}>{viewSchedule.active ? 'Active' : 'Inactive'}</Badge>
+                <Badge variant={viewSchedule.active ? 'success' : 'muted'}>{SCHEDULE_STATE_LABELS[viewSchedule.state]}</Badge>
                 <span className="text-xs mono tabular-nums" style={{ color: 'var(--subtle)' }}>
                   Balance: {viewBalance !== undefined ? formatUsdc(viewBalance) : '…'} USDC
                 </span>
@@ -253,6 +281,14 @@ export function ScheduledPanel() {
                 {viewSchedule.lastExecuted > 0n && <p>Last executed: {formatTimestamp(viewSchedule.lastExecuted)}</p>}
                 {viewSchedule.description && <p>Description: {viewSchedule.description}</p>}
               </div>
+              {isSameAddress(address, viewSchedule.payer) && withdrawable > 0n && (
+                <div className="space-y-2">
+                  <p className="text-xs">Available to withdraw: {formatUsdc(withdrawable)} USDC</p>
+                  <Input label="Withdraw amount (USDC)" value={withdrawAmount} onChange={setWithdrawAmount} inputMode="decimal" />
+                  <TxButton label="Withdraw Funds" onClick={() => withdraw({ chainId: ARC_CHAIN_ID, address: CONTRACT_ADDRESSES.ScheduledPayout, abi: SCHEDULED_PAYOUT_ABI, functionName: 'withdrawExcessFunds', args: [viewRecordId!, parsedWithdrawAmount] })}
+                    isPending={isWithdrawing} isConfirming={isConfirmingWithdraw} disabled={parsedWithdrawAmount === 0n || parsedWithdrawAmount > withdrawable} />
+                </div>
+              )}
             </InnerCard>
           )}
         </div>
@@ -287,7 +323,7 @@ function ScheduleRow({ id }: { id: bigint }) {
     <div className="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-[var(--surface-muted)]">
       <div className="flex items-center gap-2">
         <span className="mono text-xs" style={{ color: 'var(--subtle)' }}>#{id.toString()}</span>
-        <Badge variant={data.active ? 'success' : 'muted'}>{data.active ? 'Active' : 'Inactive'}</Badge>
+        <Badge variant={data.active ? 'success' : 'muted'}>{SCHEDULE_STATE_LABELS[data.state]}</Badge>
         {data.description && <span className="text-xs" style={{ color: 'var(--ink-2)' }}>{data.description}</span>}
       </div>
       <span className="text-sm font-semibold tabular-nums" style={{ color: 'var(--ink)' }}>

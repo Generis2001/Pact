@@ -1,5 +1,5 @@
 import { ArrowRight, Check, Clock3, GitBranch, LockKeyhole, ShieldCheck, Users, Wallet } from 'lucide-react'
-import type { Tab } from '@/components/layout/Shell'
+import type { PaymentTab } from '@/components/layout/Shell'
 
 const icons = {
   escrow: ShieldCheck,
@@ -9,7 +9,7 @@ const icons = {
   vesting: LockKeyhole,
 }
 
-export function FeatureIllustration({ feature }: { feature: Exclude<Tab, 'dashboard'> }) {
+export function FeatureIllustration({ feature }: { feature: PaymentTab }) {
   const Icon = icons[feature]
   return (
     <div className="flex h-16 items-center justify-center gap-3" aria-hidden="true">

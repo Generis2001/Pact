@@ -1,0 +1,598 @@
+{
+  "verifiedAt": "2026-10-31T12:25:15.487Z",
+  "chainId": 5042,
+  "wallet": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+  "initialNativeUsdc": "0.508597337538579305",
+  "finalNativeUsdc": "0.419877662538579305",
+  "totalSpentUsdc": "0.088719675",
+  "transactionCount": 29,
+  "runtimeChecks": [
+    {
+      "label": "VestingVault.claimVested rejects NothingClaimable",
+      "passed": true
+    },
+    {
+      "label": "VestingVault.claimVested rejects NothingClaimable",
+      "passed": true
+    },
+    {
+      "label": "VestingVault.revokeSchedule rejects NotRevocable",
+      "passed": true
+    },
+    {
+      "label": "VestingVault.claimVested rejects Unauthorized",
+      "passed": true
+    },
+    {
+      "label": "Schedule is not due without funding",
+      "passed": true
+    },
+    {
+      "label": "Funded schedule balance is 0.00003 USDC",
+      "passed": true
+    },
+    {
+      "label": "Schedule becomes due when funded",
+      "passed": true
+    },
+    {
+      "label": "One scheduled payment accounted",
+      "passed": true
+    },
+    {
+      "label": "ScheduledPayout.executeSchedule rejects NotDue",
+      "passed": true
+    },
+    {
+      "label": "Schedule cancellation returns remaining pool",
+      "passed": true
+    },
+    {
+      "label": "ScheduledPayout.executeSchedule rejects InactiveSchedule",
+      "passed": true
+    },
+    {
+      "label": "ConditionalPayout.approveCondition rejects Unauthorized",
+      "passed": true
+    },
+    {
+      "label": "Conditional payment is released",
+      "passed": true
+    },
+    {
+      "label": "ConditionalPayout.claimExpiry rejects DeadlineNotReached",
+      "passed": true
+    },
+    {
+      "label": "Batch estimate validates two recipients",
+      "passed": true
+    },
+    {
+      "label": "Batch execution flag set",
+      "passed": true
+    },
+    {
+      "label": "BatchPayout.executeBatch rejects DuplicatePaymentSet",
+      "passed": true
+    },
+    {
+      "label": "EscrowManager.fundEscrow rejects InvalidState",
+      "passed": true
+    },
+    {
+      "label": "First approval does not release milestone",
+      "passed": true
+    },
+    {
+      "label": "Dual approval releases exactly first milestone",
+      "passed": true
+    },
+    {
+      "label": "Escrow milestones completely settled",
+      "passed": true
+    },
+    {
+      "label": "Revocation freezes linear vesting",
+      "passed": true
+    },
+    {
+      "label": "Revoked linear vesting has no remaining claim",
+      "passed": true
+    },
+    {
+      "label": "Completed cliff vesting is fully claimable",
+      "passed": true
+    },
+    {
+      "label": "cliff vesting claim completes schedule",
+      "passed": true
+    },
+    {
+      "label": "VestingVault.claimVested rejects NothingClaimable",
+      "passed": true
+    },
+    {
+      "label": "Completed periodic vesting is fully claimable",
+      "passed": true
+    },
+    {
+      "label": "periodic vesting claim completes schedule",
+      "passed": true
+    },
+    {
+      "label": "VestingVault.claimVested rejects NothingClaimable",
+      "passed": true
+    },
+    {
+      "label": "ConditionalPayout.approveCondition rejects DeadlinePassed",
+      "passed": true
+    },
+    {
+      "label": "Expired conditional agreement is refunded",
+      "passed": true
+    },
+    {
+      "label": "Total conservative spend remains below 0.1 USDC",
+      "passed": true
+    }
+  ],
+  "postflightChecks": [
+    {
+      "label": "RPC chain is Arc mainnet",
+      "passed": true
+    },
+    {
+      "label": "Every new transaction receipt is successful",
+      "passed": true
+    },
+    {
+      "label": "Independent receipt gas sum equals wallet balance decrease",
+      "passed": true
+    },
+    {
+      "label": "Main wallet decrease remains below 0.1 USDC",
+      "passed": true
+    },
+    {
+      "label": "Temporary arbiter has no funds remaining",
+      "passed": true
+    },
+    {
+      "label": "New escrow is resolved with one released milestone and one resolved milestone",
+      "passed": true
+    },
+    {
+      "label": "New payout schedule is cancelled with a zero funding pool",
+      "passed": true
+    },
+    {
+      "label": "releaseAgreement state",
+      "passed": true
+    },
+    {
+      "label": "expiryAgreement state",
+      "passed": true
+    },
+    {
+      "label": "linear vesting state and no remaining claim",
+      "passed": true
+    },
+    {
+      "label": "cliff vesting state and no remaining claim",
+      "passed": true
+    },
+    {
+      "label": "periodic vesting state and no remaining claim",
+      "passed": true
+    },
+    {
+      "label": "Exact vesting allowance is fully consumed",
+      "passed": true
+    },
+    {
+      "label": "Escrow independent arbiter approval releases milestone: exact USDC Transfer amount",
+      "passed": true
+    },
+    {
+      "label": "Escrow arbiter resolves remaining milestone with refund: exact USDC Transfer amount",
+      "passed": true
+    },
+    {
+      "label": "ConditionalPayout.approveCondition: exact USDC Transfer amount",
+      "passed": true
+    },
+    {
+      "label": "ConditionalPayout.claimExpiry: exact USDC Transfer amount",
+      "passed": true
+    },
+    {
+      "label": "ScheduledPayout.executeSchedule: exact USDC Transfer amount",
+      "passed": true
+    },
+    {
+      "label": "Vesting cliff full claim: exact USDC Transfer amount",
+      "passed": true
+    },
+    {
+      "label": "Vesting periodic full claim: exact USDC Transfer amount",
+      "passed": true
+    },
+    {
+      "label": "BatchPayout.executeBatch: exact USDC Transfer amount",
+      "passed": true
+    },
+    {
+      "label": "BatchPayout.executeBatch: exact USDC Transfer amount",
+      "passed": true
+    },
+    {
+      "label": "BatchPayout.executeBatch: exact USDC Transfer amount",
+      "passed": true
+    }
+  ],
+  "readOnlyBugProbes": [
+    {
+      "label": "Funding an already cancelled mainnet schedule",
+      "unexpectedlyAllowed": true,
+      "method": "eth_call only; no transaction broadcast"
+    }
+  ],
+  "receipts": [
+    {
+      "label": "Fund isolated test arbiter for two escrow actions",
+      "hash": "0x929e92053896f1db9450cb5a9608950d7f4812965caf2583346f11c8397395e6",
+      "status": "success",
+      "gasUsed": "21000",
+      "feeWei": "525000000000000",
+      "transfers": []
+    },
+    {
+      "label": "USDC.approve VestingVault exact 30 base units",
+      "hash": "0xa3b5f6857aacc3ad5f374d6cfa179ce7611aa784ee9f18acba9fe04a316b4623",
+      "status": "success",
+      "gasUsed": "55414",
+      "feeWei": "1385350000000000",
+      "transfers": []
+    },
+    {
+      "label": "Vesting linear create and fund",
+      "hash": "0x18981d9e39e6794515446372c0f8e8099424f60cabe81bf1ed06daf8a3244750",
+      "status": "success",
+      "gasUsed": "258030",
+      "feeWei": "6450750000000000",
+      "transfers": [
+        {
+          "from": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+          "to": "0x620eBbf0F0d7acE2202Db95fd6ee0BB42F9510A6",
+          "value": "10"
+        }
+      ]
+    },
+    {
+      "label": "Vesting cliff create and fund",
+      "hash": "0xfd7631b7fbb407b51405e326b51568815e8c5109afaabb5778ed9089a828fc4d",
+      "status": "success",
+      "gasUsed": "280831",
+      "feeWei": "7020775000000000",
+      "transfers": [
+        {
+          "from": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+          "to": "0x620eBbf0F0d7acE2202Db95fd6ee0BB42F9510A6",
+          "value": "10"
+        }
+      ]
+    },
+    {
+      "label": "Vesting periodic create and fund",
+      "hash": "0x2c489eb50078bced62b9be62d4d1b1e41c514a5c676414b158f8ad9cfed13fd4",
+      "status": "success",
+      "gasUsed": "275964",
+      "feeWei": "6899100000000000",
+      "transfers": [
+        {
+          "from": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+          "to": "0x620eBbf0F0d7acE2202Db95fd6ee0BB42F9510A6",
+          "value": "10"
+        }
+      ]
+    },
+    {
+      "label": "Scheduled payout create",
+      "hash": "0x7d3b4ebd3b3447841c8766fec1528d5dab4d85028462c947fa0a4be536b1ea53",
+      "status": "success",
+      "gasUsed": "242200",
+      "feeWei": "6055000000000000",
+      "transfers": []
+    },
+    {
+      "label": "ScheduledPayout.fundSchedule",
+      "hash": "0xfa9dc9f79c0679141565e6a8a7417d89edbd700b9942ea157785a715953f2e2a",
+      "status": "success",
+      "gasUsed": "85042",
+      "feeWei": "2126050000000000",
+      "transfers": [
+        {
+          "from": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+          "to": "0x5B4A641Fd1C2E67205d9d4947bcBD63EEDddD5Ab",
+          "value": "30"
+        }
+      ]
+    },
+    {
+      "label": "ScheduledPayout.withdrawExcessFunds",
+      "hash": "0xe2169ba6b70d0fd0b5084ebfb5a179a8f3e313a6aad69c242fe8c7b34b8f8451",
+      "status": "success",
+      "gasUsed": "63804",
+      "feeWei": "1595100000000000",
+      "transfers": [
+        {
+          "from": "0x5B4A641Fd1C2E67205d9d4947bcBD63EEDddD5Ab",
+          "to": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+          "value": "10"
+        }
+      ]
+    },
+    {
+      "label": "ScheduledPayout.executeSchedule",
+      "hash": "0x5ea89dc56a0e299f4296b158ea588d033157a8b7e1ebc32a801b58c5e7c40945",
+      "status": "success",
+      "gasUsed": "145055",
+      "feeWei": "3626375000000000",
+      "transfers": [
+        {
+          "from": "0x5B4A641Fd1C2E67205d9d4947bcBD63EEDddD5Ab",
+          "to": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+          "value": "10"
+        }
+      ]
+    },
+    {
+      "label": "ScheduledPayout.cancelSchedule",
+      "hash": "0xd0f8919f1456d637e5ab9c661c42de85cefb55b4e1415d544cad9659d9f6671e",
+      "status": "success",
+      "gasUsed": "78576",
+      "feeWei": "1964400000000000",
+      "transfers": [
+        {
+          "from": "0x5B4A641Fd1C2E67205d9d4947bcBD63EEDddD5Ab",
+          "to": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+          "value": "10"
+        }
+      ]
+    },
+    {
+      "label": "ConditionalPayout.createAgreement",
+      "hash": "0x479917389b12faa710fb7b583fd291eb2e4e7283d25719983e9e02671e2ce3a2",
+      "status": "success",
+      "gasUsed": "199175",
+      "feeWei": "4979375000000000",
+      "transfers": []
+    },
+    {
+      "label": "ConditionalPayout.fundAgreement",
+      "hash": "0xe6bf4d38ee320a228d0a705510ab1652d53c770780561c26f9971a3087c70325",
+      "status": "success",
+      "gasUsed": "86621",
+      "feeWei": "2165525000000000",
+      "transfers": [
+        {
+          "from": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+          "to": "0x196B618c6a31A5100b5F9774089E3f6913B9aa55",
+          "value": "10"
+        }
+      ]
+    },
+    {
+      "label": "ConditionalPayout.approveCondition",
+      "hash": "0xcaba6b7b15a740ee3a9650cbc35dc8b6eff6011d44def3b52442bf26a870c8e7",
+      "status": "success",
+      "gasUsed": "70035",
+      "feeWei": "1750875000000000",
+      "transfers": [
+        {
+          "from": "0x196B618c6a31A5100b5F9774089E3f6913B9aa55",
+          "to": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+          "value": "10"
+        }
+      ]
+    },
+    {
+      "label": "ConditionalPayout.createAgreement",
+      "hash": "0x2a71e5e01e2b064e59cae3474e34cbb70cda9d05f070f2918b7b6e1a2faaac79",
+      "status": "success",
+      "gasUsed": "199163",
+      "feeWei": "4979075000000000",
+      "transfers": []
+    },
+    {
+      "label": "ConditionalPayout.fundAgreement",
+      "hash": "0xb6c9b39c746d94360bf44a524f9e41e28c334eb93d686ba21edbe1f75f70a9f1",
+      "status": "success",
+      "gasUsed": "86621",
+      "feeWei": "2165525000000000",
+      "transfers": [
+        {
+          "from": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+          "to": "0x196B618c6a31A5100b5F9774089E3f6913B9aa55",
+          "value": "10"
+        }
+      ]
+    },
+    {
+      "label": "BatchPayout.executeBatch",
+      "hash": "0x8658a7bdd1bfa0f414006510a25564cbe7c05e0a3947510e4d11b2733a5568a8",
+      "status": "success",
+      "gasUsed": "119186",
+      "feeWei": "2979650000000000",
+      "transfers": [
+        {
+          "from": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+          "to": "0xab3f589c7ca55aA6272B1b159ed12d0E7623F798",
+          "value": "10"
+        },
+        {
+          "from": "0xab3f589c7ca55aA6272B1b159ed12d0E7623F798",
+          "to": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+          "value": "5"
+        },
+        {
+          "from": "0xab3f589c7ca55aA6272B1b159ed12d0E7623F798",
+          "to": "0xEf315EfaA7B03dC410578A163ef0b84362509970",
+          "value": "5"
+        }
+      ]
+    },
+    {
+      "label": "EscrowManager.createEscrow",
+      "hash": "0x26ca19f5b7febf3763d08641a7d2af5207d26a2727c88bd2716bf79f9e7febfe",
+      "status": "success",
+      "gasUsed": "341317",
+      "feeWei": "8532925000000000",
+      "transfers": []
+    },
+    {
+      "label": "EscrowManager.fundEscrow",
+      "hash": "0xb13915605b7692cefd5727a0be48e177fbe75414f6ac4f8957ab774e2b2a63a9",
+      "status": "success",
+      "gasUsed": "88992",
+      "feeWei": "2224800000000000",
+      "transfers": [
+        {
+          "from": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+          "to": "0x3eF17D9Cd787030Eb68Eb6b2FC6D7F298B9B136F",
+          "value": "20"
+        }
+      ]
+    },
+    {
+      "label": "EscrowManager.approveMilestone",
+      "hash": "0xa3cccba2866c05498e822682bf08896d200908937d14d35b3482a1e0bdeb7486",
+      "status": "success",
+      "gasUsed": "62064",
+      "feeWei": "1551600000000000",
+      "transfers": []
+    },
+    {
+      "label": "Escrow independent arbiter approval releases milestone",
+      "hash": "0x9320da845e553770c4178d657f00947dc96fb9c1e8a0fbc5e1c81ddfea14dbb1",
+      "status": "success",
+      "gasUsed": "148292",
+      "feeWei": "3707300000000000",
+      "transfers": [
+        {
+          "from": "0x3eF17D9Cd787030Eb68Eb6b2FC6D7F298B9B136F",
+          "to": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+          "value": "10"
+        }
+      ]
+    },
+    {
+      "label": "EscrowManager.disputeMilestone",
+      "hash": "0xbb347833b87c479d586287ad27fed4faa0bc0497846d4f9228b5f8162adb029d",
+      "status": "success",
+      "gasUsed": "54318",
+      "feeWei": "1357950000000000",
+      "transfers": []
+    },
+    {
+      "label": "Escrow arbiter resolves remaining milestone with refund",
+      "hash": "0x8d638264071d4ab50af0e50b1e52c97974689fcad6b56092812e68982fdfd401",
+      "status": "success",
+      "gasUsed": "81604",
+      "feeWei": "2040100000000000",
+      "transfers": [
+        {
+          "from": "0x3eF17D9Cd787030Eb68Eb6b2FC6D7F298B9B136F",
+          "to": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+          "value": "10"
+        }
+      ]
+    },
+    {
+      "label": "Vesting linear partial claim",
+      "hash": "0x6c4216c2dd32913c64db1a603a2aa6917baee8dbbbc935c521265916513dbaa5",
+      "status": "success",
+      "gasUsed": "97518",
+      "feeWei": "2437950000000000",
+      "transfers": [
+        {
+          "from": "0x620eBbf0F0d7acE2202Db95fd6ee0BB42F9510A6",
+          "to": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+          "value": "5"
+        }
+      ]
+    },
+    {
+      "label": "Vesting linear revoke and refund unvested balance",
+      "hash": "0x39eed4cb3adea932adc6a85a666912ea384f339137b484f85fb2911912f23349",
+      "status": "success",
+      "gasUsed": "100181",
+      "feeWei": "2504525000000000",
+      "transfers": [
+        {
+          "from": "0x620eBbf0F0d7acE2202Db95fd6ee0BB42F9510A6",
+          "to": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+          "value": "5"
+        }
+      ]
+    },
+    {
+      "label": "Vesting cliff full claim",
+      "hash": "0x7f58adf3bfe40e5e05d9bd2a5ace531156733835321517821be009c27bb3837f",
+      "status": "success",
+      "gasUsed": "100312",
+      "feeWei": "2507800000000000",
+      "transfers": [
+        {
+          "from": "0x620eBbf0F0d7acE2202Db95fd6ee0BB42F9510A6",
+          "to": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+          "value": "10"
+        }
+      ]
+    },
+    {
+      "label": "Vesting periodic full claim",
+      "hash": "0xd5aae05ceb5230773858854f3a906cc076b6af0b30c8e10a79bb76dc5349d169",
+      "status": "success",
+      "gasUsed": "100312",
+      "feeWei": "2507800000000000",
+      "transfers": [
+        {
+          "from": "0x620eBbf0F0d7acE2202Db95fd6ee0BB42F9510A6",
+          "to": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+          "value": "10"
+        }
+      ]
+    },
+    {
+      "label": "ConditionalPayout.claimExpiry",
+      "hash": "0x2092b977ca72a9f8b91cdeb72f8910178d7d3154dfb703a0d2c0e064a9d2f4c9",
+      "status": "success",
+      "gasUsed": "65160",
+      "feeWei": "1629000000000000",
+      "transfers": [
+        {
+          "from": "0x196B618c6a31A5100b5F9774089E3f6913B9aa55",
+          "to": "0x0986Bfd653985c9Fa60a464784264444B542BfD7",
+          "value": "10"
+        }
+      ]
+    },
+    {
+      "label": "Bounded gas top-up to close isolated test arbiter",
+      "hash": "0xc67825c6b6716040a232108c3514fc6777f351eb30c9c40fc09548e49eb769bd",
+      "status": "success",
+      "gasUsed": "21000",
+      "feeWei": "525000000000000",
+      "transfers": []
+    },
+    {
+      "label": "Return all remaining isolated arbiter USDC",
+      "hash": "0x0fa8f43386874faebb9e7bd4785f2ad22f80b9e08fbdb389210ae2b3174617ef",
+      "status": "success",
+      "gasUsed": "21000",
+      "feeWei": "525000000000000",
+      "transfers": []
+    }
+  ]
+}

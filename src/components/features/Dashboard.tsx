@@ -1,11 +1,11 @@
 import { useAccount, useReadContract } from 'wagmi'
-import type { Tab } from '@/components/layout/Shell'
+import type { Tab, PaymentTab } from '@/components/layout/Shell'
 import { FeatureIllustration } from '@/components/ui/FeatureIllustration'
 import { WalletButton } from '@/components/ui/WalletButton'
 import { ERC20_ABI, USDC_ADDRESS, ARC_CHAIN_ID } from '@/lib/contracts'
 import { formatUsdc } from '@/lib/utils'
 
-const MODULES: { id: Exclude<Tab, 'dashboard'>; label: string; desc: string }[] = [
+const MODULES: { id: PaymentTab; label: string; desc: string }[] = [
   { id: 'escrow', label: 'Escrow', desc: 'Lock USDC and release funds as milestones are met.' },
   { id: 'conditional', label: 'Conditional Payout', desc: 'Release a payment when your approver confirms.' },
   { id: 'batch', label: 'Batch Payout', desc: 'Pay multiple recipients in one transaction.' },

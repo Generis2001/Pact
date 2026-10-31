@@ -62,6 +62,7 @@ contract EscrowManager is ReentrancyGuard {
     error InvalidMilestoneCount();
     error InvalidMilestoneIndex();
     error InvalidMilestoneState();
+    error InvalidArbiter();
 
     event EscrowCreated(
         uint256 indexed escrowId,
@@ -73,6 +74,7 @@ contract EscrowManager is ReentrancyGuard {
         string description
     );
     event EscrowFunded(uint256 indexed escrowId, address indexed depositor, uint256 amount);
+    /// @dev Emitted once at completion; amount is the cumulative beneficiary payout.
     event Released(uint256 indexed escrowId, address indexed beneficiary, uint256 amount);
     event Disputed(uint256 indexed escrowId, address indexed caller);
     event Resolved(uint256 indexed escrowId, bool releasedToBeneficiary, uint256 amount);
@@ -119,6 +121,7 @@ contract EscrowManager is ReentrancyGuard {
         MilestoneInput[] calldata milestones
     ) external returns (uint256 escrowId) {
         if (beneficiary == address(0) || arbiter == address(0)) revert ZeroAddress();
+        if (arbiter == msg.sender) revert InvalidArbiter();
         if (deadline <= block.timestamp) revert InvalidDeadline();
         if (milestones.length == 0 || milestones.length > 20) revert InvalidMilestoneCount();
 
@@ -126,7 +129,7 @@ contract EscrowManager is ReentrancyGuard {
         for (uint256 i = 0; i < milestones.length; ++i) {
             MilestoneInput calldata milestoneInput = milestones[i];
             if (milestoneInput.amount == 0) revert InvalidAmount();
-            if (milestoneInput.deadline != 0 && milestoneInput.deadline <= block.timestamp) revert InvalidDeadline();
+            if (milestoneInput.deadline != 0 && (milestoneInput.deadline <= block.timestamp || milestoneInput.deadline > deadline)) revert InvalidDeadline();
             totalAmount += milestoneInput.amount;
         }
 
@@ -181,6 +184,14 @@ contract EscrowManager is ReentrancyGuard {
         Escrow storage esc = _escrows[escrowId];
         if (esc.depositor == address(0)) revert EscrowNotFound();
         if (esc.state != EscrowState.FUNDED) revert InvalidState();
+        if (block.timestamp > esc.deadline) revert DeadlinePassed();
+
+        for (uint256 i = 0; i < esc.milestones.length; ++i) {
+            Milestone storage milestone = esc.milestones[i];
+            if (milestone.state == MilestoneState.NEW && milestone.deadline != 0 && block.timestamp > milestone.deadline) {
+                revert DeadlinePassed();
+            }
+        }
 
         if (msg.sender == esc.depositor) {
             esc.depositorApproved = true;
@@ -191,13 +202,11 @@ contract EscrowManager is ReentrancyGuard {
         }
 
         if (esc.depositorApproved && esc.arbiterApproved) {
-            uint256 releasedAmount;
             for (uint256 i = 0; i < esc.milestones.length; ++i) {
                 Milestone storage milestone = esc.milestones[i];
                 if (milestone.state != MilestoneState.NEW) continue;
 
                 milestone.state = MilestoneState.RELEASED;
-                releasedAmount += milestone.amount;
                 esc.releasedAmount += milestone.amount;
                 _usdc.safeTransfer(esc.beneficiary, milestone.amount);
                 emit MilestoneReleased(escrowId, i, milestone.amount);
@@ -205,7 +214,7 @@ contract EscrowManager is ReentrancyGuard {
 
             if (_areAllMilestonesSettled(escrowId)) {
                 esc.state = EscrowState.RELEASED;
-                emit Released(escrowId, esc.beneficiary, releasedAmount);
+                emit Released(escrowId, esc.beneficiary, esc.releasedAmount);
             }
         }
     }
@@ -223,7 +232,7 @@ contract EscrowManager is ReentrancyGuard {
         if (milestone.state != MilestoneState.NEW) revert InvalidMilestoneState();
 
         uint256 milestoneDeadline = milestone.deadline == 0 ? esc.deadline : milestone.deadline;
-        if (block.timestamp > milestoneDeadline) revert DeadlinePassed();
+        if (block.timestamp > esc.deadline || block.timestamp > milestoneDeadline) revert DeadlinePassed();
 
         if (msg.sender == esc.depositor) {
             _milestoneDepositorApproved[escrowId][milestoneIndex] = true;
@@ -241,7 +250,7 @@ contract EscrowManager is ReentrancyGuard {
 
             if (_areAllMilestonesSettled(escrowId)) {
                 esc.state = EscrowState.RELEASED;
-                emit Released(escrowId, esc.beneficiary, esc.totalAmount);
+                emit Released(escrowId, esc.beneficiary, esc.releasedAmount);
             }
         }
     }
@@ -294,6 +303,7 @@ contract EscrowManager is ReentrancyGuard {
         milestone.state = MilestoneState.RESOLVED;
 
         if (releaseToBeneficiary) {
+            esc.releasedAmount += milestone.amount;
             _usdc.safeTransfer(esc.beneficiary, milestone.amount);
         } else {
             _usdc.safeTransfer(esc.depositor, milestone.amount);
@@ -313,18 +323,13 @@ contract EscrowManager is ReentrancyGuard {
         Escrow storage esc = _escrows[escrowId];
         if (esc.state != EscrowState.DISPUTED) revert InvalidState();
 
-        uint256 remaining = esc.totalAmount - esc.releasedAmount;
-        if (remaining == 0) {
-            esc.state = EscrowState.RESOLVED;
-            emit Resolved(escrowId, releaseToBeneficiary, 0);
-            return;
-        }
-
+        uint256 remaining = _settleRemainingMilestones(esc, MilestoneState.RESOLVED);
         esc.state = EscrowState.RESOLVED;
 
         if (releaseToBeneficiary) {
-            _usdc.safeTransfer(esc.beneficiary, remaining);
-        } else {
+            esc.releasedAmount += remaining;
+            if (remaining > 0) _usdc.safeTransfer(esc.beneficiary, remaining);
+        } else if (remaining > 0) {
             _usdc.safeTransfer(esc.depositor, remaining);
         }
 
@@ -342,7 +347,7 @@ contract EscrowManager is ReentrancyGuard {
         esc.state = EscrowState.REFUNDED;
 
         if (previousState == EscrowState.FUNDED) {
-            uint256 remaining = esc.totalAmount - esc.releasedAmount;
+            uint256 remaining = _settleRemainingMilestones(esc, MilestoneState.REFUNDED);
             if (remaining > 0) {
                 _usdc.safeTransfer(esc.depositor, remaining);
             }
@@ -385,5 +390,15 @@ contract EscrowManager is ReentrancyGuard {
             if (state == MilestoneState.NEW || state == MilestoneState.DISPUTED) return false;
         }
         return true;
+    }
+
+    /// @dev Only unsettled milestones still hold funds, whether prior settlements paid or refunded.
+    function _settleRemainingMilestones(Escrow storage esc, MilestoneState settledState) private returns (uint256 remaining) {
+        for (uint256 i = 0; i < esc.milestones.length; ++i) {
+            Milestone storage milestone = esc.milestones[i];
+            if (milestone.state != MilestoneState.NEW && milestone.state != MilestoneState.DISPUTED) continue;
+            remaining += milestone.amount;
+            milestone.state = settledState;
+        }
     }
 }

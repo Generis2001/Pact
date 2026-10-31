@@ -10,10 +10,12 @@
     "compass:deploy": "bun run ./scripts/compass-deploy.ts",
     "fetch:abi": "bun run ./scripts/fetch-abi.ts",
     "lint": "oxlint --type-aware src scripts --fix; s=$?; oxlint --fix .; exit $((s>0?s:$?))",
-    "typecheck": "tsc --noEmit && tsc --noEmit -p server/tsconfig.json",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p server/tsconfig.json && tsc --noEmit -p tsconfig.test.json",
     "check": "bash scripts/check.sh",
     "contracts:build": "forge build",
     "contracts:test": "forge test",
+    "contracts:abi": "forge build && bun run scripts/generate-contract-abis.ts",
+    "test": "bun test tests server",
     "server": "bun run server/index.ts",
     "start": "bun run dev",
     "server:test": "bun test server/index.test.ts"

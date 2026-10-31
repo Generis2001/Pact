@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { useAccount, useWriteContract, useWaitForTransactionReceipt, useReadContract } from 'wagmi'
+import { useAccount, useWriteContract, useReadContract } from 'wagmi'
 import { toast } from 'sonner'
+import { useTransactionReceipt, useUsdcAllowance } from '@/lib/use-transaction'
 import { Card, InnerCard, CardLabel } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
@@ -9,9 +10,10 @@ import { Badge } from '@/components/ui/Badge'
 import { ExternalLink, Download, XCircle } from 'lucide-react'
 import {
   VESTING_VAULT_ABI, ERC20_ABI, USDC_ADDRESS, CONTRACT_ADDRESSES, ARC_CHAIN_ID,
+  VESTING_STATE_LABELS,
   VestingType, VESTING_TYPE_LABELS,
 } from '@/lib/contracts'
-import { isValidAddress, parseUsdc, formatUsdc, formatAddress, formatTimestamp, parseOnchainError } from '@/lib/utils'
+import { isValidAddress, readUsdcInput, parseRecordId, parseUintInput, parseTimestampInput, isSameAddress, formatUsdc, formatAddress, formatTimestamp, parseOnchainError } from '@/lib/utils'
 import { buildTxExplorerUrl } from '@/onchain-facts'
 
 export function VestingPanel() {
@@ -25,19 +27,20 @@ export function VestingPanel() {
   const [intervalSeconds, setIntervalSeconds] = useState('')
   const [revocable, setRevocable] = useState(false)
   const [viewId, setViewId] = useState('')
+  const viewRecordId = parseRecordId(viewId)
 
 
-  const { writeContract: approve, data: approveHash } = useWriteContract({ mutation: { onError: (error) => toast.error(parseOnchainError(error)) } })
-  const { isLoading: isApproving, isSuccess: approved } = useWaitForTransactionReceipt({ chainId: ARC_CHAIN_ID, hash: approveHash })
+  const { writeContract: approve, data: approveHash, isPending: isRequestingApproval } = useWriteContract({ mutation: { onError: (error) => toast.error(parseOnchainError(error)) } })
+  const { isLoading: isApproving } = useTransactionReceipt(approveHash)
 
   const { writeContract: create, data: createHash, isPending: isCreating } = useWriteContract({ mutation: { onError: (error) => toast.error(parseOnchainError(error)) } })
-  const { isLoading: isConfirmingCreate, isSuccess: createSuccess } = useWaitForTransactionReceipt({ chainId: ARC_CHAIN_ID, hash: createHash })
+  const { isLoading: isConfirmingCreate, isSuccess: createSuccess } = useTransactionReceipt(createHash, 'Vesting created.')
 
   const { writeContract: claim, data: claimHash, isPending: isClaiming } = useWriteContract({ mutation: { onError: (error) => toast.error(parseOnchainError(error)) } })
-  const { isLoading: isConfirmingClaim } = useWaitForTransactionReceipt({ chainId: ARC_CHAIN_ID, hash: claimHash })
+  const { isLoading: isConfirmingClaim } = useTransactionReceipt(claimHash)
 
   const { writeContract: revoke, data: revokeHash, isPending: isRevoking } = useWriteContract({ mutation: { onError: (error) => toast.error(parseOnchainError(error)) } })
-  const { isLoading: isConfirmingRevoke } = useWaitForTransactionReceipt({ chainId: ARC_CHAIN_ID, hash: revokeHash })
+  const { isLoading: isConfirmingRevoke } = useTransactionReceipt(revokeHash)
 
   const { data: beneficiaryIds } = useReadContract({
     address: CONTRACT_ADDRESSES.VestingVault,
@@ -61,25 +64,27 @@ export function VestingPanel() {
     address: CONTRACT_ADDRESSES.VestingVault,
     abi: VESTING_VAULT_ABI,
     functionName: 'getSchedule',
-    args: viewId ? [BigInt(viewId)] : undefined,
+    args: viewRecordId ? [viewRecordId] : undefined,
     chainId: ARC_CHAIN_ID,
-    query: { enabled: !!viewId && !isNaN(Number(viewId)) },
+    query: { enabled: !!viewRecordId },
   })
 
   const { data: claimable } = useReadContract({
     address: CONTRACT_ADDRESSES.VestingVault,
     abi: VESTING_VAULT_ABI,
     functionName: 'claimableAmount',
-    args: viewId ? [BigInt(viewId)] : undefined,
+    args: viewRecordId ? [viewRecordId] : undefined,
     chainId: ARC_CHAIN_ID,
-    query: { enabled: !!viewId && !isNaN(Number(viewId)), refetchInterval: 10000 },
+    query: { enabled: !!viewRecordId, refetchInterval: 10000 },
   })
 
-  const parsedTotal = totalAmount ? parseUsdc(totalAmount) : 0n
+  const parsedTotal = readUsdcInput(totalAmount)
+  const { data: allowance = 0n } = useUsdcAllowance(CONTRACT_ADDRESSES.VestingVault)
+  const approved = parsedTotal > 0n && allowance >= parsedTotal
   const notDeployed = !CONTRACT_ADDRESSES.VestingVault
 
   function handleApprove() {
-    if (!CONTRACT_ADDRESSES.VestingVault) return
+    if (!CONTRACT_ADDRESSES.VestingVault || parsedTotal === 0n) return
     approve({ chainId: ARC_CHAIN_ID, address: USDC_ADDRESS, abi: ERC20_ABI, functionName: 'approve', args: [CONTRACT_ADDRESSES.VestingVault, parsedTotal] })
   }
 
@@ -88,10 +93,13 @@ export function VestingPanel() {
     if (parsedTotal === 0n) { toast.error('Amount required'); return }
     if (!startTime || !endTime) { toast.error('Start and end time required'); return }
 
-    const startTs = BigInt(Math.floor(new Date(startTime).getTime() / 1000))
-    const endTs = BigInt(Math.floor(new Date(endTime).getTime() / 1000))
-    const cliffTs = cliffTime ? BigInt(Math.floor(new Date(cliffTime).getTime() / 1000)) : startTs
-    const intervalSec = intervalSeconds ? BigInt(intervalSeconds) : 0n
+    const startTs = parseTimestampInput(startTime)
+    const endTs = parseTimestampInput(endTime)
+    const cliffTs = cliffTime ? parseTimestampInput(cliffTime) : startTs
+    const intervalSec = intervalSeconds.trim() ? parseUintInput(intervalSeconds) : 0n
+    if (startTs === undefined || endTs === undefined || endTs <= startTs) { toast.error('End time must be after start time.'); return }
+    if (cliffTs === undefined || (vestingType === Number(VestingType.CLIFF) && (cliffTs < startTs || cliffTs > endTs))) { toast.error('The cliff must be between the start and end times.'); return }
+    if (intervalSec === undefined || (vestingType === Number(VestingType.PERIODIC) && intervalSec === 0n)) { toast.error('Periodic vesting needs a positive whole-number interval.'); return }
 
     create({
       chainId: ARC_CHAIN_ID,
@@ -99,8 +107,6 @@ export function VestingPanel() {
       abi: VESTING_VAULT_ABI,
       functionName: 'createSchedule',
       args: [beneficiary as `0x${string}`, parsedTotal, startTs, endTs, cliffTs, vestingType, intervalSec, revocable],
-    }, {
-      onSuccess: () => toast.success('Vesting schedule created!'),
     })
   }
 
@@ -168,7 +174,7 @@ export function VestingPanel() {
           </div>
 
           <div className="grid grid-cols-2 gap-2">
-            <Button variant="secondary" onClick={handleApprove} loading={isApproving} disabled={!address || parsedTotal === 0n}>
+            <Button variant="secondary" onClick={handleApprove} loading={isApproving || isRequestingApproval} disabled={!address || parsedTotal === 0n}>
               {approved ? 'Approved' : 'Approve USDC'}
             </Button>
             <TxButton label="Create Schedule" onClick={handleCreate} isPending={isCreating}
@@ -192,7 +198,7 @@ export function VestingPanel() {
             <InnerCard className="mt-3 space-y-3">
               <div className="flex items-center justify-between">
                 <Badge variant={viewSchedule.revokedAt > 0n ? 'danger' : 'success'}>
-                  {viewSchedule.revokedAt > 0n ? 'Revoked' : VESTING_TYPE_LABELS[viewSchedule.vestingType]}
+                  {VESTING_STATE_LABELS[viewSchedule.state]} · {VESTING_TYPE_LABELS[viewSchedule.vestingType]}
                 </Badge>
                 <span className="text-xs" style={{ color: 'var(--muted)' }}>
                   Grantor: <span className="mono">{formatAddress(viewSchedule.grantor)}</span>
@@ -211,7 +217,7 @@ export function VestingPanel() {
                     style={{ width: `${Math.min(vestingProgress, 100)}%`, background: 'var(--success)' }}
                   />
                 </div>
-                <p className="text-xs mt-1 tabular-nums" style={{ color: 'var(--muted)' }}>{vestingProgress.toFixed(1)}% vested</p>
+                <p className="text-xs mt-1 tabular-nums" style={{ color: 'var(--muted)' }}>{vestingProgress.toFixed(1)}% claimed</p>
               </div>
 
               <div className="text-xs space-y-1" style={{ color: 'var(--muted)' }}>
@@ -235,20 +241,20 @@ export function VestingPanel() {
               )}
 
               <div className="flex gap-2 flex-wrap">
-                {claimable !== undefined && claimable > 0n && address === viewSchedule.beneficiary && (
+                {claimable !== undefined && claimable > 0n && isSameAddress(address, viewSchedule.beneficiary) && (
                   <Button size="sm" onClick={() => claim({
                     chainId: ARC_CHAIN_ID,
                     address: CONTRACT_ADDRESSES.VestingVault, abi: VESTING_VAULT_ABI,
-                    functionName: 'claimVested', args: [BigInt(viewId)],
+                    functionName: 'claimVested', args: [viewRecordId!],
                   })} loading={isClaiming || isConfirmingClaim}>
                     <Download className="size-3.5" /> Claim {formatUsdc(claimable)} USDC
                   </Button>
                 )}
-                {viewSchedule.revocable && viewSchedule.revokedAt === 0n && address === viewSchedule.grantor && (
+                {viewSchedule.revocable && viewSchedule.state === 0 && isSameAddress(address, viewSchedule.grantor) && (
                   <Button size="sm" variant="danger" onClick={() => revoke({
                     chainId: ARC_CHAIN_ID,
                     address: CONTRACT_ADDRESSES.VestingVault, abi: VESTING_VAULT_ABI,
-                    functionName: 'revokeSchedule', args: [BigInt(viewId)],
+                    functionName: 'revokeSchedule', args: [viewRecordId!],
                   })} loading={isRevoking || isConfirmingRevoke}>
                     <XCircle className="size-3.5" /> Revoke Schedule
                   </Button>
@@ -298,7 +304,7 @@ function VestingRow({ id }: { id: bigint }) {
     <div className="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-[var(--surface-muted)]">
       <div className="flex items-center gap-2">
         <span className="mono text-xs" style={{ color: 'var(--subtle)' }}>#{id.toString()}</span>
-        <Badge variant={data.revokedAt > 0n ? 'danger' : 'default'}>{VESTING_TYPE_LABELS[data.vestingType]}</Badge>
+        <Badge variant={data.revokedAt > 0n ? 'danger' : 'default'}>{VESTING_STATE_LABELS[data.state]} · {VESTING_TYPE_LABELS[data.vestingType]}</Badge>
       </div>
       <div className="flex items-center gap-3 text-right">
         <div className="w-16 h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--border)' }}>

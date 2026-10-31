@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { useAccount, useWriteContract, useWaitForTransactionReceipt, useReadContract } from 'wagmi'
+import { useAccount, useWriteContract, useReadContract } from 'wagmi'
 import { toast } from 'sonner'
+import { useTransactionReceipt, useUsdcAllowance, useChainTimestamp } from '@/lib/use-transaction'
 import { Card, InnerCard, CardLabel } from '@/components/ui/Card'
 import { Input, Textarea } from '@/components/ui/Input'
 import { TxButton } from '@/components/ui/TxButton'
@@ -11,7 +12,7 @@ import {
   CONDITIONAL_PAYOUT_ABI, ERC20_ABI, USDC_ADDRESS, CONTRACT_ADDRESSES,
   ARC_CHAIN_ID, AGREEMENT_STATE_LABELS, AgreementState,
 } from '@/lib/contracts'
-import { isValidAddress, parseUsdc, formatUsdc, formatAddress, formatTimestamp, parseOnchainError } from '@/lib/utils'
+import { isValidAddress, readUsdcInput, parseRecordId, parseTimestampInput, isSameAddress, formatUsdc, formatAddress, formatTimestamp, parseOnchainError } from '@/lib/utils'
 import { buildTxExplorerUrl } from '@/onchain-facts'
 
 const STATE_VARIANT: Record<number, 'default' | 'success' | 'warning' | 'danger' | 'muted'> = {
@@ -20,6 +21,7 @@ const STATE_VARIANT: Record<number, 'default' | 'success' | 'warning' | 'danger'
 
 export function ConditionalPanel() {
   const { address } = useAccount()
+  const now = useChainTimestamp()
   const [recipient, setRecipient] = useState('')
   const [approver, setApprover] = useState('')
   const [amount, setAmount] = useState('')
@@ -27,26 +29,27 @@ export function ConditionalPanel() {
   const [conditionDesc, setConditionDesc] = useState('')
   const [metadataURI, setMetadataURI] = useState('')
   const [viewId, setViewId] = useState('')
+  const viewRecordId = parseRecordId(viewId)
 
-  const { writeContract: approve, data: approveHash } = useWriteContract({ mutation: { onError: (error) => toast.error(parseOnchainError(error)) } })
-  const { isLoading: isApproving, isSuccess: approved } = useWaitForTransactionReceipt({ chainId: ARC_CHAIN_ID, hash: approveHash })
+  const { writeContract: approve, data: approveHash, isPending: isRequestingApproval } = useWriteContract({ mutation: { onError: (error) => toast.error(parseOnchainError(error)) } })
+  const { isLoading: isApproving } = useTransactionReceipt(approveHash)
 
   const { writeContract: create, data: createHash, isPending: isCreating, error: createError } = useWriteContract({ mutation: { onError: (error) => toast.error(parseOnchainError(error)) } })
-  const { isLoading: isConfirmingCreate, isSuccess: createSuccess } = useWaitForTransactionReceipt({ chainId: ARC_CHAIN_ID, hash: createHash })
+  const { isLoading: isConfirmingCreate, isSuccess: createSuccess } = useTransactionReceipt(createHash, 'Conditional created.')
 
   const { writeContract: fund, data: fundHash, isPending: isFunding } = useWriteContract({ mutation: { onError: (error) => toast.error(parseOnchainError(error)) } })
-  const { isLoading: isConfirmingFund } = useWaitForTransactionReceipt({ chainId: ARC_CHAIN_ID, hash: fundHash })
+  const { isLoading: isConfirmingFund } = useTransactionReceipt(fundHash)
 
   const { writeContract: approveCondition, data: acHash, isPending: isAC } = useWriteContract({ mutation: { onError: (error) => toast.error(parseOnchainError(error)) } })
-  const { isLoading: isConfirmingAC } = useWaitForTransactionReceipt({ chainId: ARC_CHAIN_ID, hash: acHash })
+  const { isLoading: isConfirmingAC } = useTransactionReceipt(acHash)
 
   const { writeContract: cancel, data: cancelHash, isPending: isCancelling } = useWriteContract({ mutation: { onError: (error) => toast.error(parseOnchainError(error)) } })
-  const { isLoading: isConfirmingCancel } = useWaitForTransactionReceipt({ chainId: ARC_CHAIN_ID, hash: cancelHash })
+  const { isLoading: isConfirmingCancel } = useTransactionReceipt(cancelHash)
 
   const { writeContract: claimExpiry, data: expiryHash, isPending: isExpiring } = useWriteContract({ mutation: { onError: (error) => toast.error(parseOnchainError(error)) } })
-  const { isLoading: isConfirmingExpiry } = useWaitForTransactionReceipt({ chainId: ARC_CHAIN_ID, hash: expiryHash })
+  const { isLoading: isConfirmingExpiry } = useTransactionReceipt(expiryHash)
 
-  const { data: userIds, refetch: refetchIds } = useReadContract({
+  const { data: userIds } = useReadContract({
     address: CONTRACT_ADDRESSES.ConditionalPayout,
     abi: CONDITIONAL_PAYOUT_ABI,
     functionName: 'getUserAgreements',
@@ -59,20 +62,21 @@ export function ConditionalPanel() {
     address: CONTRACT_ADDRESSES.ConditionalPayout,
     abi: CONDITIONAL_PAYOUT_ABI,
     functionName: 'getAgreement',
-    args: viewId ? [BigInt(viewId)] : undefined,
+    args: viewRecordId ? [viewRecordId] : undefined,
     chainId: ARC_CHAIN_ID,
-    query: { enabled: !!viewId && !isNaN(Number(viewId)) },
+    query: { enabled: !!viewRecordId },
   })
 
-  const parsedAmount = amount ? parseUsdc(amount) : 0n
+  const parsedAmount = readUsdcInput(amount)
+  const { data: allowance = 0n } = useUsdcAllowance(CONTRACT_ADDRESSES.ConditionalPayout)
   const notDeployed = !CONTRACT_ADDRESSES.ConditionalPayout
 
-  function handleApproveUSDC() {
-    if (!CONTRACT_ADDRESSES.ConditionalPayout) return
+  function handleApproveUSDC(amount: bigint) {
+    if (!CONTRACT_ADDRESSES.ConditionalPayout || amount <= 0n) return
     approve({
       chainId: ARC_CHAIN_ID,
       address: USDC_ADDRESS, abi: ERC20_ABI, functionName: 'approve',
-      args: [CONTRACT_ADDRESSES.ConditionalPayout, parsedAmount],
+      args: [CONTRACT_ADDRESSES.ConditionalPayout, amount],
     })
   }
 
@@ -82,7 +86,8 @@ export function ConditionalPanel() {
     if (!amount || parsedAmount === 0n) { toast.error('Amount required'); return }
     if (!conditionDeadline) { toast.error('Condition deadline required'); return }
 
-    const deadlineTs = BigInt(Math.floor(new Date(conditionDeadline).getTime() / 1000))
+    const deadlineTs = parseTimestampInput(conditionDeadline)
+    if (!deadlineTs || deadlineTs <= now) { toast.error('The condition deadline must be in the future.'); return }
 
     create({
       chainId: ARC_CHAIN_ID,
@@ -90,8 +95,6 @@ export function ConditionalPanel() {
       abi: CONDITIONAL_PAYOUT_ABI,
       functionName: 'createAgreement',
       args: [recipient as `0x${string}`, approver as `0x${string}`, parsedAmount, deadlineTs, conditionDesc, metadataURI],
-    }, {
-      onSuccess: () => { toast.success('Agreement created!'); void refetchIds() },
     })
   }
 
@@ -124,13 +127,8 @@ export function ConditionalPanel() {
             placeholder="Describe the condition that must be met…" rows={2} />
           <Input label="Metadata URI (optional)" value={metadataURI} onChange={setMetadataURI} placeholder="ipfs://…" />
 
-          <div className="grid grid-cols-2 gap-2">
-            <Button variant="secondary" onClick={handleApproveUSDC} loading={isApproving} disabled={!address || parsedAmount === 0n}>
-              {approved ? 'Approved' : 'Approve USDC'}
-            </Button>
-            <TxButton label="Create Agreement" onClick={handleCreate} isPending={isCreating}
-              isConfirming={isConfirmingCreate} isSuccess={createSuccess} disabled={!approved} />
-          </div>
+          <TxButton label="Create Agreement" onClick={handleCreate} isPending={isCreating}
+            isConfirming={isConfirmingCreate} isSuccess={createSuccess} disabled={parsedAmount === 0n} />
           {createHash && (
             <a href={buildTxExplorerUrl(ARC_CHAIN_ID, createHash)} target="_blank" rel="noreferrer"
               className="flex items-center gap-1 text-xs" style={{ color: 'var(--accent-hover)' }}>
@@ -163,38 +161,42 @@ export function ConditionalPanel() {
               {viewAgreement.conditionDescription && <p>Condition: {viewAgreement.conditionDescription}</p>}
             </div>
             <div className="flex gap-2 flex-wrap">
-              {(viewAgreement.state as AgreementState) === AgreementState.PENDING && address === viewAgreement.payer && (
+              {(viewAgreement.state as AgreementState) === AgreementState.PENDING && isSameAddress(address, viewAgreement.payer) && (
                 <>
+                  {now <= viewAgreement.conditionDeadline && (allowance < viewAgreement.amount ? (
+                    <Button size="sm" onClick={() => handleApproveUSDC(viewAgreement.amount)} loading={isApproving || isRequestingApproval}>Approve USDC to Fund</Button>
+                  ) : (
                   <Button size="sm" onClick={() => fund({
                     chainId: ARC_CHAIN_ID,
                     address: CONTRACT_ADDRESSES.ConditionalPayout, abi: CONDITIONAL_PAYOUT_ABI,
-                    functionName: 'fundAgreement', args: [BigInt(viewId)],
+                    functionName: 'fundAgreement', args: [viewRecordId!],
                   })} loading={isFunding || isConfirmingFund}>
                     Fund Agreement
                   </Button>
+                  ))}
                   <Button size="sm" variant="danger" onClick={() => cancel({
                     chainId: ARC_CHAIN_ID,
                     address: CONTRACT_ADDRESSES.ConditionalPayout, abi: CONDITIONAL_PAYOUT_ABI,
-                    functionName: 'cancelAgreement', args: [BigInt(viewId)],
+                    functionName: 'cancelAgreement', args: [viewRecordId!],
                   })} loading={isCancelling || isConfirmingCancel}>
                     Cancel
                   </Button>
                 </>
               )}
-              {(viewAgreement.state as AgreementState) === AgreementState.ACTIVE && address === viewAgreement.approver && (
+              {(viewAgreement.state as AgreementState) === AgreementState.ACTIVE && isSameAddress(address, viewAgreement.approver) && now <= viewAgreement.conditionDeadline && (
                 <Button size="sm" onClick={() => approveCondition({
                   chainId: ARC_CHAIN_ID,
                   address: CONTRACT_ADDRESSES.ConditionalPayout, abi: CONDITIONAL_PAYOUT_ABI,
-                  functionName: 'approveCondition', args: [BigInt(viewId)],
+                  functionName: 'approveCondition', args: [viewRecordId!],
                 })} loading={isAC || isConfirmingAC}>
                   Approve Condition
                 </Button>
               )}
-              {(viewAgreement.state as AgreementState) === AgreementState.ACTIVE && address === viewAgreement.payer && (
+              {(viewAgreement.state as AgreementState) === AgreementState.ACTIVE && isSameAddress(address, viewAgreement.payer) && now > viewAgreement.conditionDeadline && (
                 <Button size="sm" variant="secondary" onClick={() => claimExpiry({
                   chainId: ARC_CHAIN_ID,
                   address: CONTRACT_ADDRESSES.ConditionalPayout, abi: CONDITIONAL_PAYOUT_ABI,
-                  functionName: 'claimExpiry', args: [BigInt(viewId)],
+                  functionName: 'claimExpiry', args: [viewRecordId!],
                 })} loading={isExpiring || isConfirmingExpiry}>
                   Claim Expiry (after deadline)
                 </Button>

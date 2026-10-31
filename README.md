@@ -96,6 +96,8 @@ The optional Bun backend decodes events from the five contracts and provides `/h
 ```bash
 bun run server       # Optional backend on port 3001; loads addresses from .env
 bun run server:test  # Backend event/API regression tests
+bun run test         # Frontend input, ABI, history, and backend tests
+bun run contracts:abi # Regenerate typed ABIs from Foundry artifacts
 bun run check        # Lint and TypeScript checks, including the backend
 bun run build        # Production frontend build
 ```

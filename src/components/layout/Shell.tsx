@@ -9,18 +9,21 @@ import { ConditionalPanel } from '@/components/features/ConditionalPanel'
 import { BatchPanel } from '@/components/features/BatchPanel'
 import { ScheduledPanel } from '@/components/features/ScheduledPanel'
 import { VestingPanel } from '@/components/features/VestingPanel'
+import { HistoryPanel } from '@/components/features/HistoryPanel'
 import { TokenUSDC } from '@web3icons/react'
 import { Menu, X } from 'lucide-react'
 import { useAccount, useReadContract } from 'wagmi'
 import { ERC20_ABI, USDC_ADDRESS, ARC_CHAIN_ID } from '@/lib/contracts'
 import { formatUsdc } from '@/lib/utils'
 
-export type Tab = 'dashboard' | 'escrow' | 'conditional' | 'batch' | 'scheduled' | 'vesting'
+export type PaymentTab = 'escrow' | 'conditional' | 'batch' | 'scheduled' | 'vesting'
+export type Tab = 'dashboard' | PaymentTab | 'history'
 
 export function Shell() {
   const [tab, setTab] = useState<Tab>('dashboard')
   const [mobileOpen, setMobileOpen] = useState(false)
-  const { address } = useAccount()
+  const { address, isConnected } = useAccount()
+  const activeTab = tab === 'history' && !isConnected ? 'dashboard' : tab
 
   const { data: balance } = useReadContract({
     address: USDC_ADDRESS,
@@ -38,13 +41,14 @@ export function Shell() {
     batch:       <BatchPanel />,
     scheduled:   <ScheduledPanel />,
     vesting:     <VestingPanel />,
+    history:     isConnected && address ? <HistoryPanel key={address.toLowerCase()} address={address} /> : null,
   }
 
   return (
     <div className="min-h-dvh flex" style={{ background: 'var(--bg)' }}>
       {/* Desktop sidebar */}
       <div className="sticky top-0 hidden h-dvh shrink-0 md:flex">
-        <Sidebar active={tab} onNav={(t) => { setTab(t); setMobileOpen(false) }} />
+        <Sidebar active={activeTab} connected={isConnected} onNav={(t) => { setTab(t); setMobileOpen(false) }} />
       </div>
 
       {/* Mobile nav overlay */}
@@ -56,7 +60,7 @@ export function Shell() {
             onClick={() => setMobileOpen(false)}
           />
           <div className="relative z-10 flex flex-col min-h-dvh">
-            <Sidebar active={tab} onNav={(t) => { setTab(t); setMobileOpen(false) }} />
+            <Sidebar active={activeTab} connected={isConnected} onNav={(t) => { setTab(t); setMobileOpen(false) }} />
           </div>
         </div>
       )}
@@ -109,7 +113,7 @@ export function Shell() {
 
         {/* Page content */}
         <main className="flex-1 px-5 pb-16 pt-4 sm:px-8 md:pt-6">
-          {PANELS[tab]}
+          {PANELS[activeTab]}
         </main>
       </div>
     </div>

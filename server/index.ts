@@ -8,7 +8,8 @@
  * The Vite dev server proxies /api/* to http://localhost:3001 (see vite.config.ts)
  */
 
-import { createPublicClient, defineChain, http, parseAbi, type AbiEvent } from 'viem'
+import { createPublicClient, defineChain, http, type AbiEvent } from 'viem'
+import { ESCROW_MANAGER_ABI, CONDITIONAL_PAYOUT_ABI, BATCH_PAYOUT_ABI, SCHEDULED_PAYOUT_ABI, VESTING_VAULT_ABI } from '../src/lib/contract-abis'
 
 const PORT = parseInt(process.env.SERVER_PORT ?? '3001')
 
@@ -56,54 +57,12 @@ let hasIndexed = false
 // ---------------------------------------------------------------------------
 // ABIs (event-only, minimal)
 // ---------------------------------------------------------------------------
-const ESCROW_EVENTS = parseAbi([
-  'event EscrowCreated(uint256 indexed escrowId, address indexed depositor, address indexed beneficiary, address arbiter, uint256 amount, uint256 deadline, string description)',
-  'event EscrowFunded(uint256 indexed escrowId, address indexed depositor, uint256 amount)',
-  'event Released(uint256 indexed escrowId, address indexed beneficiary, uint256 amount)',
-  'event Refunded(uint256 indexed escrowId, uint256 amount)',
-  'event Disputed(uint256 indexed escrowId, address indexed caller)',
-  'event Resolved(uint256 indexed escrowId, bool releasedToBeneficiary, uint256 amount)',
-  'event MilestoneReleased(uint256 indexed escrowId, uint256 milestoneIndex, uint256 amount)',
-  'event MilestoneDisputed(uint256 indexed escrowId, uint256 milestoneIndex)',
-  'event MilestoneResolved(uint256 indexed escrowId, uint256 milestoneIndex, bool releasedToBeneficiary, uint256 amount)',
-])
-
-const CONDITIONAL_EVENTS = parseAbi([
-  'event AgreementCreated(uint256 indexed agreementId, address indexed payer, address indexed recipient, address approver, uint256 amount, uint256 conditionDeadline, string conditionDescription, string metadataURI)',
-  'event AgreementFunded(uint256 indexed agreementId, address indexed payer, uint256 amount)',
-  'event ConditionApproved(uint256 indexed agreementId, address indexed approver, address indexed recipient, uint256 amount)',
-  'event AgreementCancelled(uint256 indexed agreementId)',
-  'event AgreementExpired(uint256 indexed agreementId, uint256 amountRefunded)',
-])
-
-const BATCH_EVENTS = parseAbi([
-  'event BatchExecuted(bytes32 indexed paymentSetId, address indexed payer, uint256 recipientCount, uint256 totalAmount)',
-  'event PaymentSent(bytes32 indexed paymentSetId, address indexed recipient, uint256 amount)',
-])
-
-const SCHEDULED_EVENTS = parseAbi([
-  'event ScheduleCreated(uint256 indexed scheduleId, address indexed payer, address indexed recipient, uint256 amount, uint256 startTime, uint256 endTime, uint256 intervalSeconds, uint256 maxExecutions, string description)',
-  'event ScheduleFunded(uint256 indexed scheduleId, address indexed payer, uint256 fundAmount, uint256 newBalance)',
-  'event ScheduleExecuted(uint256 indexed scheduleId, address indexed caller, address indexed recipient, uint256 amount, uint256 executionCount, uint256 totalPaid)',
-  'event ScheduleCancelled(uint256 indexed scheduleId, uint256 refundedAmount)',
-  'event FundsWithdrawn(uint256 indexed scheduleId, uint256 amount, uint256 remainingBalance)',
-])
-
-const VESTING_EVENTS = parseAbi([
-  'event ScheduleCreated(uint256 indexed vestingId, address indexed grantor, address indexed beneficiary, uint256 totalAmount, uint256 startTime, uint256 endTime, uint256 cliffTime, uint8 vestingType, uint256 intervalSeconds, bool revocable)',
-  'event VestingClaimed(uint256 indexed vestingId, address indexed beneficiary, uint256 amountClaimed, uint256 totalClaimed)',
-  'event ScheduleRevoked(uint256 indexed vestingId, address indexed grantor, uint256 unvestedRefunded, uint256 revokedAt)',
-])
-
-// ---------------------------------------------------------------------------
-// Scheduled payout executor ABI
-// ---------------------------------------------------------------------------
-const EXECUTE_ABI = parseAbi([
-  'function executeSchedule(uint256 scheduleId) external',
-  'function getPayerSchedules(address payer) external view returns (uint256[])',
-  'function isDue(uint256 scheduleId) external view returns (bool)',
-  'function getSchedule(uint256 scheduleId) external view returns (address payer, address recipient, uint256 amount, uint256 startTime, uint256 endTime, uint256 intervalSeconds, uint256 lastExecuted, uint256 totalPaid, uint256 maxExecutions, uint256 executionCount, bool active, string description)',
-])
+const ESCROW_EVENTS = ESCROW_MANAGER_ABI.filter((entry) => entry.type === 'event')
+const CONDITIONAL_EVENTS = CONDITIONAL_PAYOUT_ABI.filter((entry) => entry.type === 'event')
+const BATCH_EVENTS = BATCH_PAYOUT_ABI.filter((entry) => entry.type === 'event')
+const SCHEDULED_EVENTS = SCHEDULED_PAYOUT_ABI.filter((entry) => entry.type === 'event')
+const VESTING_EVENTS = VESTING_VAULT_ABI.filter((entry) => entry.type === 'event')
+const EXECUTE_ABI = SCHEDULED_PAYOUT_ABI
 
 // ---------------------------------------------------------------------------
 // Indexer

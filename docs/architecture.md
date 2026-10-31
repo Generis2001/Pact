@@ -75,10 +75,13 @@ App.tsx → Shell (layout, topbar)
              ├── ConditionalPanel — create/fund/approve/expire
              ├── BatchPanel     — manual entry, CSV import, execute
              ├── ScheduledPanel — create/fund/execute/cancel
-             └── VestingPanel   — create/claim/revoke
+             ├── VestingPanel   — create/claim/revoke
+             └── HistoryPanel   — connected-wallet indexed Arc history
 ```
 
 ## Backend Architecture
+
+Wallet history uses Arc Explorer's paginated public v2 transactions, token transfers, and internal transactions endpoints directly. Queries are scoped to the connected account; disconnect hides the tab. Both original/current Pact addresses are classified and other Arc activity is included. Explorer errors and indexing lag are surfaced. The backend's recent in-memory event store is not the wallet-history source. See [payment-fixes-and-history.md](./payment-fixes-and-history.md) for verification and replacement-deployment status.
 
 `server/index.ts` is a Bun HTTP server that:
 1. Polls and decodes contract events with `getLogs` in 2000-block batches starting from `head - 2000` on first run

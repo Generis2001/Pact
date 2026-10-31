@@ -64,6 +64,7 @@ contract ScheduledPayout is ReentrancyGuard {
         uint256 totalPaid
     );
     event ScheduleCancelled(uint256 indexed scheduleId, uint256 refundedAmount);
+    event ScheduleCompleted(uint256 indexed scheduleId, uint256 refundedAmount);
     event FundsWithdrawn(uint256 indexed scheduleId, uint256 amount, uint256 remainingBalance);
 
     IERC20 private immutable _usdc;
@@ -138,6 +139,8 @@ contract ScheduledPayout is ReentrancyGuard {
         Schedule storage sch = _schedules[scheduleId];
         if (sch.payer == address(0)) revert ScheduleNotFound();
         if (msg.sender != sch.payer) revert Unauthorized();
+        if (!sch.active || sch.state != ScheduleState.ACTIVE) revert InactiveSchedule();
+        if (sch.endTime != 0 && block.timestamp > sch.endTime) revert EndTimePassed();
         if (fundAmount == 0) revert InvalidAmount();
 
         _balances[scheduleId] += fundAmount;
@@ -165,12 +168,16 @@ contract ScheduledPayout is ReentrancyGuard {
         sch.totalPaid += sch.amount;
         _balances[scheduleId] -= sch.amount;
 
+        uint256 completionRefund;
         if (sch.maxExecutions != 0 && sch.executionCount >= sch.maxExecutions) {
             sch.active = false;
             sch.state = ScheduleState.COMPLETED;
+            completionRefund = _balances[scheduleId];
+            _balances[scheduleId] = 0;
         }
 
         _usdc.safeTransfer(sch.recipient, sch.amount);
+        if (completionRefund > 0) _usdc.safeTransfer(sch.payer, completionRefund);
 
         emit ScheduleExecuted(
             scheduleId,
@@ -180,6 +187,7 @@ contract ScheduledPayout is ReentrancyGuard {
             sch.executionCount,
             sch.totalPaid
         );
+        if (sch.state == ScheduleState.COMPLETED) emit ScheduleCompleted(scheduleId, completionRefund);
     }
 
     /// @notice Cancels a schedule and refunds remaining pool balance to payer.
@@ -203,7 +211,7 @@ contract ScheduledPayout is ReentrancyGuard {
         emit ScheduleCancelled(scheduleId, refundAmount);
     }
 
-    /// @notice Withdraws excess schedule funds while keeping at least one-payment buffer.
+    /// @notice Withdraws excess funds; only a live schedule requires a one-payment buffer.
     /// @param scheduleId Schedule identifier.
     /// @param amount Amount to withdraw.
     function withdrawExcessFunds(uint256 scheduleId, uint256 amount) external nonReentrant {
@@ -213,9 +221,10 @@ contract ScheduledPayout is ReentrancyGuard {
         if (amount == 0) revert InvalidWithdrawalAmount();
 
         uint256 balance = _balances[scheduleId];
-        if (balance < sch.amount) revert InvalidWithdrawalAmount();
-
-        uint256 withdrawable = balance - sch.amount;
+        bool liveSchedule = sch.active && sch.state == ScheduleState.ACTIVE && (sch.endTime == 0 || block.timestamp <= sch.endTime);
+        uint256 buffer = liveSchedule ? sch.amount : 0;
+        if (balance < buffer) revert InvalidWithdrawalAmount();
+        uint256 withdrawable = balance - buffer;
         if (amount > withdrawable) revert InvalidWithdrawalAmount();
 
         _balances[scheduleId] = balance - amount;

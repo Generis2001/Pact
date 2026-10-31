@@ -60,6 +60,10 @@ Deployer Address: `0x0986Bfd653985c9Fa60a464784264444B542BfD7`
 
 ## Recent Code Integration
 
+- October 31 payment verification: 29 successful Arc mainnet transactions; 0.088719675 USDC total gas, all test principal settled. Source fixes for escrow double settlement/deadlines/role overlap, terminal scheduled funding/refunds/withdrawals, and expired conditional funding passed 195 Foundry tests. **The three immutable mainnet contracts have not been replaced; original defaults remain.** See `docs/payment-fixes-and-history.md` and public evidence `docs/mainnet-test-2026-10-31.json` for limits and the 0.1154504 USDC replacement estimate. Do not spend beyond the original 0.1 USDC cap without a separately authorized budget.
+- Connected-wallet Transaction History uses paginated Arc Explorer v2 transactions/token transfers/internal transactions directly, merges by hash/log index, recognizes original/current Pact deployments, and includes received payouts and other Arc activity. Queries isolate wallet accounts; disconnect hides the view. Browser verified 78 unique live indexed transactions and all five feature filters. Explorer errors/lag are explicit; the recent backend event store is not complete wallet history.
+- `src/lib/contract-abis.ts` is generated from Foundry artifacts via `bun run contracts:abi`. Shared receipt/allowance handling lives in `src/lib/use-transaction.ts`; exact input validation prevents negative fractional values and precision truncation. `bun run test` covers frontend/history/backend regressions; test types live in `tsconfig.test.json`, separate from frontend tracing.
+
 - Light UI tokens and Walsheim typography, green controls, outline feature illustrations, refreshed sidebar/dashboard, and dashboard USDC balance. The redundant Network details card is removed. The top-right Arc wallet control reuses the footer logo and supports switching a connected wallet to Arc.
 - All feature panels use `ARC_CHAIN_ID` for mainnet reads and explorer links.
 - Added browser/link metadata, `public/manifest.json`, and the included SVG favicon. Existing wallet-security fixes and mainnet contract defaults are preserved.

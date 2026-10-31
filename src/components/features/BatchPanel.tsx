@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react'
-import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
+import { useAccount, useWriteContract } from 'wagmi'
 import { toast } from 'sonner'
+import { useTransactionReceipt, useUsdcAllowance } from '@/lib/use-transaction'
 import { keccak256, toHex } from 'viem'
 import { Card, InnerCard, CardLabel } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
@@ -10,7 +11,7 @@ import { Plus, Trash2, Upload, ExternalLink, AlertCircle, CheckCircle2 } from 'l
 import {
   BATCH_PAYOUT_ABI, ERC20_ABI, USDC_ADDRESS, CONTRACT_ADDRESSES, ARC_CHAIN_ID,
 } from '@/lib/contracts'
-import { isValidAddress, parseUsdc, formatUsdc, parseOnchainError } from '@/lib/utils'
+import { isValidAddress, parseUsdc, readUsdcInput, formatUsdc, parseOnchainError } from '@/lib/utils'
 import { buildTxExplorerUrl } from '@/onchain-facts'
 
 type Row = { recipient: string; amount: string; error?: string }
@@ -18,7 +19,7 @@ type Row = { recipient: string; amount: string; error?: string }
 function validateRow(r: Row): string | undefined {
   if (!r.recipient) return 'Required'
   if (!isValidAddress(r.recipient)) return 'Invalid address'
-  if (!r.amount || Number(r.amount) <= 0) return 'Invalid amount'
+  if (readUsdcInput(r.amount) === 0n) return 'Enter a positive amount with at most 6 decimal places'
   return undefined
 }
 
@@ -28,11 +29,11 @@ export function BatchPanel() {
   const [paymentSetId, setPaymentSetId] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
 
-  const { writeContract: approve, data: approveHash } = useWriteContract({ mutation: { onError: (error) => toast.error(parseOnchainError(error)) } })
-  const { isLoading: isApproving, isSuccess: approved } = useWaitForTransactionReceipt({ chainId: ARC_CHAIN_ID, hash: approveHash })
+  const { writeContract: approve, data: approveHash, isPending: isRequestingApproval } = useWriteContract({ mutation: { onError: (error) => toast.error(parseOnchainError(error)) } })
+  const { isLoading: isApproving } = useTransactionReceipt(approveHash)
 
   const { writeContract: execute, data: execHash, isPending: isExecuting, error: execError } = useWriteContract({ mutation: { onError: (error) => toast.error(parseOnchainError(error)) } })
-  const { isLoading: isConfirming, isSuccess: execSuccess } = useWaitForTransactionReceipt({ chainId: ARC_CHAIN_ID, hash: execHash })
+  const { isLoading: isConfirming, isSuccess: execSuccess } = useTransactionReceipt(execHash)
 
   const validRows = rows.filter((r) => !validateRow(r))
   const totalAmount = validRows.reduce((s, r) => {
@@ -88,13 +89,14 @@ export function BatchPanel() {
   }
 
   function handleApprove() {
-    if (!CONTRACT_ADDRESSES.BatchPayout) return
+    if (!CONTRACT_ADDRESSES.BatchPayout || !allValid || totalAmount <= 0n || totalAmount >= 2n ** 256n) return
     approve({ chainId: ARC_CHAIN_ID, address: USDC_ADDRESS, abi: ERC20_ABI, functionName: 'approve', args: [CONTRACT_ADDRESSES.BatchPayout, totalAmount] })
   }
 
   function handleExecute() {
     if (!allValid) { toast.error('Fix validation errors first'); return }
-    if (!paymentSetId || paymentSetId.length !== 66) { toast.error('Set a valid payment set ID (bytes32 hex)'); return }
+    if (!/^0x[0-9a-fA-F]{64}$/.test(paymentSetId)) { toast.error('Set a valid payment set ID (bytes32 hex)'); return }
+    if (totalAmount >= 2n ** 256n) { toast.error('The batch total is too large.'); return }
 
     const recipients = rows.map((r) => ({
       recipient: r.recipient as `0x${string}`,
@@ -107,11 +109,11 @@ export function BatchPanel() {
       abi: BATCH_PAYOUT_ABI,
       functionName: 'executeBatch',
       args: [paymentSetId as `0x${string}`, recipients],
-    }, {
-      onSuccess: () => toast.success(`Batch of ${recipients.length} payments sent!`),
     })
   }
 
+  const { data: allowance = 0n } = useUsdcAllowance(CONTRACT_ADDRESSES.BatchPayout)
+  const approved = allValid && totalAmount > 0n && totalAmount < 2n ** 256n && allowance >= totalAmount
   const notDeployed = !CONTRACT_ADDRESSES.BatchPayout
 
   return (
@@ -209,7 +211,7 @@ export function BatchPanel() {
       {/* Actions */}
       <Card>
         <div className="grid grid-cols-2 gap-2">
-          <Button variant="secondary" onClick={handleApprove} loading={isApproving} disabled={!address || !allValid || totalAmount === 0n}>
+          <Button variant="secondary" onClick={handleApprove} loading={isApproving || isRequestingApproval} disabled={!address || !allValid || totalAmount === 0n}>
             {approved ? 'USDC Approved' : 'Approve USDC'}
           </Button>
           <TxButton label={`Send to ${validRows.length} recipients`} onClick={handleExecute}
