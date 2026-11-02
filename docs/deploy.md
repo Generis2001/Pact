@@ -27,6 +27,8 @@ The deployed addresses are listed in the README and `.env.example`. The frontend
 
 October 31 replacements of EscrowManager, ConditionalPayout, and ScheduledPayout are deployed and verified on mainnet. Frontend/backend defaults and `.env.example` point to them; known stale original environment values resolve to the replacement. Explicit custom addresses remain supported. Original agreements stay at their original addresses and are accessible through the Agreement version selector. See [payment-fixes-and-history.md](./payment-fixes-and-history.md), [deployment manifest](../public/deployments.json), and [live evidence](./mainnet-upgrade-2026-10-31.json).
 
+The three replacement address variables were synchronized in Vercel Production, Preview, and Development on November 2. The production redeploy and live bundle bindings were verified, followed by a 0.036588615 USDC mainnet test round. See [Vercel synchronization evidence](./vercel-sync-and-mainnet-test-2026-11-02.md).
+
 ## Arc Testnet (separate deployment)
 
 **USDC address:** `0x3600000000000000000000000000000000000000`

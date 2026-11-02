@@ -10,6 +10,10 @@ Replacement deployment and live verification completed with **29 successful tran
 
 Live checks verified escrow parent refunds after milestone refunds preserve a second escrow's collateral; independent whole-dispute settlement records the exact beneficiary payout; expired escrow approvals reject; conditional release and expired funding rejection; scheduled final execution surplus refunds; completed/cancelled/expired funding rejection; and full withdrawal of an expired underfunded pool. RPC connectivity interruptions were recovered from confirmed receipts. The second escrow expired during the interruption and was settled by its independent arbiter through dispute resolution; dual-release behavior is covered by the earlier mainnet test and local tests. Deployed runtime bytes exactly match the fixed artifacts with canonical USDC immutables; this is runtime verification, not a third-party audit or a claim of explorer source verification.
 
+## Vercel synchronization and follow-up verification
+
+On November 2, Vercel's three contract variables were updated and verified in Production, Preview, and Development. The production redeploy reached READY, and its live JavaScript contained the new configured addresses. A separately authorized follow-up test completed 15 successful transactions for **0.036588615 USDC**, below 0.1 USDC. All test principal was returned; allowances and the temporary arbiter balance are zero. Production record views and history feature filters were verified. See [Vercel and mainnet follow-up](./vercel-sync-and-mainnet-test-2026-11-02.md) and its public evidence.
+
 ## Mainnet verification
 
 Arc mainnet chain ID 5042 was verified by RPC. Deployed runtime code was compared with the original compiled contracts. Tests used wallet `0x0986Bfd653985c9Fa60a464784264444B542BfD7` with a total spending cap below 0.1 USDC, including gas.
